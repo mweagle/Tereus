@@ -1,0 +1,9 @@
+{
+  "commands" : {
+    "test" : {
+      "command" : "echo \"HELLO FROM: $CFNTEST\" > /var/log/test.txt",
+      "env" : { "CFNTEST" : "I come from config2." },
+      "cwd" : "~"
+    }
+  }
+}

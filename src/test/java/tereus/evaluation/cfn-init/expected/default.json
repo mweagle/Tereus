@@ -1,0 +1,68 @@
+{
+  "Description": "Test",
+  "Resources": {
+    "EC2Instance": {
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "configSets": {
+            "default": [
+              "configSet0",
+              "configSet1"
+            ]
+          },
+          "configSet0": {
+            "commands": {
+              "test": {
+                "command": "echo \"HELLO FROM: $CFNTEST\" > /var/log/test.txt",
+                "env": {
+                  "CFNTEST": "I come from config1."
+                },
+                "cwd": "~"
+              }
+            }
+          },
+          "configSet1": {
+            "commands": {
+              "test": {
+                "command": "echo \"HELLO FROM: $CFNTEST\" > /var/log/test.txt",
+                "env": {
+                  "CFNTEST": "I come from config2."
+                },
+                "cwd": "~"
+              }
+            }
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "com:tereus:version",
+            "Value": "0.1.0"
+          }
+        ],
+        "UserData": {
+          "Fn::Join": [
+            "",
+            [
+              "#!/bin/bash -xe\n",
+              "yum update -y aws-cfn-bootstrap\n",
+              "/opt/aws/bin/cfn-init -v --stack ",
+              {
+                "Ref": "AWS::StackName"
+              },
+              " --resource EC2Instance --configsets default --region ",
+              {
+                "Ref": "AWS::Region"
+              },
+              "\n"
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {},
+  "AWSTemplateFormatVersion": "2010-09-09"
+}

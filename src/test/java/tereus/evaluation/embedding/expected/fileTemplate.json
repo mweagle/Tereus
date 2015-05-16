@@ -1,0 +1,15 @@
+{
+  "Description": "Test",
+  "Resources": {
+    "Templated": {
+      "Fn::Join": [
+        "",
+        [
+          "Nashorn World\n"
+        ]
+      ]
+    }
+  },
+  "Outputs": {},
+  "AWSTemplateFormatVersion": "2010-09-09"
+}

@@ -1,0 +1,1 @@
+Include inline {{"Ref" : "AWS::Region"}} pseudo params for your {{"Ref" : "AWS::AccountId"}} template

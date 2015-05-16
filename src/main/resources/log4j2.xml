@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n}"/>
+        </Console>
+
+    </Appenders>
+    <Loggers>
+        <Logger name="com.mweagle.Tereus" level="debug"></Logger>
+        <Logger name="com.mweagle.Tereus.TemplateEvaluation" level="debug"></Logger>
+
+        <Logger name="com.amazonaws.http" level="warn"></Logger>
+        <Logger name="org.apache.http.wire" level="warn"></Logger>
+
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
+
