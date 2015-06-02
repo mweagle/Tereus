@@ -1,0 +1,4 @@
+commands/_impl/create_bill_of_goods/bootstrap/**
+commands/_impl/create_bill_of_goods/jquery/**
+node_modules/**
+out/**
