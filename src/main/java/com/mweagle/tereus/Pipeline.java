@@ -160,12 +160,11 @@ public class Pipeline {
             this.engine = engine;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public IEngineBinding apply(String className) {
             try {
-                Class clazz = Class.forName(className);
-                Constructor ctor = null;
+                Class<?> clazz = Class.forName(className);
+                Constructor<?> ctor = null;
                 IEngineBinding bound = null;
                 try {
                     ctor = clazz.getConstructor(Path.class, ScriptEngine.class, Logger.class);

@@ -71,65 +71,121 @@ var CONSTANTS =
 
 CONSTANTS.MAPPINGS.DEFINITIONS[CONSTANTS.MAPPINGS.KEYNAMES.INSTANCE_TYPE_2_ARCH] =
 {
-    "t1.micro": {"Arch": "PV64"},
-    "t2.micro": {"Arch": "HVM64"},
-    "t2.small": {"Arch": "HVM64"},
-    "t2.medium": {"Arch": "HVM64"},
-    "m1.small": {"Arch": "PV64"},
-    "m1.medium": {"Arch": "PV64"},
-    "m1.large": {"Arch": "PV64"},
-    "m1.xlarge": {"Arch": "PV64"},
-    "m2.xlarge": {"Arch": "PV64"},
-    "m2.2xlarge": {"Arch": "PV64"},
-    "m2.4xlarge": {"Arch": "PV64"},
-    "m3.medium": {"Arch": "HVM64"},
-    "m3.large": {"Arch": "HVM64"},
-    "m3.xlarge": {"Arch": "HVM64"},
-    "m3.2xlarge": {"Arch": "HVM64"},
-    "c1.medium": {"Arch": "PV64"},
-    "c1.xlarge": {"Arch": "PV64"},
-    "c3.large": {"Arch": "HVM64"},
-    "c3.xlarge": {"Arch": "HVM64"},
-    "c3.2xlarge": {"Arch": "HVM64"},
-    "c3.4xlarge": {"Arch": "HVM64"},
-    "c3.8xlarge": {"Arch": "HVM64"},
-    "c4.large": {"Arch": "HVM64"},
-    "c4.xlarge": {"Arch": "HVM64"},
-    "c4.2xlarge": {"Arch": "HVM64"},
-    "c4.4xlarge": {"Arch": "HVM64"},
-    "c4.8xlarge": {"Arch": "HVM64"},
-    "g2.2xlarge": {"Arch": "HVMG2"},
-    "r3.large": {"Arch": "HVM64"},
-    "r3.xlarge": {"Arch": "HVM64"},
-    "r3.2xlarge": {"Arch": "HVM64"},
-    "r3.4xlarge": {"Arch": "HVM64"},
-    "r3.8xlarge": {"Arch": "HVM64"},
-    "i2.xlarge": {"Arch": "HVM64"},
-    "i2.2xlarge": {"Arch": "HVM64"},
-    "i2.4xlarge": {"Arch": "HVM64"},
-    "i2.8xlarge": {"Arch": "HVM64"},
-    "d2.xlarge": {"Arch": "HVM64"},
-    "d2.2xlarge": {"Arch": "HVM64"},
-    "d2.4xlarge": {"Arch": "HVM64"},
-    "d2.8xlarge": {"Arch": "HVM64"},
-    "hi1.4xlarge": {"Arch": "HVM64"},
-    "hs1.8xlarge": {"Arch": "HVM64"},
-    "cr1.8xlarge": {"Arch": "HVM64"},
-    "cc2.8xlarge": {"Arch": "HVM64"}
+    "t1.micro": {"Arch": "PV_EBS"},
+    "t2.micro": {"Arch": "HVM_EBS"},
+    "t2.small": {"Arch": "HVM_EBS"},
+    "t2.medium": {"Arch": "HVM_EBS"},
+    "m1.small": {"Arch": "PV_EBS"},
+    "m1.medium": {"Arch": "PV_EBS"},
+    "m1.large": {"Arch": "PV_EBS"},
+    "m1.xlarge": {"Arch": "PV_EBS"},
+    "m2.xlarge": {"Arch": "PV_EBS"},
+    "m2.2xlarge": {"Arch": "PV_EBS"},
+    "m2.4xlarge": {"Arch": "PV_EBS"},
+    "m3.medium": {"Arch": "HVM_EBS"},
+    "m3.large": {"Arch": "HVM_EBS"},
+    "m3.xlarge": {"Arch": "HVM_EBS"},
+    "m3.2xlarge": {"Arch": "HVM_EBS"},
+    "c1.medium": {"Arch": "PV_EBS"},
+    "c1.xlarge": {"Arch": "PV_EBS"},
+    "c3.large": {"Arch": "HVM_EBS"},
+    "c3.xlarge": {"Arch": "HVM_EBS"},
+    "c3.2xlarge": {"Arch": "HVM_EBS"},
+    "c3.4xlarge": {"Arch": "HVM_EBS"},
+    "c3.8xlarge": {"Arch": "HVM_EBS"},
+    "c4.large": {"Arch": "HVM_EBS"},
+    "c4.xlarge": {"Arch": "HVM_EBS"},
+    "c4.2xlarge": {"Arch": "HVM_EBS"},
+    "c4.4xlarge": {"Arch": "HVM_EBS"},
+    "c4.8xlarge": {"Arch": "HVM_EBS"},
+    "g2.2xlarge": {"Arch": "HVM_G2"},
+    "r3.large": {"Arch": "HVM_EBS"},
+    "r3.xlarge": {"Arch": "HVM_EBS"},
+    "r3.2xlarge": {"Arch": "HVM_EBS"},
+    "r3.4xlarge": {"Arch": "HVM_EBS"},
+    "r3.8xlarge": {"Arch": "HVM_EBS"},
+    "i2.xlarge": {"Arch": "HVM_EBS"},
+    "i2.2xlarge": {"Arch": "HVM_EBS"},
+    "i2.4xlarge": {"Arch": "HVM_EBS"},
+    "i2.8xlarge": {"Arch": "HVM_EBS"},
+    "d2.xlarge": {"Arch": "HVM_EBS"},
+    "d2.2xlarge": {"Arch": "HVM_EBS"},
+    "d2.4xlarge": {"Arch": "HVM_EBS"},
+    "d2.8xlarge": {"Arch": "HVM_EBS"},
+    "hi1.4xlarge": {"Arch": "HVM_EBS"},
+    "hs1.8xlarge": {"Arch": "HVM_EBS"},
+    "cr1.8xlarge": {"Arch": "HVM_EBS"},
+    "cc2.8xlarge": {"Arch": "HVM_EBS"}
 };
 
-CONSTANTS.MAPPINGS.DEFINITIONS[CONSTANTS.MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI] =
-{
-    "us-east-1": {"PV64": "ami-1ccae774", "HVM64": "ami-10cae778", "HVMG2": "ami-8c6b40e4"},
-    "us-west-2": {"PV64": "ami-ff527ecf", "HVM64": "ami-e9527ed9", "HVMG2": "ami-abbe919b"},
-    "us-west-1": {"PV64": "ami-d514f291", "HVM64": "ami-cb14f28f", "HVMG2": "ami-f31ffeb7"},
-    "eu-west-1": {"PV64": "ami-bf0897c8", "HVM64": "ami-a30897d4", "HVMG2": "ami-d5bc24a2"},
-    "eu-central-1": {"PV64": "ami-ac221fb1", "HVM64": "ami-ae221fb3", "HVMG2": "ami-7cd2ef61"},
-    "ap-northeast-1": {"PV64": "ami-27f90e27", "HVM64": "ami-c7f90ec7", "HVMG2": "ami-6318e863"},
-    "ap-southeast-1": {"PV64": "ami-acd9e8fe", "HVM64": "ami-64d8e936", "HVMG2": "ami-3807376a"},
-    "ap-southeast-2": {"PV64": "ami-ff9cecc5", "HVM64": "ami-f39cecc9", "HVMG2": "ami-89790ab3"},
-    "sa-east-1": {"PV64": "ami-bb2890a6", "HVM64": "ami-b72890aa", "HVMG2": "NOT_SUPPORTED"},
-    "cn-north-1": {"PV64": "ami-fa39abc3", "HVM64": "ami-e839abd1", "HVMG2": "NOT_SUPPORTED"}
+
+CONSTANTS.MAPPINGS.DEFINITIONS[CONSTANTS.MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI] = {
+    "us-east-1": {
+        "HVM_EBS": "ami-1ecae776",
+        "HVM_G2": "ami-28cae740",
+        "PV_EBS": "ami-1ccae774",
+        "PV_IS": "ami-5ccae734"
+    },
+    "us-west-2": {
+        "HVM_EBS": "ami-e7527ed7",
+        "HVM_G2": "ami-9f527eaf",
+        "PV_EBS": "ami-ff527ecf",
+        "PV_IS": "ami-97527ea7"
+    },
+    "us-west-1": {
+        "HVM_EBS": "ami-d114f295",
+        "HVM_G2": "ami-3b14f27f",
+        "PV_EBS": "ami-d514f291",
+        "PV_IS": "ami-3714f273"
+    },
+    "eu-west-1": {
+        "HVM_EBS": "ami-a10897d6",
+        "HVM_G2": "ami-c90897be",
+        "PV_EBS": "ami-bf0897c8",
+        "PV_IS": "ami-cf0897b8"
+    },
+    "eu-central-1": {
+        "HVM_EBS": "ami-a8221fb5",
+        "HVM_G2": "ami-b0221fad",
+        "PV_EBS": "ami-ac221fb1",
+        "PV_IS": "ami-b6221fab"
+    },
+    "ap-southeast-1": {
+        "HVM_EBS": "ami-68d8e93a",
+        "HVM_G2": "ami-32d8e960",
+        "PV_EBS": "ami-acd9e8fe",
+        "PV_IS": "ami-1cd8e94e"
+    },
+    "ap-northeast-1": {
+        "HVM_EBS": "ami-cbf90ecb",
+        "HVM_G2": "ami-ddfa0ddd",
+        "PV_EBS": "ami-27f90e27",
+        "PV_IS": "ami-d5fa0dd5"
+    },
+    "ap-southeast-2": {
+        "HVM_EBS": "ami-fd9cecc7",
+        "HVM_G2": "ami-fb9cecc1",
+        "PV_EBS": "ami-ff9cecc5",
+        "PV_IS": "ami-819cecbb"
+    },
+    "sa-east-1": {
+        "HVM_EBS": "ami-b52890a8",
+        "HVM_G2": "ami-bd2890a0",
+        "PV_EBS": "ami-bb2890a6",
+        "PV_IS": "ami-bf2890a2"
+    },
+    "cn-north-1": {
+        "HVM_EBS": "ami-f239abcb",
+        "HVM_G2": "ami-f639abcf",
+        "PV_EBS": "ami-fa39abc3",
+        "PV_IS": "ami-f439abcd"
+    },
+    "gov": {
+        "HVM_EBS": "ami-41b2d362",
+        "HVM_G2": "ami-7db2d35e",
+        "PV_EBS": "ami-47b2d364",
+        "PV_IS": "ami-75b2d356"
+    }
 };
 
 CONSTANTS.MAPPINGS.DEFAULT = _.reduce(Object.keys(CONSTANTS.MAPPINGS.KEYNAMES),

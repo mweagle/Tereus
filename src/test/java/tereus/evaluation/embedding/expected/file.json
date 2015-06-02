@@ -5,7 +5,7 @@
       "Fn::Join": [
         "",
         [
-          "World\n"
+          "Hello World"
         ]
       ]
     }

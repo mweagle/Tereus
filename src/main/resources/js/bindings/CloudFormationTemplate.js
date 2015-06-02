@@ -77,8 +77,6 @@ function CloudFormationTemplate(stackName) {
                 }
                 resourceDefinition.Properties = properties;
             }
-            //var configSets = (init[0] && init[0].configSets) ? init[0].configSets[CONSTANTS.CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME] : [];
-            // TODO - Add the key to the configset and then the S3 download, registration, and unpacking.
         }
     };
     var __parameterizedTemplate = function(definition)
@@ -103,10 +101,6 @@ function CloudFormationTemplate(stackName) {
         // Scan the resources and insert tags for anything that might have a tag
         _.each(definition.Resources, __tagResource.bind(this));
 
-        /*
-        TODO - If there is a Docker file in the params, then add
-        the cloudinit section to all the EC2 resources
-       **/
         _.each(definition.Resources, __cloudInitInstances.bind(this));
 
         // Put the result into something we can get at
@@ -117,7 +111,7 @@ function CloudFormationTemplate(stackName) {
         // parameters, so if the defaultValues don't pass a validation
         // restriction, the validation will fail.
         __templateTunnel.parameterizedTemplate = JSON.stringify(__parameterizedTemplate(definition));
-    }
+    };
 }
 
 Embed =
@@ -155,28 +149,6 @@ Embed =
     }
 };
 
-ConditionalResource = function (fnPredicate, resourceValue) {
-    return function () {
-        var data = _.isFunction(resourceValue) ?
-            resourceValue.call(null) : resourceValue;
-        return (fnPredicate() ? data : undefined);
-    }();
-};
-
-ParamConditionalResource = function (paramName, paramValue, value) {
-    return ConditionalResource(function () {
-            return PARAMS.get(paramName) === paramValue
-        },
-        value);
-};
-
-TagConditionalResource = function (tagName, tagValue, value) {
-    return ConditionalResource(function () {
-            return TAGS.get(tagName) === tagValue
-        },
-        value);
-};
-
 CfnInitUserData = function(logicalResourceName)
 {
     var data = ["#!/bin/bash -xe",
@@ -193,6 +165,87 @@ CfnInitUserData = function(logicalResourceName)
 
 CloudFormationInit = function (/**arguents of objects representing init **/) {
     var initializers = Array.prototype.slice.call(arguments);
+    // If there is a docker file, we need to include the necessary
+    // pieces to install and monitor it...
+    // packages, groups, users, sources, files, commands, and then services.
+    if (PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH))
+    {
+        var JavaPath = Java.type("java.nio.file.Paths");
+        var dockerPath = JavaPath.get(FileUtils.resolvedPath(PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH)));
+        var fileParts = dockerPath.getFileName().toString().split(".");
+        logger.info("FILE:" + dockerPath.toString());
+        var imageName = fileParts[0] + "42" + (fileParts[1] || ".docker");
+
+        var DOCKER_INIT = [
+            {
+                "files" : {
+                    "/var/tmp/application.tar.gz": {
+                        "source": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "http://",
+                                    {
+                                        "Ref": "S3SourceBucketName"
+                                    },
+                                    ".s3.amazonaws.com/" + imageName
+                                ]
+                            ]
+                        },
+                        "mode": "000644",
+                        "owner": "root",
+                        "group": "root"
+                    }
+                },
+                "commands": {
+                    "0001_update_yum": {
+                        "command": "yum update -y"
+                    },
+                    "0002_install_docker": {
+                        "command": "yum install -y docker"
+                    },
+                    "0003_mkdir" : {
+                        command: "mkdir -pv /var/tmp"
+                    }
+                },
+                "services": {
+                    "sysvinit": {
+                        "docker": {
+                            "enabled": "true",
+                            "ensureRunning": "true"
+                        }
+                    }
+                }
+            },
+            {
+                "commands" :
+                {
+                    "0001_adduser" :
+                    {
+                        "command": "usermod -a -G docker ec2-user"
+                    },
+                    "0002_dockerinfo" :
+                    {
+                        "command" : "docker info"
+                    },
+                    "0003_unpack" : 
+                	{
+                    	"command" : "tar -xvf /var/tmp/application.tar.gz  --no-same-owner --directory /var/tmp/application"
+                	},
+                	"0004_run" :
+            		{
+                        /**
+                        TODO - Import the image and start it up.  
+                        **/
+                		"command" : "echo RUN ME!"
+            		}
+                }
+            }
+        ];
+        initializers = initializers.concat(DOCKER_INIT);
+    }
+
+
     var defaultConfigSetKeys = [];
     var flattened = _.reduce(initializers,
         function (memo, eachInitializer) {
@@ -241,6 +294,8 @@ CloudFormationInit = function (/**arguents of objects representing init **/) {
     return _.extend(result,
         flattened);
 }
+
+
 
 var EC2 =
 {

@@ -1,3 +1,5 @@
 Tereus.iws
 build/*
 .gradle/*
+/bin/
+/src/main/resources/web/node_modules/*

@@ -17,14 +17,15 @@ import java.util.regex.Pattern;
  */
 public class EmbeddingUtils implements IEngineBinding {
 
+	final static Pattern RE_TRAILING_NEWLINE = Pattern.compile(".+\\n$");
     /**
      * http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html
      */
     public static final String[] AWS_PSEUDO_PARAMS_LIST = new String[]{"AWS::AccountId", "AWS::NotificationARNs", "AWS::NoValue", "AWS::Region", "AWS::StackId", "AWS::StackName"};
     public static final Set<String> AWS_PSEUDO_PARAMS = new HashSet<String>(Arrays.asList(AWS_PSEUDO_PARAMS_LIST));
     private final static Pattern PATTERN_MUSTACHE = Pattern.compile("\\{{2}([^\\}]+)\\}{2}");
-
-    private final Path templateRoot;
+    
+  
     private final Logger logger;
 
     @Override
@@ -33,7 +34,6 @@ public class EmbeddingUtils implements IEngineBinding {
     }
 
     public EmbeddingUtils(Path templateRoot, ScriptEngine engine, Logger logger) {
-        this.templateRoot = templateRoot;
         this.logger = logger;
     }
 
@@ -53,6 +53,19 @@ public class EmbeddingUtils implements IEngineBinding {
         JsonArray parsedContent = new JsonArray();
         Arrays.stream(resourceData.split("\\r?\\n")).forEach(eachLine ->
                 parsedContent.addAll(parseLine(eachLine)));
+        // Get the last element of parsed content.  If it's a JsonPrimitive with some non-empty
+        // content then remove the final newline delimiter
+        final JsonElement finalElement = parsedContent.get(parsedContent.size()-1);
+        if (finalElement instanceof JsonPrimitive) {
+			JsonPrimitive finalPrimitive = (JsonPrimitive) finalElement;
+			final String primitiveContent = finalPrimitive.getAsString();
+			if (RE_TRAILING_NEWLINE.matcher(primitiveContent).matches())
+			{
+				final JsonPrimitive trimmedPrimitive = new JsonPrimitive(primitiveContent.substring(0, primitiveContent.length()-1));
+				parsedContent.set(parsedContent.size()-1, trimmedPrimitive);
+			}
+	
+		}
         return parsedContent;
     }
 

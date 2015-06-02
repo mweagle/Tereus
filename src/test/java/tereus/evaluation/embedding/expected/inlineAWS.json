@@ -13,7 +13,7 @@
           {
             "Ref": "AWS::AccountId"
           },
-          " template\n"
+          " template"
         ]
       ]
     }

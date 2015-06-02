@@ -28,22 +28,22 @@ public class Tereus {
     @Inject
     public HelpOption helpOption;
 
-    @Option(name = {"-t", "--template"}, description = "Path to CloudFormation definition")
-    public String argDefinition;
+    @Option(name = {"-t", "--template"}, description = "[REQUIRED] Path to CloudFormation definition")
+    public String stackTemplatePath;
 
     @Option(name = {"-a", "--arguments"}, description = "Path to JSON file including \"Parameters\" & \"Tags\" values")
-    public String argArgumentFile;
+    public String jsonParamAndTagsPath;
 
-    @Option(name = {"-b", "--bucket"}, description = "Optional specification of S3 bucketname")
+    @Option(name = {"-b", "--bucket"}, description = "[REQUIRED] S3 Bucketname to host template content")
     public String s3BucketName;
 
     @Option(name = {"-d", "--dockerFile"}, description = "DockerFile path")
     public String dockerFilePath;
 
-    @Option(name = {"-r", "--region"}, description="AWS Region")
+    @Option(name = {"-r", "--region"}, description="AWS Region (default=us-east-1)")
     public String region = "us-east-1";
 
-    @Option(name = {"-s", "--stack"}, description="Stack Name")
+    @Option(name = {"-s", "--stack"}, description="Optional Stack Name to use.  If empty, {basename+SHA256(templateData)} will be provided")
     public String stackName;
 
     @Option(name = {"-o", "--output"}, description="Optional file to which evaluated template will be saved")
@@ -52,7 +52,7 @@ public class Tereus {
     @Option(name = {"-n", "--noop"}, description = "Dry run - stack will NOT be created (default=true)")
     public String noop = "true";
 
-
+    /* The accumulated TereusInput data */
     protected TereusInput tereusInput;
 
     @SuppressWarnings("unchecked")
@@ -64,24 +64,23 @@ public class Tereus {
         {
             return;
         }
-
         try
         {
-            final String argumentJSON = (null != tereus.argArgumentFile) ?
-                    new String(Files.readAllBytes(Paths.get(tereus.argArgumentFile)), "UTF-8") :
+            final String argumentJSON = (null != tereus.jsonParamAndTagsPath) ?
+                    new String(Files.readAllBytes(Paths.get(tereus.jsonParamAndTagsPath)), "UTF-8") :
                     null;
 
-            Map jsonJavaRootObject = (null != argumentJSON) ?
+            Map<String, Object> jsonJavaRootObject = (null != argumentJSON) ?
                     new Gson().fromJson(argumentJSON, Map.class) :
                     Collections.emptyMap();
-            Map parameters = (Map)jsonJavaRootObject.getOrDefault(CONSTANTS.ARGUMENT_JSON_KEYNAMES.PARAMETERS, new HashMap<>());
+            Map<String, Object> parameters = (Map<String, Object>)jsonJavaRootObject.getOrDefault(CONSTANTS.ARGUMENT_JSON_KEYNAMES.PARAMETERS, new HashMap<>());
             final String jsonS3BucketName = ((String)parameters.getOrDefault(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, "")).trim();
             final String cliS3BucketName = (null == tereus.s3BucketName) ? "" : tereus.s3BucketName.trim();
 
             if (!jsonS3BucketName.isEmpty() && !cliS3BucketName.isEmpty())
             {
                 final String msg = String.format("S3 bucketname defined in both %s and via command line argument",
-                                                tereus.argArgumentFile);
+                                                tereus.jsonParamAndTagsPath);
                 throw new IllegalArgumentException(msg);
             }
             else if (!cliS3BucketName.isEmpty())
@@ -90,11 +89,11 @@ public class Tereus {
             }
 
 
-            Map tags = (Map)jsonJavaRootObject.getOrDefault(CONSTANTS.ARGUMENT_JSON_KEYNAMES.TAGS,
+            Map<String, Object> tags = (Map<String, Object>)jsonJavaRootObject.getOrDefault(CONSTANTS.ARGUMENT_JSON_KEYNAMES.TAGS,
                     Collections.emptyMap());
 
             TereusInput tereusInput =  new TereusInput(tereus.stackName,
-                                                            tereus.argDefinition,
+                                                            tereus.stackTemplatePath,
                                                             tereus.dockerFilePath,
                                                             tereus.region,
                                                             parameters,

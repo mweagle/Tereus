@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.s3.transfer.model.UploadResult;
+
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.ByteArrayInputStream;
@@ -61,7 +62,8 @@ public class S3Resource implements AutoCloseable {
 
             final PutObjectRequest uploadRequest = new PutObjectRequest(bucketName, keyName, is, metadata);
             final Upload templateUpload = transferManager.upload(uploadRequest);
-            final UploadResult uploadResult = templateUpload.waitForUploadResult();
+            @SuppressWarnings("unused")
+			final UploadResult uploadResult = templateUpload.waitForUploadResult();
             this.resourceURL = Optional.of(String.format("https://s3.amazonaws.com/%s/%s", bucketName, keyName));
         }
         catch (Exception ex){
