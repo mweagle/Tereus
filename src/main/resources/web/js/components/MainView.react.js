@@ -29,6 +29,7 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var ArgumentsView = require('./ArgumentsView.react');
+var EvaluationResults = require('./EvaluationResults.react');
 
 var MainView = React.createClass({
   propTypes: {
@@ -42,6 +43,7 @@ var MainView = React.createClass({
     return (
       <div className="container">
         <ArgumentsView arguments={this.props.arguments} />
+        <EvaluationResults arguments={this.props.arguments} />
       </div>
     );
   }

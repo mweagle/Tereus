@@ -30,7 +30,24 @@ var _ = require('underscore');
 var classNames = require('classnames');
 var TereusActions = require('../actions/TereusActions');
 
-var InputsView = React.createClass({
+var REGIONS = ['us-east-1',
+              'us-west-1',
+              'us-west-2',
+              'eu-west-1',
+              'eu-central-1',
+              'ap-southeast-1',
+              'ap-southeast-2',
+              'ap-northeast-1'];
+var REGION_MARKUP = _.map(REGIONS,
+                          function (eachRegion)
+                          {
+                            return <option key={eachRegion}>{eachRegion}</option>;
+                          });
+/**
+
+TODO - update arguments/inputs to use proper key for paramsAndTags
+**/
+var ArgumentsView = React.createClass({
   propTypes: {
     arguments: ReactPropTypes.object.isRequired
   },
@@ -45,8 +62,6 @@ var InputsView = React.createClass({
     var data = _.extend({},
                         this.props.arguments || {},
                         this.state || {});
-      window.alert('data:' + JSON.stringify(data, null, ' '));
-
     // Gather up all the data, throw it into a giant object.
     TereusActions.evaluate(data.path, data.stackName, data.paramsAndTags);
   },
@@ -73,7 +88,6 @@ var InputsView = React.createClass({
       self.setState(mergeState);
     };
   },
-
   /**
    * @return {object}
    */
@@ -94,9 +108,13 @@ var InputsView = React.createClass({
         <div className="row">
           <div className="col-md-6">
             <div>
-                <div className="form-group">
-                  <label for="inputPath">Definition path</label>
-                  <input type="string" className="form-control input-sm" id="inputPath" placeholder="Path" defaultValue={this.props.arguments.path} onChange={this.onStateChange('path')}></input>
+              <div className="form-group">
+                <label for="inputPath">Definition path</label>
+                <input type="string" className="form-control input-sm" id="inputPath" placeholder="Path" defaultValue={this.props.arguments.path} onChange={this.onStateChange('path')}></input>
+              </div>
+              <div className="form-group">
+                <label for="inputRegion">AWS Region</label>
+                <select className="form-control" onChange={this.onStateChange('region')}>{REGION_MARKUP}</select>
               </div>
               <div className="form-group">
                 <label for="inputName">Stack Name (optional)</label>
@@ -114,7 +132,13 @@ var InputsView = React.createClass({
           </div>
         </div>
         <div className="row">
-          <button className="btn btn-primary pull-right"  type="button" onClick={this.onEvaluate}>Evaluate</button>
+          <div className="col-md-6">
+            <div>
+              <div className="form-group">
+                <button className="btn btn-primary pull-right"  type="button" onClick={this.onEvaluate}>Evaluate</button>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
     </div>
@@ -123,4 +147,4 @@ var InputsView = React.createClass({
   }
 });
 
-module.exports = InputsView;
+module.exports = ArgumentsView;

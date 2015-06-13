@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
+	// Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 // Permission is hereby granted, free of charge, to
 // any person obtaining a copy of this software and
@@ -26,10 +26,24 @@
 
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
+var util = require('util');
+var async = require('async');
 var _ = require('underscore');
-var LocalStorage = require('local-storage');
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var TereusConstants = require('../constants/TereusConstants');
+var http = require('http');
+
+var CHANGE_EVENT = 'change';
+
+
+var isSuccessfulResponse = function(response)
+{
+	return (response &&
+			_.isNumber(response.statusCode) &&
+			response.statusCode >= 200 &&
+            response.statusCode <= 299);
+}
+
 
 var namespacedConstant = function(/*parts*/)
 {
@@ -49,62 +63,181 @@ var cachedValues =  function(/*parts*/)
                   {});
 };
 var CONSTANTS = {
-  ARGUMENTS: cachedValues('path', 'stackName', 'paramsAndTags'),
+  ARGUMENTS: cachedValues('path', 'stackName', 'paramsAndTags', 'region'),
   DEFAULTS: {
     paramsAndTags: {
-      Parameters: {},
+      Parameters: {
+        BucketName : "S3 BUCKET NAME"
+      },
       Tags: {}
-    }
+    },
+    region: 'us-east-1'
   }
 };
 
-var TereusStore = assign({}, EventEmitter.prototype, {
-  getArguments: function() {
-    return _.reduce(CONSTANTS.ARGUMENTS,
-                function (memo, eachLSKey, eachKeyname)
-                {
-                  var defaultValue = CONSTANTS.DEFAULTS[eachKeyname] || '';
-                  memo[eachKeyname] = LocalStorage(eachLSKey) || defaultValue;
-                  try
-                  {
-                    memo[eachKeyname] = JSON.parse(memo[eachKeyname]);
-                  }
-                  catch (e)
-                  {
-                    // NOP - maybe it's a number?
+var API_EVALUATOR_OPTIONS = {
+  method: 'POST',
+  path: '/api/evaluator',
+  headers: {
+    'Content-Type' : 'application/json'
+  }
+};
 
-                  }
-                  return memo;
-                },
-                {});
+var evaluatorRequestOptions = function(requestLength)
+{
+  var options = _.clone(API_EVALUATOR_OPTIONS);
+  if (requestLength)
+  {
+    options.headers['Content-Length'] = requestLength;
+  }
+  return options;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// TereusState
+////////////////////////////////////////////////////////////////////////////////
+var TereusState = {};
+TereusState.inputs = _.reduce(CONSTANTS.ARGUMENTS,
+                  function (memo, eachLSKey, eachKeyname)
+                  {
+                    memo[eachKeyname] = CONSTANTS.DEFAULTS[eachKeyname] || '';
+                    return memo;
+                  },
+                  {});
+TereusState.outputs = {
+  error: null,
+  results : ''
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// TereusStore
+////////////////////////////////////////////////////////////////////////////////
+var TereusStore = assign({}, EventEmitter.prototype, {
+  workQueue : async.queue(function (action, callback) {
+    var actionHandler = TereusStore.actionHandlers[action.actionType];
+    if (_.isFunction(actionHandler))
+    {
+      var onResult = function(error, results)
+      {
+        TereusState.outputs.error = error ? error.toString() : null;
+        TereusState.outputs.results = TereusState.outputs.error ? null : results;
+        TereusStore.emitChange.call(TereusStore);
+        TereusState.processing = false;
+        TereusStore.emitChange.call(TereusStore);
+        callback(null, null);
+      };
+      var propertyBag = _.omit(action, 'actionType');
+      TereusState.processing = true;
+      TereusStore.emitChange.call(TereusStore);
+      actionHandler.call(TereusStore, propertyBag, onResult);
+    }
+  }, 1),
+  getState: function() {
+    return TereusState;
   },
+
+  emitChange: function() {
+    this.emit(CHANGE_EVENT);
+  },
+  /**
+   * @param {function} callback
+   */
+  addChangeListener: function(callback) {
+    this.on(CHANGE_EVENT, callback);
+  },
+
+  /**
+   * @param {function} callback
+   */
+  removeChangeListener: function(callback) {
+    this.removeListener(CHANGE_EVENT, callback);
+  },
+
   // These will be added in a bit
   actionHandlers : {}
 
 });
-// Register the action handlers
-TereusStore.actionHandlers[TereusConstants.TEREUS_EVALUATE] = function(propertyBag)
-{
-  window.alert('BAG:' + JSON.stringify(propertyBag, null, ' '));
-};
 
-// Register the dispacher
-AppDispatcher.register(function(action) {
-  var actionHandler = TereusStore.actionHandlers[action.actionType];
-  if (_.isFunction(actionHandler))
+// Register the action handlers
+TereusStore.actionHandlers[TereusConstants.TEREUS_EVALUATE] = function(propertyBag, callback)
+{
+  // Clear the current state
+  this.emitChange();
+
+  // Post the data to the server and send it back
+  var tasks = [];
+
+  tasks[0] = function(requestCB)
   {
-    var propertyBag = _.omit(action, 'actionType');
-    try
+    var body = JSON.stringify(propertyBag);
+    var options = evaluatorRequestOptions(Buffer.byteLength(body, 'utf-8'));
+    var req = http.request(options);
+    req.on('response', function (response)
     {
-      actionHandler.call(TereusStore, propertyBag);
-    }
-    catch (e)
-    {
-      if (console)
+      if (_.isNumber(response.statusCode))
       {
-        console.error(e.toString());
+        if (0 === response.statusCode)
+        {
+          // Network error, it'll be turned into an error event
+
+        }
+        else
+      	{
+            requestCB(null, response);
+      	}
+      }
+    });
+    req.on('error', function (e)
+    {
+      requestCB(e, null);
+    });
+    req.end(body);
+  };
+
+  tasks[1] = function(response, requestCB)
+  {
+    // Consume the response
+    var data = '';
+    response.on('data', function (chunk) {
+      data += chunk;
+    });
+    response.on('end', function(){
+      response.body = data;
+      requestCB(null, response);
+    });
+  };
+
+  var terminus = function(error, response)
+  {
+    if (!error && !isSuccessfulResponse(response))
+  	{
+      	error = new Error(response.body);
+  	}
+    TereusState.outputs.error = error ? error.toString() : null;
+    if (!TereusState.outputs.error && response)
+    {
+      try
+      {
+        response = JSON.parse(response.body);
+
+        // The evaluated property is JSON
+        response.evaluated = JSON.parse(response.evaluated);
+      }
+      catch (e)
+      {
+        error = e.toString();
       }
     }
-  }
+    callback(error, response);
+  };
+  async.waterfall(tasks, terminus);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Register action handlers with the Dispatcher
+////////////////////////////////////////////////////////////////////////////////
+AppDispatcher.register(function(action) {
+  TereusStore.workQueue.push(action);
 });
 module.exports = TereusStore;

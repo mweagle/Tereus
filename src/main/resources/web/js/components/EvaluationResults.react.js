@@ -24,92 +24,87 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE
 var React = require('react');
+var ReactPropTypes = React.PropTypes;
 var Highlight = require('react-highlight');
+var TereusStore = require('../stores/TereusStore');
+var _ = require('underscore');
 
-var templateData = {
-  "Description": "Test",
-  "Resources": {
-    "EC2Instance": {
-      "Metadata": {
-        "AWS::CloudFormation::Init": {
-          "configSets": {
-            "default": [
-              "configSet0",
-              "configSet1"
-            ]
-          },
-          "configSet0": {
-            "commands": {
-              "test": {
-                "command": "echo \"HELLO FROM: $CFNTEST\" &gt; /var/log/test.txt",
-                "env": {
-                  "CFNTEST": "I come from config1."
-                },
-                "cwd": "~"
-              }
-            }
-          },
-          "configSet1": {
-            "commands": {
-              "test": {
-                "command": "echo \"HELLO FROM: $CFNTEST\" &gt; /var/log/test.txt",
-                "env": {
-                  "CFNTEST": "I come from config2."
-                },
-                "cwd": "~"
-              }
-            }
-          }
-        }
-      },
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "com:tereus:version",
-            "Value": "0.1.0"
-          }
-        ],
-        "UserData": {
-          "Fn::Join": [
-            "",
-            [
-              "#!/bin/bash -xe\n",
-              "yum update -y aws-cfn-bootstrap\n",
-              "/opt/aws/bin/cfn-init -v --stack ",
-              {
-                "Ref": "AWS::StackName"
-              },
-              " --resource EC2Instance --configsets default --region ",
-              {
-                "Ref": "AWS::Region"
-              },
-              "\n"
-            ]
-          ]
-        }
-      }
-    }
-  },
-  "Outputs": {},
-  "AWSTemplateFormatVersion": "2010-09-09"
-};
-
+var isOutputAvailable = function(evaluationState)
+{
+  return (!_.isEmpty(evaluationState) &&
+          !_.isEmpty(evaluationState.outputs));
+}
 var EvaluationResults = React.createClass({
+  propTypes: {
+    arguments: ReactPropTypes.object.isRequired
+  },
+  onStoreChange: function()
+  {
+    // TODO - update proper keys
+    this.setState(TereusStore.getState());
+  },
+  componentDidMount: function() {
+    TereusStore.addChangeListener(this.onStoreChange);
+  },
+
+  componentWillUnmount: function() {
+    TereusStore.removeChangeListener(this.onStoreChange);
+  },
+
   /**
    * @return {object}
    */
   render: function() {
-    return (
-      <div className="panel panel-default">
-  <div className="panel-heading">
-    <h3 className="panel-title">Evaluated Template</h3>
-  </div>
-  <div className="panel-body">
-    <Highlight className="json">{JSON.stringify(templateData, null, '  ')}</Highlight>
-  </div>
-</div>
-    );
+
+    if (this.state && this.state.processing)
+    {
+      return (<div className="row">
+                <div className="col-md-12">
+                <p className="text-center"><i className="fa fa-5x fa-spinner fa-spin"></i></p>
+                </div>
+              </div>);
+    }
+    else if (isOutputAvailable(this.state))
+    {
+      if (!_.isEmpty(this.state.outputs.error))
+      {
+        return (<div className="panel panel-danger">
+                  <div className="panel-heading">Error</div>
+                  <div className="panel-body">
+                    {this.state.outputs.error}
+                  </div>
+                </div>)
+      }
+      else
+      {
+        return (
+          <div className="panel panel-default">
+            <div className="panel-heading">
+              <h3 className="panel-title">Evaluated Template</h3>
+            </div>
+            <div className="panel-body">
+              <div role="tabpanel">
+                <ul className="nav nav-tabs" role="tablist">
+                  <li role="presentation" className="active"><a href="#evaluated" aria-controls="evaluated" role="tab" data-toggle="tab">Evaluated</a></li>
+                  <li role="presentation"><a href="#template" aria-controls="template" role="tab" data-toggle="tab">Raw Template</a></li>
+                </ul>
+                <div className="tab-content">
+                  <div role="tabpanel" className="tab-pane active" id="evaluated">
+                      <Highlight className="json">{JSON.stringify(this.state.outputs.results.evaluated, null, ' ')}</Highlight>
+                  </div>
+                  <div role="tabpanel" className="tab-pane" id="template">
+                    <Highlight className="no-highlight">{this.state.outputs.results.template}</Highlight>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>);
+      }
+    }
+    else
+    {
+      return (<div />);
+    }
   }
 });
 
