@@ -173,7 +173,6 @@ CloudFormationInit = function (/**arguents of objects representing init **/) {
         var JavaPath = Java.type("java.nio.file.Paths");
         var dockerPath = JavaPath.get(FileUtils.resolvedPath(PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH)));
         var fileParts = dockerPath.getFileName().toString().split(".");
-        logger.info("FILE:" + dockerPath.toString());
         var imageName = fileParts[0] + "42" + (fileParts[1] || ".docker");
 
         var DOCKER_INIT = [
@@ -228,14 +227,14 @@ CloudFormationInit = function (/**arguents of objects representing init **/) {
                     {
                         "command" : "docker info"
                     },
-                    "0003_unpack" : 
+                    "0003_unpack" :
                 	{
                     	"command" : "tar -xvf /var/tmp/application.tar.gz  --no-same-owner --directory /var/tmp/application"
                 	},
                 	"0004_run" :
             		{
                         /**
-                        TODO - Import the image and start it up.  
+                        TODO - Import the image and start it up.
                         **/
                 		"command" : "echo RUN ME!"
             		}
