@@ -1,14 +1,5 @@
 package com.mweagle;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.google.common.base.Preconditions;
-import com.mweagle.tereus.CONSTANTS;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +7,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.google.common.base.Preconditions;
+import com.mweagle.tereus.CONSTANTS;
 
 /**
  * Created by mweagle on 5/8/15.
@@ -41,10 +42,14 @@ public class TereusInput {
     {
         Preconditions.checkArgument(isValidPathArgument(stackDefinitionPath), "Please provide a stack definition path");
         Preconditions.checkNotNull(cliParams.get(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME),
-                "Please provide the S3 bucketname in the JSON arguments file (%s.%s)",
+                "Please provide the S3 bucketname in the JSON Parameters object (%s.%s)",
                 CONSTANTS.ARGUMENT_JSON_KEYNAMES.PARAMETERS,
                 CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME);
-
+        Preconditions.checkArgument(!((String)cliParams.get(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME)).isEmpty(),
+                "Please provide the S3 bucketname in the JSON Parameters object (%s.%s)",
+                CONSTANTS.ARGUMENT_JSON_KEYNAMES.PARAMETERS,
+                CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME);
+        
         this.stackName = stackName;
         this.stackDefinitionPath = Paths.get(stackDefinitionPath);
         this.dockerFilePath = (null != dockerFilePath) ? Paths.get(dockerFilePath) : null;
@@ -66,7 +71,9 @@ public class TereusInput {
     protected boolean isValidPathArgument(String argument)
     {
         return (null != argument &&
-                Files.exists(Paths.get(argument)));
+        		!argument.isEmpty() &&
+                Files.exists(Paths.get(argument)) &&
+                !Files.isDirectory(Paths.get(argument)));
     }
     protected void logInput()
     {

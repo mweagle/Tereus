@@ -1,7 +1,38 @@
 package com.mweagle;
 
+import io.airlift.airline.Command;
+import io.airlift.airline.Help;
+import io.airlift.airline.HelpOption;
+import io.airlift.airline.Option;
+import io.airlift.airline.SingleCommand;
+
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.logging.log4j.LogManager;
+
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
-import com.amazonaws.services.cloudformation.model.*;
+import com.amazonaws.services.cloudformation.model.CreateStackRequest;
+import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
+import com.amazonaws.services.cloudformation.model.EstimateTemplateCostRequest;
+import com.amazonaws.services.cloudformation.model.EstimateTemplateCostResult;
+import com.amazonaws.services.cloudformation.model.Parameter;
+import com.amazonaws.services.cloudformation.model.Tag;
+import com.amazonaws.services.cloudformation.model.ValidateTemplateRequest;
+import com.amazonaws.services.cloudformation.model.ValidateTemplateResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -9,25 +40,15 @@ import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.Pipeline;
 import com.mweagle.tereus.aws.CloudFormation;
 import com.mweagle.tereus.aws.S3Resource;
-import io.airlift.airline.*;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.logging.log4j.LogManager;
-
-import javax.inject.Inject;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Command(name = "Tereus", description = "Evaluates a CloudFormation template expressed as a function")
 public class Tereus {
     @Inject
     public HelpOption helpOption;
 
+    @Option(name = {"-i", "--gui"}, description = "[OPTIONAL] Start the UI")
+    public boolean gui = false;
+    
     @Option(name = {"-t", "--template"}, description = "[REQUIRED] Path to CloudFormation definition")
     public String stackTemplatePath;
 
@@ -50,21 +71,32 @@ public class Tereus {
     public String outputFilePath;
 
     @Option(name = {"-n", "--noop"}, description = "Dry run - stack will NOT be created (default=true)")
-    public String noop = "true";
+    public boolean noop = true;
 
     /* The accumulated TereusInput data */
     protected TereusInput tereusInput;
 
-    @SuppressWarnings("unchecked")
     public static void main(String... args) {
         Tereus tereus = SingleCommand.singleCommand(Tereus.class).parse(args);
-        int exitCode = 0;
 
         if (tereus.helpOption.showHelpIfRequested())
         {
             return;
         }
-        try
+        if (tereus.gui)
+        {
+        	TereusGui.main(args);
+        }
+        else
+        {
+        	Tereus.evaluate(tereus);
+        }
+    }
+    @SuppressWarnings("unchecked")
+    public static void evaluate(final Tereus tereus)
+    {
+    	int exitCode = 0;
+    	try
         {
             final String argumentJSON = (null != tereus.jsonParamAndTagsPath) ?
                     new String(Files.readAllBytes(Paths.get(tereus.jsonParamAndTagsPath)), "UTF-8") :
@@ -88,7 +120,6 @@ public class Tereus {
                 parameters.put(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, cliS3BucketName);
             }
 
-
             Map<String, Object> tags = (Map<String, Object>)jsonJavaRootObject.getOrDefault(CONSTANTS.ARGUMENT_JSON_KEYNAMES.TAGS,
                     Collections.emptyMap());
 
@@ -98,7 +129,7 @@ public class Tereus {
                                                             tereus.region,
                                                             parameters,
                                                             tags,
-                                                            Boolean.parseBoolean(tereus.noop));
+                                                            tereus.noop);
             Optional<OutputStream> osSink = Optional.empty();
             try
             {
@@ -128,9 +159,9 @@ public class Tereus {
             Help.help(tereus.helpOption.commandMetadata);
             exitCode = 1;
         }
-        System.exit(exitCode);
-    }
-
+        System.exit(exitCode);	
+    };
+    
     public void run(final TereusInput tereusInput, Optional<? extends  OutputStream> osSinkTemplate) throws Exception
     {
         java.security.Security.setProperty("networkaddress.cache.ttl", "30");
