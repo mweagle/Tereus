@@ -31,7 +31,7 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-1.2-api', version: '2.2'
 
     compile group: 'com.sparkjava', name: 'spark-core', version: '2.2'
-    
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
 }
@@ -42,10 +42,10 @@ jar {
       commandLine 'npm install && npm run-script build'
     }
     doFirst {
-        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } } 
+        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     }
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' 
-    
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+
     manifest {
         attributes("Implementation-Title": "Gradle", "Main-Class": "com.mweagle.Tereus")
     }
@@ -53,6 +53,7 @@ jar {
     exclude('web/node_modules/.bin/**/*')
     exclude('web/node_modules/async/**/*')
     exclude('web/node_modules/browserify/**/*')
+    exclude('web/node_modules/browser-storage/**/*')
     exclude('web/node_modules/classnames/**/*')
     exclude('web/node_modules/envify/**/*')
     exclude('web/node_modules/flux/**/*')
