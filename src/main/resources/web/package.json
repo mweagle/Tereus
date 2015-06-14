@@ -7,6 +7,7 @@
   "dependencies": {
     "async": "1.1.0",
     "bootstrap": "^3.3.4",
+    "browser-storage": "0.0.2",
     "classnames": "^2.1.2",
     "flux": "2.0.1",
     "font-awesome": "^4.3.0",
@@ -28,7 +29,7 @@
   },
   "scripts": {
     "start": "watchify -o js/bundle.js -v -d js/app.js",
-    "build": "browserify . -t [envify --NODE_ENV production] | uglifyjs -cm > js/bundle.min.js",
+    "build": "ulimit -n 2560 && browserify . -t [envify --NODE_ENV production] | uglifyjs -cm > js/bundle.min.js",
     "test": "jest"
   },
   "author": "Matt Weagle",
