@@ -1,4 +1,4 @@
-	// Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
+// Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 // Permission is hereby granted, free of charge, to
 // any person obtaining a copy of this software and
@@ -26,7 +26,7 @@
 
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
-var util = require('util');
+var BrowserStorage = require('browser-storage');
 var async = require('async');
 var _ = require('underscore');
 var AppDispatcher = require('../dispatcher/AppDispatcher');
@@ -38,36 +38,18 @@ var CHANGE_EVENT = 'change';
 
 var isSuccessfulResponse = function(response)
 {
-	return (response &&
-			_.isNumber(response.statusCode) &&
-			response.statusCode >= 200 &&
+  return (response &&
+      _.isNumber(response.statusCode) &&
+      response.statusCode >= 200 &&
             response.statusCode <= 299);
-}
-
-
-var namespacedConstant = function(/*parts*/)
-{
-  var keyname = Array.prototype.slice.call(arguments, 0);
-  return (['io.mweagle.tereus'].concat(keyname)).join('.');
 };
 
-var cachedValues =  function(/*parts*/)
-{
-  var valueNames = Array.prototype.slice.call(arguments, 0);
-  return _.reduce(valueNames,
-                  function (memo, keyname)
-                  {
-                    memo[keyname] = namespacedConstant(keyname);
-                    return memo;
-                  },
-                  {});
-};
 var CONSTANTS = {
-  ARGUMENTS: cachedValues('path', 'stackName', 'paramsAndTags', 'region'),
+  ARGUMENTS: ['path', 'stackName', 'paramsAndTags', 'region'],
   DEFAULTS: {
     paramsAndTags: {
       Parameters: {
-        BucketName : "S3 BUCKET NAME"
+        BucketName : 'S3 BUCKET NAME'
       },
       Tags: {}
     },
@@ -93,14 +75,51 @@ var evaluatorRequestOptions = function(requestLength)
   return options;
 };
 
+
+var localCacheKeyname = function(/*parts*/)
+{
+  var keyname = Array.prototype.slice.call(arguments, 0);
+  return (['io.mweagle.tereus'].concat(keyname)).join('.');
+};
+
+var LocalCache = {};
+LocalCache.get = function(keyname, defaultValue)
+{
+  var cached = BrowserStorage.getItem(localCacheKeyname(keyname));
+  if (cached)
+  {
+    try
+    {
+      cached = JSON.parse(cached);
+    }
+    catch (e)
+    {
+
+    }
+  }
+  else
+  {
+    cached = defaultValue || '';
+  }
+  return cached;
+};
+
+LocalCache.set = function(keyname, value)
+{
+  var nsKeyname = localCacheKeyname(keyname);
+  BrowserStorage.setItem(nsKeyname, JSON.stringify(value));
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 // TereusState
 ////////////////////////////////////////////////////////////////////////////////
 var TereusState = {};
 TereusState.inputs = _.reduce(CONSTANTS.ARGUMENTS,
-                  function (memo, eachLSKey, eachKeyname)
+                  function (memo, eachArgument)
                   {
-                    memo[eachKeyname] = CONSTANTS.DEFAULTS[eachKeyname] || '';
+                    memo[eachArgument] = LocalCache.get(eachArgument,
+                                        CONSTANTS.DEFAULTS[eachArgument]);
+
                     return memo;
                   },
                   {});
@@ -170,6 +189,10 @@ TereusStore.actionHandlers[TereusConstants.TEREUS_EVALUATE] = function(propertyB
 
   tasks[0] = function(requestCB)
   {
+    // Save the state
+    _.each(propertyBag, function (eachValue, eachKey) {
+      LocalCache.set(eachKey, eachValue);
+    });
     var body = JSON.stringify(propertyBag);
     var options = evaluatorRequestOptions(Buffer.byteLength(body, 'utf-8'));
     var req = http.request(options);
@@ -183,9 +206,9 @@ TereusStore.actionHandlers[TereusConstants.TEREUS_EVALUATE] = function(propertyB
 
         }
         else
-      	{
+        {
             requestCB(null, response);
-      	}
+        }
       }
     });
     req.on('error', function (e)
@@ -211,9 +234,9 @@ TereusStore.actionHandlers[TereusConstants.TEREUS_EVALUATE] = function(propertyB
   var terminus = function(error, response)
   {
     if (!error && !isSuccessfulResponse(response))
-  	{
-      	error = new Error(response.body);
-  	}
+    {
+        error = new Error(response.body);
+    }
     TereusState.outputs.error = error ? error.toString() : null;
     if (!TereusState.outputs.error && response)
     {

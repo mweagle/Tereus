@@ -35,13 +35,11 @@ var NavBar = React.createClass({
       <nav className="navbar navbar-inverse navbar-fixed-top">
           <div className="container">
             <div className="navbar-header">
-              <span className="navbar-brand">Tereus</span>
+              <span className="navbar-brand"><i className="fa fa-cloud">&nbsp; </i>Tereus</span>
             </div>
             <div id="navbar" className="collapse navbar-collapse">
-              <ul className="nav navbar-nav">
-                <li className="active"><a href="#">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
+              <ul className="nav navbar-nav navbar-right">
+                <li><a href="https://github.com/mweagle/Tereus" target="_blank"><i className="fa fa-github">&nbsp;</i>GitHub</a></li>
               </ul>
             </div>
           </div>

@@ -38,6 +38,7 @@ var REGIONS = ['us-east-1',
               'ap-southeast-1',
               'ap-southeast-2',
               'ap-northeast-1'];
+
 var REGION_MARKUP = _.map(REGIONS,
                           function (eachRegion)
                           {
@@ -63,7 +64,7 @@ var ArgumentsView = React.createClass({
                         this.props.arguments || {},
                         this.state || {});
     // Gather up all the data, throw it into a giant object.
-    TereusActions.evaluate(data.path, data.stackName, data.paramsAndTags);
+    TereusActions.evaluate(data.path, data.region, data.stackName, data.paramsAndTags);
   },
   onStateChange: function(stateKeyname) {
     var self = this;
@@ -97,7 +98,7 @@ var ArgumentsView = React.createClass({
       'has-error': !this.state.isParamsAndTagsValid,
       'has-success': this.state.isParamsAndTagsValid
     });
-
+    var selectedRegion = this.state.region || this.props.arguments.region;
     return (
   <div className="panel panel-default">
     <div className="panel-heading">
@@ -106,21 +107,29 @@ var ArgumentsView = React.createClass({
     <div className="panel-body">
       <form>
         <div className="row">
-          <div className="col-md-6">
-            <div>
-              <div className="form-group">
-                <label for="inputPath">Definition path</label>
-                <input type="string" className="form-control input-sm" id="inputPath" placeholder="Path" defaultValue={this.props.arguments.path} onChange={this.onStateChange('path')}></input>
+          <div className="col-md-12">
+            <div className="form-group">
+                <label for="inputPath">Definition Path</label>
+                <div className="input-group">
+                  <input type="string" className="form-control input-sm" id="inputPath" placeholder="Path" defaultValue={this.props.arguments.path} onChange={this.onStateChange('path')}></input>
+                    <span className="input-group-btn">
+                      <button className="btn btn-default btn-sm btn-primary" type="button" onClick={this.onEvaluate}>Evaluate</button>
+                    </span>
+                </div>
               </div>
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-6">
               <div className="form-group">
                 <label for="inputRegion">AWS Region</label>
-                <select className="form-control" onChange={this.onStateChange('region')}>{REGION_MARKUP}</select>
+                <select value={selectedRegion} className="form-control" onChange={this.onStateChange('region')}>{REGION_MARKUP}</select>
               </div>
               <div className="form-group">
                 <label for="inputName">Stack Name (optional)</label>
                   <input type="string" className="form-control input-sm" id="inputName" placeholder="Name" defaultValue={this.props.arguments.stackName} onChange={this.onStateChange('stackName')}></input>
               </div>
-            </div>
           </div>
           <div className="col-md-6">
             <div className={paramsAndTagsClasses} ref="paramsAndTags">
@@ -128,15 +137,6 @@ var ArgumentsView = React.createClass({
               <textarea id="jsonData" ref="jsonData" className="form-control"
               defaultValue={JSON.stringify(this.props.arguments.paramsAndTags, null, ' ')}
               rows="8" onChange={this.onStateChange('paramsAndTags')}></textarea>
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-md-6">
-            <div>
-              <div className="form-group">
-                <button className="btn btn-primary pull-right"  type="button" onClick={this.onEvaluate}>Evaluate</button>
-              </div>
             </div>
           </div>
         </div>
