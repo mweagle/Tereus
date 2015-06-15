@@ -1,29 +1,38 @@
-var tappedLoad = load;
+/* global Java,ArgumentsImpl,Immutable,_ */
+// Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
-// Tap the global load function s.t. we can
-// help out with relative path specs
-load = function(pathArg)
-{
-    try
-    {
-        tappedLoad(pathArg);
-    }
-    catch (ex)
-    {
-        var resolved = FileUtils.resolvedPath(pathArg);
-        logger.debug("Loading resolved path: " + resolved);
-        tappedLoad(resolved);
-    }
-}
+// Permission is hereby granted, free of charge, to
+// any person obtaining a copy of this software and
+// associated documentation files (the 'Software'),
+// to deal in the Software without restriction,
+// including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+
+// The above copyright notice and this permission
+// notice shall be included in all copies or substantial
+// portions of the Software.
+
+// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF
+// ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+// SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE
 
 var PARAMS = {};
 var TAGS = {};
 (function initializer() {
     var args = JSON.parse(ArgumentsImpl());
     // Make sure that the args map includes any Tereus tags
-    var tagNamespace = Java.type("com.mweagle.tereus.CONSTANTS").TEREUS_TAG_NAMESPACE;
+    var tagNamespace = Java.type('com.mweagle.tereus.CONSTANTS').TEREUS_TAG_NAMESPACE;
     var commonTags = {};
-    commonTags[tagNamespace + ":version"] = Java.type("com.mweagle.tereus.CONSTANTS").TEREUS_VERSION;
+    commonTags[tagNamespace + ':version'] = Java.type('com.mweagle.tereus.CONSTANTS').TEREUS_VERSION;
 
     args.tags = _.extend({},
                          args.tags || {},
@@ -33,158 +42,150 @@ var TAGS = {};
     TAGS = Immutable.Map(args.tags || {});
 })();
 
-var amiValues = function (HVM_SSD_Backed, HVM_Instance_Store, PV_EBS_Backed, PV_Instance_Store) {
-    return {
-        'HVM_SSD': HVM_SSD_Backed,
-        'HVM_INSTANCE': HVM_Instance_Store,
-        'PV_EBS': PV_EBS_Backed,
-        'PV_INSTANCE': PV_Instance_Store
-    }
-}
 
 var CONSTANTS =
 {
-    "CLOUD_FORMATION": {
+    'CLOUD_FORMATION': {
         'TEMPLATE_VERSION': '2010-09-09'
     },
-    "MAPPINGS" : {
-        "KEYNAMES" :
+    'MAPPINGS' : {
+        'KEYNAMES' :
         {
-            INSTANCE_TYPE_2_ARCH : "AWSInstanceType2Arch",
-            REGION_ARCH_2_AMI : "AWSRegionArch2AMI"
+            INSTANCE_TYPE_2_ARCH : 'AWSInstanceType2Arch',
+            REGION_ARCH_2_AMI : 'AWSRegionArch2AMI'
         },
-        "DEFINITIONS": {}
+        'DEFINITIONS': {}
     },
-    "PARAMETERS" : {
-        "KEYNAMES" : {
-            INSTANCE_TYPE: Java.type("com.mweagle.tereus.CONSTANTS").PARAMETER_NAMES.INSTANCE_TYPE,
-            BUCKET_NAME: Java.type("com.mweagle.tereus.CONSTANTS").PARAMETER_NAMES.S3_BUCKET_NAME,
-            DOCKER_IMAGE_PATH: Java.type("com.mweagle.tereus.CONSTANTS").PARAMETER_NAMES.DOCKER_IMAGE_PATH,
-            KEY_NAME: Java.type("com.mweagle.tereus.CONSTANTS").PARAMETER_NAMES.SSH_KEY_NAME
+    'PARAMETERS' : {
+        'KEYNAMES' : {
+            INSTANCE_TYPE: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.INSTANCE_TYPE,
+            BUCKET_NAME: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.S3_BUCKET_NAME,
+            DOCKER_IMAGE_PATH: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.DOCKER_IMAGE_PATH,
+            KEY_NAME: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.SSH_KEY_NAME
         },
-        "DEFINITIONS" : {}
+        'DEFINITIONS' : {}
     },
-    "CLOUDINIT" : {
-        DEFAULT_CONFIGSET_KEYNAME: "default"
+    'CLOUDINIT' : {
+        DEFAULT_CONFIGSET_KEYNAME: 'default'
     }
 };
 
 CONSTANTS.MAPPINGS.DEFINITIONS[CONSTANTS.MAPPINGS.KEYNAMES.INSTANCE_TYPE_2_ARCH] =
 {
-    "t1.micro": {"Arch": "PV_EBS"},
-    "t2.micro": {"Arch": "HVM_EBS"},
-    "t2.small": {"Arch": "HVM_EBS"},
-    "t2.medium": {"Arch": "HVM_EBS"},
-    "m1.small": {"Arch": "PV_EBS"},
-    "m1.medium": {"Arch": "PV_EBS"},
-    "m1.large": {"Arch": "PV_EBS"},
-    "m1.xlarge": {"Arch": "PV_EBS"},
-    "m2.xlarge": {"Arch": "PV_EBS"},
-    "m2.2xlarge": {"Arch": "PV_EBS"},
-    "m2.4xlarge": {"Arch": "PV_EBS"},
-    "m3.medium": {"Arch": "HVM_EBS"},
-    "m3.large": {"Arch": "HVM_EBS"},
-    "m3.xlarge": {"Arch": "HVM_EBS"},
-    "m3.2xlarge": {"Arch": "HVM_EBS"},
-    "c1.medium": {"Arch": "PV_EBS"},
-    "c1.xlarge": {"Arch": "PV_EBS"},
-    "c3.large": {"Arch": "HVM_EBS"},
-    "c3.xlarge": {"Arch": "HVM_EBS"},
-    "c3.2xlarge": {"Arch": "HVM_EBS"},
-    "c3.4xlarge": {"Arch": "HVM_EBS"},
-    "c3.8xlarge": {"Arch": "HVM_EBS"},
-    "c4.large": {"Arch": "HVM_EBS"},
-    "c4.xlarge": {"Arch": "HVM_EBS"},
-    "c4.2xlarge": {"Arch": "HVM_EBS"},
-    "c4.4xlarge": {"Arch": "HVM_EBS"},
-    "c4.8xlarge": {"Arch": "HVM_EBS"},
-    "g2.2xlarge": {"Arch": "HVM_G2"},
-    "r3.large": {"Arch": "HVM_EBS"},
-    "r3.xlarge": {"Arch": "HVM_EBS"},
-    "r3.2xlarge": {"Arch": "HVM_EBS"},
-    "r3.4xlarge": {"Arch": "HVM_EBS"},
-    "r3.8xlarge": {"Arch": "HVM_EBS"},
-    "i2.xlarge": {"Arch": "HVM_EBS"},
-    "i2.2xlarge": {"Arch": "HVM_EBS"},
-    "i2.4xlarge": {"Arch": "HVM_EBS"},
-    "i2.8xlarge": {"Arch": "HVM_EBS"},
-    "d2.xlarge": {"Arch": "HVM_EBS"},
-    "d2.2xlarge": {"Arch": "HVM_EBS"},
-    "d2.4xlarge": {"Arch": "HVM_EBS"},
-    "d2.8xlarge": {"Arch": "HVM_EBS"},
-    "hi1.4xlarge": {"Arch": "HVM_EBS"},
-    "hs1.8xlarge": {"Arch": "HVM_EBS"},
-    "cr1.8xlarge": {"Arch": "HVM_EBS"},
-    "cc2.8xlarge": {"Arch": "HVM_EBS"}
+    't1.micro': {'Arch': 'PV_EBS'},
+    't2.micro': {'Arch': 'HVM_EBS'},
+    't2.small': {'Arch': 'HVM_EBS'},
+    't2.medium': {'Arch': 'HVM_EBS'},
+    'm1.small': {'Arch': 'PV_EBS'},
+    'm1.medium': {'Arch': 'PV_EBS'},
+    'm1.large': {'Arch': 'PV_EBS'},
+    'm1.xlarge': {'Arch': 'PV_EBS'},
+    'm2.xlarge': {'Arch': 'PV_EBS'},
+    'm2.2xlarge': {'Arch': 'PV_EBS'},
+    'm2.4xlarge': {'Arch': 'PV_EBS'},
+    'm3.medium': {'Arch': 'HVM_EBS'},
+    'm3.large': {'Arch': 'HVM_EBS'},
+    'm3.xlarge': {'Arch': 'HVM_EBS'},
+    'm3.2xlarge': {'Arch': 'HVM_EBS'},
+    'c1.medium': {'Arch': 'PV_EBS'},
+    'c1.xlarge': {'Arch': 'PV_EBS'},
+    'c3.large': {'Arch': 'HVM_EBS'},
+    'c3.xlarge': {'Arch': 'HVM_EBS'},
+    'c3.2xlarge': {'Arch': 'HVM_EBS'},
+    'c3.4xlarge': {'Arch': 'HVM_EBS'},
+    'c3.8xlarge': {'Arch': 'HVM_EBS'},
+    'c4.large': {'Arch': 'HVM_EBS'},
+    'c4.xlarge': {'Arch': 'HVM_EBS'},
+    'c4.2xlarge': {'Arch': 'HVM_EBS'},
+    'c4.4xlarge': {'Arch': 'HVM_EBS'},
+    'c4.8xlarge': {'Arch': 'HVM_EBS'},
+    'g2.2xlarge': {'Arch': 'HVM_G2'},
+    'r3.large': {'Arch': 'HVM_EBS'},
+    'r3.xlarge': {'Arch': 'HVM_EBS'},
+    'r3.2xlarge': {'Arch': 'HVM_EBS'},
+    'r3.4xlarge': {'Arch': 'HVM_EBS'},
+    'r3.8xlarge': {'Arch': 'HVM_EBS'},
+    'i2.xlarge': {'Arch': 'HVM_EBS'},
+    'i2.2xlarge': {'Arch': 'HVM_EBS'},
+    'i2.4xlarge': {'Arch': 'HVM_EBS'},
+    'i2.8xlarge': {'Arch': 'HVM_EBS'},
+    'd2.xlarge': {'Arch': 'HVM_EBS'},
+    'd2.2xlarge': {'Arch': 'HVM_EBS'},
+    'd2.4xlarge': {'Arch': 'HVM_EBS'},
+    'd2.8xlarge': {'Arch': 'HVM_EBS'},
+    'hi1.4xlarge': {'Arch': 'HVM_EBS'},
+    'hs1.8xlarge': {'Arch': 'HVM_EBS'},
+    'cr1.8xlarge': {'Arch': 'HVM_EBS'},
+    'cc2.8xlarge': {'Arch': 'HVM_EBS'}
 };
 
 
 CONSTANTS.MAPPINGS.DEFINITIONS[CONSTANTS.MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI] = {
-    "us-east-1": {
-        "HVM_EBS": "ami-1ecae776",
-        "HVM_G2": "ami-28cae740",
-        "PV_EBS": "ami-1ccae774",
-        "PV_IS": "ami-5ccae734"
+    'us-east-1': {
+        'HVM_EBS': 'ami-1ecae776',
+        'HVM_G2': 'ami-28cae740',
+        'PV_EBS': 'ami-1ccae774',
+        'PV_IS': 'ami-5ccae734'
     },
-    "us-west-2": {
-        "HVM_EBS": "ami-e7527ed7",
-        "HVM_G2": "ami-9f527eaf",
-        "PV_EBS": "ami-ff527ecf",
-        "PV_IS": "ami-97527ea7"
+    'us-west-2': {
+        'HVM_EBS': 'ami-e7527ed7',
+        'HVM_G2': 'ami-9f527eaf',
+        'PV_EBS': 'ami-ff527ecf',
+        'PV_IS': 'ami-97527ea7'
     },
-    "us-west-1": {
-        "HVM_EBS": "ami-d114f295",
-        "HVM_G2": "ami-3b14f27f",
-        "PV_EBS": "ami-d514f291",
-        "PV_IS": "ami-3714f273"
+    'us-west-1': {
+        'HVM_EBS': 'ami-d114f295',
+        'HVM_G2': 'ami-3b14f27f',
+        'PV_EBS': 'ami-d514f291',
+        'PV_IS': 'ami-3714f273'
     },
-    "eu-west-1": {
-        "HVM_EBS": "ami-a10897d6",
-        "HVM_G2": "ami-c90897be",
-        "PV_EBS": "ami-bf0897c8",
-        "PV_IS": "ami-cf0897b8"
+    'eu-west-1': {
+        'HVM_EBS': 'ami-a10897d6',
+        'HVM_G2': 'ami-c90897be',
+        'PV_EBS': 'ami-bf0897c8',
+        'PV_IS': 'ami-cf0897b8'
     },
-    "eu-central-1": {
-        "HVM_EBS": "ami-a8221fb5",
-        "HVM_G2": "ami-b0221fad",
-        "PV_EBS": "ami-ac221fb1",
-        "PV_IS": "ami-b6221fab"
+    'eu-central-1': {
+        'HVM_EBS': 'ami-a8221fb5',
+        'HVM_G2': 'ami-b0221fad',
+        'PV_EBS': 'ami-ac221fb1',
+        'PV_IS': 'ami-b6221fab'
     },
-    "ap-southeast-1": {
-        "HVM_EBS": "ami-68d8e93a",
-        "HVM_G2": "ami-32d8e960",
-        "PV_EBS": "ami-acd9e8fe",
-        "PV_IS": "ami-1cd8e94e"
+    'ap-southeast-1': {
+        'HVM_EBS': 'ami-68d8e93a',
+        'HVM_G2': 'ami-32d8e960',
+        'PV_EBS': 'ami-acd9e8fe',
+        'PV_IS': 'ami-1cd8e94e'
     },
-    "ap-northeast-1": {
-        "HVM_EBS": "ami-cbf90ecb",
-        "HVM_G2": "ami-ddfa0ddd",
-        "PV_EBS": "ami-27f90e27",
-        "PV_IS": "ami-d5fa0dd5"
+    'ap-northeast-1': {
+        'HVM_EBS': 'ami-cbf90ecb',
+        'HVM_G2': 'ami-ddfa0ddd',
+        'PV_EBS': 'ami-27f90e27',
+        'PV_IS': 'ami-d5fa0dd5'
     },
-    "ap-southeast-2": {
-        "HVM_EBS": "ami-fd9cecc7",
-        "HVM_G2": "ami-fb9cecc1",
-        "PV_EBS": "ami-ff9cecc5",
-        "PV_IS": "ami-819cecbb"
+    'ap-southeast-2': {
+        'HVM_EBS': 'ami-fd9cecc7',
+        'HVM_G2': 'ami-fb9cecc1',
+        'PV_EBS': 'ami-ff9cecc5',
+        'PV_IS': 'ami-819cecbb'
     },
-    "sa-east-1": {
-        "HVM_EBS": "ami-b52890a8",
-        "HVM_G2": "ami-bd2890a0",
-        "PV_EBS": "ami-bb2890a6",
-        "PV_IS": "ami-bf2890a2"
+    'sa-east-1': {
+        'HVM_EBS': 'ami-b52890a8',
+        'HVM_G2': 'ami-bd2890a0',
+        'PV_EBS': 'ami-bb2890a6',
+        'PV_IS': 'ami-bf2890a2'
     },
-    "cn-north-1": {
-        "HVM_EBS": "ami-f239abcb",
-        "HVM_G2": "ami-f639abcf",
-        "PV_EBS": "ami-fa39abc3",
-        "PV_IS": "ami-f439abcd"
+    'cn-north-1': {
+        'HVM_EBS': 'ami-f239abcb',
+        'HVM_G2': 'ami-f639abcf',
+        'PV_EBS': 'ami-fa39abc3',
+        'PV_IS': 'ami-f439abcd'
     },
-    "gov": {
-        "HVM_EBS": "ami-41b2d362",
-        "HVM_G2": "ami-7db2d35e",
-        "PV_EBS": "ami-47b2d364",
-        "PV_IS": "ami-75b2d356"
+    'gov': {
+        'HVM_EBS': 'ami-41b2d362',
+        'HVM_G2': 'ami-7db2d35e',
+        'PV_EBS': 'ami-47b2d364',
+        'PV_IS': 'ami-75b2d356'
     }
 };
 
