@@ -30,8 +30,10 @@ public class Pipeline {
                                                     "FileUtils"};
     private static final String BINDING_RESOURCE_ROOT = "js/bindings";
 
-    private static final String[] JS_FILES = {"underscore.js",
-            "immutable-js-3.7.2/dist/immutable.min.js",
+    private static final String[] JS_FILES = {
+    		"node_modules/underscore/underscore-min.js",
+            "node_modules/immutable/dist/immutable.min.js",
+    		"index.js",
             "CONSTANTS.js",
             "CloudFormationTemplate.js"};
 
