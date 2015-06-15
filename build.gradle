@@ -36,17 +36,24 @@ dependencies {
     testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
 }
 
-task npmInstall(type:Exec) {
+task npmInstallUI(type:Exec) {
   workingDir './src/main/resources/web'
   commandLine 'npm', 'install'
 }
+
+task npmInstallEvaluation(type:Exec) {
+  workingDir './src/main/resources/js/bindings'
+  commandLine 'npm', 'install'
+}
+
 
 task uiBuild(type:Exec) {
   workingDir './src/main/resources/web'
   commandLine 'npm', 'run-script', 'build'
 }
 
-processResources.dependsOn npmInstall
+processResources.dependsOn npmInstallUI
+processResources.dependsOn npmInstallEvaluation
 processResources.dependsOn uiBuild
 
 jar {
