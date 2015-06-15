@@ -36,11 +36,20 @@ dependencies {
     testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
 }
 
+task npmInstall(type:Exec) {
+  workingDir './src/main/resources/web'
+  commandLine 'npm', 'install'
+}
+
+task uiBuild(type:Exec) {
+  workingDir './src/main/resources/web'
+  commandLine 'npm', 'run-script', 'build'
+}
+
+processResources.dependsOn npmInstall
+processResources.dependsOn uiBuild
+
 jar {
-    task buildUI(type:Exec) {
-      workingDir './src/main/resources/web'
-      commandLine 'npm install && npm run-script build'
-    }
     doFirst {
         from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     }
