@@ -2,4 +2,5 @@ Tereus.iws
 build/*
 .gradle/*
 /bin/
+/src/main/resources/js/bindings/node_modules/*
 /src/main/resources/web/node_modules/*
