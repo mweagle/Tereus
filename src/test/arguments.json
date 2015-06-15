@@ -1,7 +1,0 @@
-{
-  "Parameters" :
-  {
-    "BucketName" : "weagle",
-    "DockerImagePath" : "/Users/mweagle/Documents/GitHub/Tereus/README.md"
-  }
-}
