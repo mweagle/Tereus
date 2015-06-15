@@ -2,6 +2,7 @@ package com.mweagle;
 
 import static spark.Spark.halt;
 import static spark.Spark.post;
+import static spark.Spark.port;
 import static spark.SparkBase.staticFileLocation;
 
 import java.io.ByteArrayOutputStream;
@@ -19,9 +20,9 @@ import com.mweagle.tereus.CONSTANTS;
 public class TereusGui {
 		
 	 @SuppressWarnings("unchecked")
-	public static void main(String[] args) {
+	public static void run(final int port) {
 	        staticFileLocation("/web");
-	        
+	        port(port);
 	        /** 
 	         * The single evaluation endpoint
 	         */
@@ -72,6 +73,6 @@ public class TereusGui {
 	        	return null;
 	        });
 	        final Logger logger = LogManager.getLogger(Tereus.class.getName());
-	        logger.info("Tereus UI available at http://localhost:4567/");
+	        logger.info(String.format("Tereus UI available at http://localhost:%d/", port));
 	    }
 }

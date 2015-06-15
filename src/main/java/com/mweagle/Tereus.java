@@ -48,6 +48,9 @@ public class Tereus {
 
     @Option(name = {"-i", "--gui"}, description = "[OPTIONAL] Start the UI")
     public boolean gui = false;
+
+    @Option(name = {"-p", "--port"}, description = "[OPTIONAL] Alternative port for UI HTTP server")
+    public int port = 4567;    
     
     @Option(name = {"-t", "--template"}, description = "[REQUIRED] Path to CloudFormation definition")
     public String stackTemplatePath;
@@ -85,7 +88,7 @@ public class Tereus {
         }
         if (tereus.gui)
         {
-        	TereusGui.main(args);
+        	TereusGui.run(tereus.port);
         }
         else
         {
