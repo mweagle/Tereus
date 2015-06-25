@@ -52,7 +52,13 @@ task uiBuild(type:Exec) {
   commandLine 'npm', 'run-script', 'build'
 }
 
+task docsBuild(type:Exec) {
+  workingDir './src/main/resources/js/bindings'
+  commandLine 'npm', 'run-script', 'docs'
+}
+
 processResources.dependsOn npmInstallUI
+processResources.dependsOn docsBuild
 processResources.dependsOn npmInstallEvaluation
 processResources.dependsOn uiBuild
 

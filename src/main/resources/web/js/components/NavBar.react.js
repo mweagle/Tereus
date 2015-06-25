@@ -26,7 +26,6 @@
 var React = require('react');
 
 var NavBar = React.createClass({
-
   /**
    * @return {object}
    */
@@ -39,6 +38,7 @@ var NavBar = React.createClass({
             </div>
             <div id="navbar" className="collapse navbar-collapse">
               <ul className="nav navbar-nav navbar-right">
+                <li><a href="docs/index.html" target="_blank"><i className="fa fa-book">&nbsp;</i>Evaluation Docs</a></li>
                 <li><a href="https://github.com/mweagle/Tereus" target="_blank"><i className="fa fa-github">&nbsp;</i>GitHub</a></li>
               </ul>
             </div>

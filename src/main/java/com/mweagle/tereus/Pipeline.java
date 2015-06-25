@@ -33,9 +33,9 @@ public class Pipeline {
     private static final String[] JS_FILES = {
     		"node_modules/underscore/underscore-min.js",
             "node_modules/immutable/dist/immutable.min.js",
-    		"index.js",
-            "CONSTANTS.js",
-            "CloudFormationTemplate.js"};
+    		"main/index.js",
+            "main/CONSTANTS.js",
+            "main/CloudFormationTemplate.js"};
 
     /**
      * Get the input file
