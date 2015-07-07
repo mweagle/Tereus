@@ -2,7 +2,7 @@ Tereus.iws
 build/*
 .gradle/*
 /bin/
-/.settings/*.prefs
+/.settings/*
 .classpath*
 *npm-debug.log*
 /src/main/resources/js/bindings/node_modules/*
