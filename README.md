@@ -101,6 +101,8 @@ java -jar build/libs/Tereus.jar --gui
 
 And visiting [http://localhost:4567/](http://localhost:4567/).  (The port can be overriden using the `-p/--port` CLI option.)
 
+![Tereus GUI](Tereus.png)
+
 The UI is served by [Spark](http://sparkjava.com/) and the client is backed by [ReactJS](http://facebook.github.io/react/) and [Flux](https://github.com/facebook/flux).
 
 
