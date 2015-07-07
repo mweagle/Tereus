@@ -24,6 +24,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE
+
 /**
  * Global template evaluation Parameter values.  Parameters
  * are wrapped as an <a href="https://facebook.github.io/immutable-js/">immutable
@@ -72,6 +73,14 @@ var TAGS = {};
  * @global
  * @property {string} CLOUD_FORMATION.TEMPLATE_VERSION - The AWS CloudFormation <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html">Format Version</a>
  * @property {string} MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI - The default Mapping keyname
+ * @property { object} MAPPINGS.DEFINITIONS Default mappings
+ * @property { object} MAPPINGS.DEFINITIONS.INSTANCE_TYPE_2_ARCH - The most recent AWS instance type map
+ * @property { object} MAPPINGS.DEFINITIONS.REGION_ARCH_2_AMI - The default region to AWS Linux AMI
+ *
+ * @property { string} PARAMETERS.KEYNAMES.INSTANCE_TYPE - The default template parameter name specifying the EC2 instance type to use
+ * @property { string} PARAMETERS.KEYNAMES.BUCKET_NAME - The default template parameter name specifying the S3 bucket to use to store the evaluated CloudFormation Template
+ * @property { string} PARAMETERS.KEYNAMES.BUCKET_NAME - The default template parameter name specifying the EC2 SSH KeyPair name to use for the newly created instances
+ * @property {string} CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME - The default JSON keyname to use when constructing the CloudFormation::Init block
  */
 var CONSTANTS =
 {
@@ -84,22 +93,25 @@ var CONSTANTS =
             INSTANCE_TYPE_2_ARCH : 'AWSInstanceType2Arch',
             REGION_ARCH_2_AMI : 'AWSRegionArch2AMI'
         },
+        // We'll set these a bit further down...
         'DEFINITIONS': {}
     },
     'PARAMETERS' : {
         'KEYNAMES' : {
             INSTANCE_TYPE: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.INSTANCE_TYPE,
             BUCKET_NAME: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.S3_BUCKET_NAME,
-            DOCKER_IMAGE_PATH: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.DOCKER_IMAGE_PATH,
-            KEY_NAME: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.SSH_KEY_NAME
+            SSH_KEY_NAME: Java.type('com.mweagle.tereus.CONSTANTS').PARAMETER_NAMES.SSH_KEY_NAME
         },
-        'DEFINITIONS' : {}
+        // We'll set these a bit further down...
+        DEFINITIONS : {}
     },
     'CLOUDINIT' : {
         DEFAULT_CONFIGSET_KEYNAME: 'default'
     }
 };
-
+/**
+ *
+ */
 CONSTANTS.MAPPINGS.DEFINITIONS[CONSTANTS.MAPPINGS.KEYNAMES.INSTANCE_TYPE_2_ARCH] =
 {
     't1.micro': {'Arch': 'PV_EBS'},
@@ -228,7 +240,7 @@ CONSTANTS.MAPPINGS.DEFAULT = _.reduce(Object.keys(CONSTANTS.MAPPINGS.KEYNAMES),
     },
     {});
 
-CONSTANTS.PARAMETERS.DEFINITIONS[CONSTANTS.PARAMETERS.KEYNAMES.KEY_NAME] = {
+CONSTANTS.PARAMETERS.DEFINITIONS[CONSTANTS.PARAMETERS.KEYNAMES.SSH_KEY_NAME] = {
     'Description': 'Name of an existing EC2 KeyPair',
     'Type': 'String',
     'MinLength': '1',
@@ -245,16 +257,6 @@ CONSTANTS.PARAMETERS.DEFINITIONS[CONSTANTS.PARAMETERS.KEYNAMES.BUCKET_NAME] = {
     'MaxLength': '255',
     'AllowedPattern': '[\\x20-\\x7E]*',
     'ConstraintDescription': 'can contain only ASCII characters.'
-};
-
-CONSTANTS.PARAMETERS.DEFINITIONS[CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH] = {
-    'Description': 'Docker image (docker --save --output)',
-        'Type': 'String',
-        'Default': 'dockerImagePath',
-        'MinLength': '0',
-        'MaxLength': '255',
-        'AllowedPattern': '[\\x20-\\x7E]*',
-        'ConstraintDescription': 'can contain only ASCII characters.'
 };
 
 CONSTANTS.PARAMETERS.DEFINITIONS[CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE] = {

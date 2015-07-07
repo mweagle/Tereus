@@ -10,10 +10,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "immutable": "^3.7.3",
-    "underscore": "^1.8.3",
-    "jsdoc": "^3.3.2",
-    "ink-docstrap": "^0.5.2"
+    "immutable": "3.7.4",
+    "underscore": "1.8.3",
+    "jsdoc": "3.3.2",
+    "ink-docstrap": "0.5.2"
   },
   "jshintConfig" :
   {

@@ -26,14 +26,19 @@
 // DEALINGS IN THE SOFTWARE
 var tappedLoad = load;
 
-// Tap the global load function s.t. we can
-// help out with relative path specs
-load = function(pathArg)
+/**
+ * Tapped Nashorn <code>load</code> function that falls back to definition
+ * scoped relative paths
+ * @param  {string} pathArg Resolvable reference, or path relative to definition's
+ *                          parent directory
+ * @return {undefined}      Undefined - content is `eval`d in current execution context.
+ */
+var load = function(pathArg)
 {
     // Find the first useful thing
     var candidates = [pathArg, FileUtils.resolvedPath(pathArg)];
     var loaded = false;
-    for (var i = 0; i != candidates.length && !loaded; ++i)
+    for (var i = 0; i !== candidates.length && !loaded; ++i)
     {
       var resourcePath = candidates[i];
       try

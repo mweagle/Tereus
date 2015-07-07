@@ -1,11 +1,43 @@
-/* global __templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtils,EmbeddingUtils */
+/* global logger,__templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtils,EmbeddingUtils */
+// Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
+
+// Permission is hereby granted, free of charge, to
+// any person obtaining a copy of this software and
+// associated documentation files (the "Software"),
+// to deal in the Software without restriction,
+// including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+
+// The above copyright notice and this permission
+// notice shall be included in all copies or substantial
+// portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+// ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+// SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE
+
+var CfnInitUserData = function (logicalResourceName) {
+    var initializationLine = [];
+    initializationLine.push('/opt/aws/bin/cfn-init -v');
+    initializationLine.push('--stack {{ \"Ref\" : \"AWS::StackName\" }}');
+    initializationLine.push('--resource <%= logicalResourceName %>');
+    initializationLine.push('--configsets <%= configsetName %>');
+    initializationLine.push('--region {{ \"Ref\" : \"AWS::Region\" }}');
 
 
-CfnInitUserData = function(logicalResourceName)
-{
-    var data = ["#!/bin/bash -xe",
-                "yum update -y aws-cfn-bootstrap",
-                "/opt/aws/bin/cfn-init -v --stack {{ \"Ref\" : \"AWS::StackName\" }} --resource <%= logicalResourceName %> --configsets <%= configsetName %> --region {{ \"Ref\" : \"AWS::Region\" }}"].join("\n");
+    var data = ['#!/bin/bash -xe',
+        'yum update -y aws-cfn-bootstrap',
+        initializationLine.join(' ')
+    ].join('\n');
     data = _.template(data)({
         logicalResourceName: logicalResourceName,
         configsetName: CONSTANTS.CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME
@@ -24,84 +56,73 @@ CfnInitUserData = function(logicalResourceName)
 function CloudFormationTemplate(stackName) {
     __templateTunnel.stackName = stackName;
 
-    var __tagResource = function(resourceDefinition)
-    {
-        var taggable = ["AWS::AutoScaling::AutoScalingGroup",
-            "AWS::EC2::CustomerGateway",
-            "AWS::EC2::Instance",
-            "AWS::EC2::InternetGateway",
-            "AWS::EC2::NetworkAcl",
-            "AWS::EC2::NetworkInterface",
-            "AWS::EC2::RouteTable",
-            "AWS::EC2::SecurityGroup",
-            "AWS::EC2::Subnet",
-            "AWS::EC2::Volume",
-            "AWS::EC2::VPC",
-            "AWS::EC2::VPCPeeringConnection",
-            "AWS::EC2::VPNConnection",
-            "AWS::EC2::VPNGateway",
-            "AWS::ElasticLoadBalancing::LoadBalancer",
-            "AWS::RDS::DBInstance",
-            "AWS::RDS::DBParameterGroup",
-            "AWS::RDS::DBSubnetGroup",
-            "AWS::RDS::DBSecurityGroup",
-            "AWS::S3::Bucket"];
+    var __tagResource = function (resourceDefinition) {
+        var taggable = ['AWS::AutoScaling::AutoScalingGroup',
+            'AWS::EC2::CustomerGateway',
+            'AWS::EC2::Instance',
+            'AWS::EC2::InternetGateway',
+            'AWS::EC2::NetworkAcl',
+            'AWS::EC2::NetworkInterface',
+            'AWS::EC2::RouteTable',
+            'AWS::EC2::SecurityGroup',
+            'AWS::EC2::Subnet',
+            'AWS::EC2::Volume',
+            'AWS::EC2::VPC',
+            'AWS::EC2::VPCPeeringConnection',
+            'AWS::EC2::VPNConnection',
+            'AWS::EC2::VPNGateway',
+            'AWS::ElasticLoadBalancing::LoadBalancer',
+            'AWS::RDS::DBInstance',
+            'AWS::RDS::DBParameterGroup',
+            'AWS::RDS::DBSubnetGroup',
+            'AWS::RDS::DBSecurityGroup',
+            'AWS::S3::Bucket'
+        ];
 
         var resTags = null;
 
-        if (_.contains(taggable, resourceDefinition.Type))
-        {
+        if (_.contains(taggable, resourceDefinition.Type)) {
             var extraTags = {};
-            if ("AWS::AutoScaling::AutoScalingGroup" === resourceDefinition.Type)
-            {
-                extraTags =
-                {
-                    "PropagateAtLaunch" : true
+            if ('AWS::AutoScaling::AutoScalingGroup' === resourceDefinition.Type) {
+                extraTags = {
+                    'PropagateAtLaunch': true
                 };
             }
 
             resTags = _.map(TAGS.toObject(),
-                function (eachTagValue, eachTagName)
-                {
+                function (eachTagValue, eachTagName) {
                     return _.extend({},
-                        extraTags,
-                        {
-                            "Key": eachTagName,
-                            "Value" : eachTagValue
+                        extraTags, {
+                            'Key': eachTagName,
+                            'Value': eachTagValue
                         });
                 });
         }
-        if (resTags)
-        {
+        if (resTags) {
             resourceDefinition.Properties.Tags = _.extend(resTags,
                 resourceDefinition.Properties.Tags || {});
         }
     };
 
-    var __cloudInitInstances = function(resourceDefinition, logicalResourceName)
-    {
+    var __cloudInitInstances = function (resourceDefinition, logicalResourceName) {
 
-        var cloudInitTarget = ["AWS::AutoScaling::AutoScalingGroup",
-            "AWS::EC2::Instance"];
-        if (_.contains(cloudInitTarget, resourceDefinition.Type))
-        {
+        var cloudInitTarget = ['AWS::AutoScaling::AutoScalingGroup',
+            'AWS::EC2::Instance'
+        ];
+        if (_.contains(cloudInitTarget, resourceDefinition.Type)) {
             var metadata = resourceDefinition.Metadata || {};
-            var init = metadata["AWS::CloudFormation::Init"] || null;
-            if (init)
-            {
-
+            var init = metadata['AWS::CloudFormation::Init'] || null;
+            if (init) {
                 // Ensure that the Userdata Cfn-init action is hooked up...
                 var properties = resourceDefinition.Properties || {};
-                if (_.isEmpty(properties.UserData))
-                {
-                    properties.UserData =  CfnInitUserData(logicalResourceName);
+                if (_.isEmpty(properties.UserData)) {
+                    properties.UserData = CfnInitUserData(logicalResourceName);
                 }
                 resourceDefinition.Properties = properties;
             }
         }
     };
-    var __parameterizedTemplate = function(definition)
-    {
+    var __parameterizedTemplate = function (definition) {
         var params = definition.Parameters || {};
         _.each(params, function (eachValue, eachKey) {
             var paramValue = PARAMS.get(eachKey) || eachValue.Default || undefined;
@@ -143,25 +164,21 @@ parsed and transformed into <a href="http://docs.aws.amazon.com/AWSCloudFormatio
 
 @namespace Embed
 */
-var Embed =
-{
+var Embed = {
     /**
      * Embed an external file
      * @param {String} pathArg  - Path, relative to template directory root, to embed
      */
-    File: function(/*pathArg , optionalPropertyBag */)
-    {
+    File: function ( /*pathArg , optionalPropertyBag */ ) {
         var fileArgs = Array.prototype.slice.call(arguments, 0);
         var filePath = fileArgs[0];
         var optionalPropertyBag = fileArgs[1];
 
-        return function() {
+        return function () {
             var resolvedPath = FileUtils.resolvedPath(filePath);
-            var data  = FileUtils.fileContents(resolvedPath);
-            if (!_.isUndefined(optionalPropertyBag))
-            {
-                var propertyBag = _.extend({},
-                    {
+            var data = FileUtils.fileContents(resolvedPath);
+            if (!_.isUndefined(optionalPropertyBag)) {
+                var propertyBag = _.extend({}, {
                         tags: TAGS.toObject(),
                         params: PARAMS.toObject()
                     },
@@ -172,6 +189,7 @@ var Embed =
             return JSON.parse(parsed);
         }();
     },
+
     /**
      * Embed an external file, including a property bag for expansion.  The property
      * bag will be augmented with <code>TAGS</code> and <code>PARAMS</code> objects from the provided
@@ -188,16 +206,14 @@ var Embed =
      * @param {String} pathArg  - Path, relative to template directory root, to embed
      * @param {Object} propertyBag - Property bag to use for template expression exapansion (ERB-style)
      */
-    FileTemplate: function(pathArg, propertyBag)
-    {
+    FileTemplate: function (pathArg, propertyBag) {
         return Embed.File(pathArg, propertyBag);
     },
     /**
      * Embed a JSON file
      * @param {string} pathArg Path to JSON file that should be embedded
      */
-    JSONFile : function(pathArg)
-    {
+    JSONFile: function (pathArg) {
         return JSON.parse(FileUtils.fileContents(pathArg))
     }
 };
@@ -207,13 +223,14 @@ var Embed =
  * @global
  * @param  {...initializationObjects} - Variable number of <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html">CloudFormation::Init</a> blocks to sequence.
  */
-CloudFormationInit = function (/**arguents of objects representing init **/) {
+CloudFormationInit = function ( /**arguents of objects representing init **/ ) {
     var initializers = Array.prototype.slice.call(arguments);
     // If there is a docker file, we need to include the necessary
     // pieces to install and monitor it...
     // packages, groups, users, sources, files, commands, and then services.
-    if (PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH))
-    {
+    if (PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH)) {
+        logger.warn('DOCKER not yet supported');
+        /*
         var JavaPath = Java.type("java.nio.file.Paths");
         var dockerPath = JavaPath.get(FileUtils.resolvedPath(PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH)));
         var fileParts = dockerPath.getFileName().toString().split(".");
@@ -277,22 +294,20 @@ CloudFormationInit = function (/**arguents of objects representing init **/) {
                     },
                     "0004_run" :
                     {
-                        /**
-                        TODO - Import the image and start it up.
-                        **/
                         "command" : "echo RUN ME!"
                     }
                 }
             }
         ];
         initializers = initializers.concat(DOCKER_INIT);
+        */
     }
 
 
     var defaultConfigSetKeys = [];
     var flattened = _.reduce(initializers,
         function (memo, eachInitializer) {
-            var keyname = "configSet" + _.keys(memo).length;
+            var keyname = 'configSet' + _.keys(memo).length;
             defaultConfigSetKeys.push(keyname);
 
             // Each initializer is an object, but the
@@ -302,7 +317,7 @@ CloudFormationInit = function (/**arguents of objects representing init **/) {
             eachInitializer = _.reduce(eachInitializer,
                 function (initMemo, values, keyname) {
                     if (_.isArray(values)) {
-                        var base = "00000000";
+                        var base = '00000000';
                         var offset = 1;
                         var ordered = _.reduce(values,
                             function (unorderedValues, initEntry) {
@@ -314,13 +329,12 @@ CloudFormationInit = function (/**arguents of objects representing init **/) {
                                 if (initEntry.command) {
                                     var parts = initEntry.command.split(/\s+/);
                                     if (parts.length > 1) {
-                                        nestedKeyname += ("_" + parts[0]);
+                                        nestedKeyname += ('_' + parts[0]);
                                     }
                                 }
                                 unorderedValues[nestedKeyname] = initEntry;
                                 return unorderedValues;
-                            },
-                            {});
+                            }, {});
                         values = ordered;
                     }
                     initMemo[keyname] = values;
@@ -328,15 +342,14 @@ CloudFormationInit = function (/**arguents of objects representing init **/) {
                 }, {});
             memo[keyname] = eachInitializer;
             return memo;
-        },
-        {});
+        }, {});
     var result = {
         configSets: {}
-    }
+    };
     result.configSets[CONSTANTS.CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME] = defaultConfigSetKeys;
     return _.extend(result,
         flattened);
-}
+};
 
 
 /**
@@ -347,32 +360,30 @@ CloudFormation resources.
 
 @namespace EC2
 */
-var EC2 =
-{
+var EC2 = {
     /**
      * Return default EC2 properties object required to create
      * <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html">AWS::EC2::Instance</a>
      *
      * @param {Object} additionalUserProps  - Additional user properties to compose with defaults.
      */
-    Properties: function (additionalUserProps) {
+    WithProperties: function (additionalUserProps) {
         return _.extend({
-                            "InstanceType": {
-                                "Ref": CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE
-                            },
-                            "KeyName": {
-                                "Ref": CONSTANTS.PARAMETERS.KEYNAMES.KEY_NAME
-                            },
-                            "ImageId": {
-                                "Fn::FindInMap": [CONSTANTS.MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI, {
-                                    "Ref": "AWS::Region"
-                                }, {
-                                    "Fn::FindInMap": [CONSTANTS.MAPPINGS.KEYNAMES.INSTANCE_TYPE_2_ARCH, {
-                                        "Ref": CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE
-                                    }, "Arch"]
-                                }]
-                            }
-                        }, additionalUserProps || {});
+            'InstanceType': {
+                'Ref': CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE
+            },
+            'KeyName': {
+                'Ref': CONSTANTS.PARAMETERS.KEYNAMES.SSH_KEY_NAME
+            },
+            'ImageId': {
+                'Fn::FindInMap': [CONSTANTS.MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI, {
+                    'Ref': 'AWS::Region'
+                }, {
+                    'Fn::FindInMap': [CONSTANTS.MAPPINGS.KEYNAMES.INSTANCE_TYPE_2_ARCH, {
+                        'Ref': CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE
+                    }, 'Arch']
+                }]
+            }
+        }, additionalUserProps || {});
     }
 };
-

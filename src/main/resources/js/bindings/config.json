@@ -20,13 +20,13 @@
     "default": {
       "outputSourceFiles": true
     },
-    "systemName": "Tereus",
+    "systemName": "Tereus Evaluation Docs",
     "footer": "",
     "copyright": "Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)",
     "navType": "vertical",
-    "theme": "yeti",
+    "theme": "cosmo",
     "linenums": true,
     "collapseSymbols": false,
-    "inverseNav": false
+    "inverseNav": true
   }
 }
