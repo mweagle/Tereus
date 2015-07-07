@@ -133,7 +133,7 @@ var ArgumentsView = React.createClass({
           </div>
           <div className="col-md-6">
             <div className={paramsAndTagsClasses} ref="paramsAndTags">
-              <label for="jsonData">Params and Arguments (JSON)</label>
+              <label for="jsonData">Params and Tags (JSON)</label>
               <textarea id="jsonData" ref="jsonData" className="form-control"
               defaultValue={JSON.stringify(this.props.arguments.paramsAndTags, null, ' ')}
               rows="8" onChange={this.onStateChange('paramsAndTags')}></textarea>
