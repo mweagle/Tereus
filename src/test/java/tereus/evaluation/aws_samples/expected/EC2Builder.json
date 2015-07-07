@@ -1,0 +1,34 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Validate the EC2 helper object",
+  "Resources": {
+    "MyEC2Instance": {
+      "InstanceType": {
+        "Ref": "InstanceType"
+      },
+      "KeyName": {
+        "Ref": "SSHKeyName"
+      },
+      "ImageId": {
+        "Fn::FindInMap": [
+          "AWSRegionArch2AMI",
+          {
+            "Ref": "AWS::Region"
+          },
+          {
+            "Fn::FindInMap": [
+              "AWSInstanceType2Arch",
+              {
+                "Ref": "InstanceType"
+              },
+              "Arch"
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "Builder": "Created"
+      }
+    }
+  }
+}

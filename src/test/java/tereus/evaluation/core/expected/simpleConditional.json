@@ -1,0 +1,8 @@
+{
+    "Description": "Test",
+    "Resources": {
+        "Hello": "World"
+    },
+    "Outputs": {},
+    "AWSTemplateFormatVersion": "2010-09-09"
+}

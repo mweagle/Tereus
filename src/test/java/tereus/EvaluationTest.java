@@ -92,7 +92,7 @@ public abstract class EvaluationTest {
         Map<String, Object> params = new HashMap<>();
         params.put(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, "testBucket");
 
-        final TereusInput input = new TereusInput(null, evaluationFilepath.toString(), null, null, params, new HashMap<String, Object>(), true);
+        final TereusInput input = new TereusInput(null, evaluationFilepath.toString(), null, params, new HashMap<String, Object>(), true);
         this.verifyEvaluation(input, expectedResultPath);
     }
 }
