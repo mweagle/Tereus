@@ -1,3 +1,27 @@
+// Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
+
+// Permission is hereby granted, free of charge, to
+// any person obtaining a copy of this software and
+// associated documentation files (the "Software"),
+// to deal in the Software without restriction,
+// including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+
+// The above copyright notice and this permission
+// notice shall be included in all copies or substantial
+// portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+// ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+// SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+// IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle;
 
 import io.airlift.airline.Command;
@@ -50,8 +74,8 @@ public class Tereus {
     public boolean gui = false;
 
     @Option(name = {"-p", "--port"}, description = "[OPTIONAL] Alternative port for UI HTTP server")
-    public int port = 4567;    
-    
+    public int port = 4567;
+
     @Option(name = {"-t", "--template"}, description = "[REQUIRED] Path to CloudFormation definition")
     public String stackTemplatePath;
 
@@ -60,9 +84,6 @@ public class Tereus {
 
     @Option(name = {"-b", "--bucket"}, description = "[REQUIRED] S3 Bucketname to host template content")
     public String s3BucketName;
-
-    @Option(name = {"-d", "--dockerFile"}, description = "DockerFile path")
-    public String dockerFilePath;
 
     @Option(name = {"-r", "--region"}, description="AWS Region (default=us-east-1)")
     public String region = "us-east-1";
@@ -128,7 +149,6 @@ public class Tereus {
 
             TereusInput tereusInput =  new TereusInput(tereus.stackName,
                                                             tereus.stackTemplatePath,
-                                                            tereus.dockerFilePath,
                                                             tereus.region,
                                                             parameters,
                                                             tags,
@@ -162,9 +182,9 @@ public class Tereus {
             Help.help(tereus.helpOption.commandMetadata);
             exitCode = 1;
         }
-        System.exit(exitCode);	
+        System.exit(exitCode);
     };
-    
+
     public void run(final TereusInput tereusInput, Optional<? extends  OutputStream> osSinkTemplate) throws Exception
     {
         java.security.Security.setProperty("networkaddress.cache.ttl", "30");
