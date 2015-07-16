@@ -24,6 +24,8 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle.tereus;
 
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.GetUserResult;
 import com.google.gson.Gson;
 import com.mweagle.TereusInput;
 import com.mweagle.tereus.utils.IEngineBinding;
@@ -51,16 +53,21 @@ public class Pipeline {
     private static final String BINDING_PACKAGE = "com.mweagle.tereus.utils";
     private static final String[] BINDING_CLASSES = {"CloudFormationTemplateUtils",
                                                     "EmbeddingUtils",
-                                                    "FileUtils"};
-    private static final String BINDING_RESOURCE_ROOT = "js/bindings";
+                                                    "FileUtils"};  
 
+    private static final String BINDING_RESOURCE_ROOT = "js/bindings";
     private static final String[] JS_FILES = {
     		"node_modules/underscore/underscore-min.js",
             "node_modules/immutable/dist/immutable.min.js",
     		"main/index.js",
             "main/CONSTANTS.js",
-            "main/CloudFormationTemplate.js"};
-
+            "main/CloudFormationTemplate.js",
+            /** AWS Helpers **/
+            "main/aws/index.js",
+            "main/aws/lambda.js",
+            "main/aws/ec2.js"
+            };
+    
     /**
      * Get the input file
      * Evaluate the input file
@@ -73,7 +80,7 @@ public class Pipeline {
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
         // Globals
         this.bindGlobals(engine, cfInput);
-
+    
         // Get all the utils and ensure that they implement IEngineBinding.  For each one
         // we'll bind them into the Javascript
         List<IEngineBinding> boundInstances = Arrays.stream(Pipeline.BINDING_CLASSES).
@@ -110,7 +117,12 @@ public class Pipeline {
             return gson.toJson(args);
         };
         engine.put("ArgumentsImpl", fnArgs);
-
+    	
+    	// get the info
+    	final AmazonIdentityManagementClient client = new AmazonIdentityManagementClient();	
+    	final GetUserResult result = client.getUser();
+        engine.put("UserInfoImpl", result);
+    	
         // And the logger
         final Logger templateLogger  = LogManager.getLogger("com.mweagle.Tereus.TemplateEvaluation");
         engine.put("logger", templateLogger);
