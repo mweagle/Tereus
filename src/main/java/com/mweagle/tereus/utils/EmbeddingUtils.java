@@ -55,7 +55,7 @@ public class EmbeddingUtils implements IEngineBinding {
 
     @Override
     public String getBindingName() {
-        return "EmbeddingUtils";
+        return "EmbeddingUtilsImpl";
     }
 
     public EmbeddingUtils(Path templateRoot, ScriptEngine engine, Logger logger) {

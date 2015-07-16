@@ -47,7 +47,7 @@ public class FileUtils implements IEngineBinding {
 
     @Override
     public String getBindingName() {
-        return "FileUtils";
+        return "FileUtilsImpl";
     }
 
     public String fileHash(String pathArg) throws Exception
