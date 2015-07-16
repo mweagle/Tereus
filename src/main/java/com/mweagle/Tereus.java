@@ -24,12 +24,6 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Help;
-import io.airlift.airline.HelpOption;
-import io.airlift.airline.Option;
-import io.airlift.airline.SingleCommand;
-
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -64,6 +58,12 @@ import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.Pipeline;
 import com.mweagle.tereus.aws.CloudFormation;
 import com.mweagle.tereus.aws.S3Resource;
+
+import io.airlift.airline.Command;
+import io.airlift.airline.Help;
+import io.airlift.airline.HelpOption;
+import io.airlift.airline.Option;
+import io.airlift.airline.SingleCommand;
 
 @Command(name = "Tereus", description = "Evaluates a CloudFormation template expressed as a function")
 public class Tereus {
@@ -100,7 +100,7 @@ public class Tereus {
     /* The accumulated TereusInput data */
     protected TereusInput tereusInput;
 
-    public static void main(String... args) {
+    public static void main(String... args) {    	
         Tereus tereus = SingleCommand.singleCommand(Tereus.class).parse(args);
 
         if (tereus.helpOption.showHelpIfRequested())
