@@ -18,9 +18,10 @@ allprojects {
 }
 //Project dependencies
 dependencies {
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.9.34'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.9.34'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.9.34'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.10.5.1'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.10.5.1'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.10.5.1'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: '1.10.5.1'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
