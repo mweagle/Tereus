@@ -1,4 +1,4 @@
-/* global logger,__templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtils,EmbeddingUtils */
+/* global logger,__templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtilsImpl,EmbeddingUtils */
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 // Permission is hereby granted, free of charge, to
@@ -42,9 +42,7 @@ var CfnInitUserData = function (logicalResourceName) {
         logicalResourceName: logicalResourceName,
         configsetName: CONSTANTS.CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME
     });
-
-    var parsed = EmbeddingUtils.Literal(data);
-    return JSON.parse(parsed);
+    return Embed.Literal(data);
 };
 
 /**
@@ -175,8 +173,8 @@ var Embed = {
         var optionalPropertyBag = fileArgs[1];
 
         return function () {
-            var resolvedPath = FileUtils.resolvedPath(filePath);
-            var data = FileUtils.fileContents(resolvedPath);
+            var resolvedPath = FileUtilsImpl.resolvedPath(filePath);
+            var data = FileUtilsImpl.fileContents(resolvedPath);
             if (!_.isUndefined(optionalPropertyBag)) {
                 var propertyBag = _.extend({}, {
                         tags: TAGS.toObject(),
@@ -185,17 +183,25 @@ var Embed = {
                     optionalPropertyBag);
                 data = _.template(data)(propertyBag);
             }
-            var parsed = EmbeddingUtils.Literal(data);
-            return JSON.parse(parsed);
+            return Embed.Literal(data);
         }();
     },
-
+    /**
+     * Embed a string literal, properly parsed and composed into an <code>Fn:Join</code> representation
+     * for CloudFormation
+     * @param {String} stringContent String content to parse & embed
+     */
+    Literal: function(stringContent)
+    {
+        var parsed = EmbeddingUtilsImpl.Literal(stringContent);
+        return JSON.parse(parsed);
+    },
     /**
      * Embed an external file, including a property bag for expansion.  The property
      * bag will be augmented with <code>TAGS</code> and <code>PARAMS</code> objects from the provided
      * JSON input.  Template expansion happens in two phases: (1) during template evaluation
      * via the supplied propertyBag, and (2) at CloudInit start time via AWS CloudFormation
-     * expansion.  Evaluation time parameters use ERB-style markup: <code>&lt;%= EXPAND_ME %&gt;</code> and AWS
+     * expansion.  Evaluation time parameters use <a href="http://underscorejs.org/#template" target="_blank">ERB-style</a> markup: <code>&lt;%= EXPAND_ME %&gt;</code> and AWS
      * CloudFormation params use Mustache-like syntax: <code>{{"Ref" : "AWS::Region"}}</code>
      *
      * @example <caption>Mixed property types</caption>
@@ -204,17 +210,17 @@ var Embed = {
      *
      *
      * @param {String} pathArg  - Path, relative to template directory root, to embed
-     * @param {Object} propertyBag - Property bag to use for template expression exapansion (ERB-style)
+     * @param {Object} propertyBag - Property bag to use for template expression exapansion (<a href="http://underscorejs.org/#template" target="_blank">ERB-style</a>)
      */
     FileTemplate: function (pathArg, propertyBag) {
-        return Embed.File(pathArg, propertyBag);
+        return Embed.File(pathArg, propertyBag || {});
     },
     /**
      * Embed a JSON file
      * @param {string} pathArg Path to JSON file that should be embedded
      */
     JSONFile: function (pathArg) {
-        return JSON.parse(FileUtils.fileContents(pathArg))
+        return JSON.parse(FileUtilsImpl.fileContents(pathArg))
     }
 };
 
@@ -232,7 +238,7 @@ CloudFormationInit = function ( /**arguents of objects representing init **/ ) {
         logger.warn('DOCKER not yet supported');
         /*
         var JavaPath = Java.type("java.nio.file.Paths");
-        var dockerPath = JavaPath.get(FileUtils.resolvedPath(PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH)));
+        var dockerPath = JavaPath.get(FileUtilsImpl.resolvedPath(PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.DOCKER_IMAGE_PATH)));
         var fileParts = dockerPath.getFileName().toString().split(".");
         var imageName = fileParts[0] + "42" + (fileParts[1] || ".docker");
 
@@ -349,41 +355,4 @@ CloudFormationInit = function ( /**arguents of objects representing init **/ ) {
     result.configSets[CONSTANTS.CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME] = defaultConfigSetKeys;
     return _.extend(result,
         flattened);
-};
-
-
-/**
-
-Encapsulates functions that are convenience builders for creating
-<a href="http://docs.aws.amazon.com/search/doc-search.html?searchPath=documentation-guide&searchQuery=EC2&x=0&y=0&this_doc_product=AWS+CloudFormation&this_doc_guide=User+Guide&doc_locale=en_us#facet_doc_product=AWS%20CloudFormation&facet_doc_guide=User%20Guide">EC2</a>
-CloudFormation resources.
-
-@namespace EC2
-*/
-var EC2 = {
-    /**
-     * Return default EC2 properties object required to create
-     * <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html">AWS::EC2::Instance</a>
-     *
-     * @param {Object} additionalUserProps  - Additional user properties to compose with defaults.
-     */
-    WithProperties: function (additionalUserProps) {
-        return _.extend({
-            'InstanceType': {
-                'Ref': CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE
-            },
-            'KeyName': {
-                'Ref': CONSTANTS.PARAMETERS.KEYNAMES.SSH_KEY_NAME
-            },
-            'ImageId': {
-                'Fn::FindInMap': [CONSTANTS.MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI, {
-                    'Ref': 'AWS::Region'
-                }, {
-                    'Fn::FindInMap': [CONSTANTS.MAPPINGS.KEYNAMES.INSTANCE_TYPE_2_ARCH, {
-                        'Ref': CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE
-                    }, 'Arch']
-                }]
-            }
-        }, additionalUserProps || {});
-    }
 };

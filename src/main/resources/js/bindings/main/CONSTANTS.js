@@ -1,4 +1,4 @@
-/* global Java,ArgumentsImpl,Immutable,_ */
+/* global Java,ArgumentsImpl,UserInfoImpl,Immutable,_ */
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 // Permission is hereby granted, free of charge, to
@@ -52,6 +52,31 @@ var PARAMS = {};
  * @type {Object}
  */
 var TAGS = {};
+
+
+
+/**
+ * Global object representing UserInfo state, wrapped in an Immutable.JS map
+ *
+ * @type {Object}
+ * @property {string} USER_INFO.arn - The ARN of the user currently executing Tereus
+ * @property {string} USER_INFO.userId - The userID currently executing Tereus
+ * @property {string} USER_INFO.name - The username currently executing Tereus
+ * @property {string} USER_INFO.creationDate - The creation date of the user currently executing Tereus
+ *
+ * @example <caption>Accessing USER_INFO</caption>
+ *
+ * USER_INFO.get('arn') // => arn:aws:iam::000000000000:root
+ *
+ */
+var USER_INFO = {
+    arn: null,
+    userId: null,
+    name: null,
+    creationDate:null
+};
+
+////////////////////////////////////////////////////////////////////////////////
 (function initializer() {
     var args = JSON.parse(ArgumentsImpl());
     // Make sure that the args map includes any Tereus tags
@@ -65,21 +90,37 @@ var TAGS = {};
 
     PARAMS = Immutable.Map(args.params || {});
     TAGS = Immutable.Map(args.tags || {});
+
+    // User info...
+    var user = UserInfoImpl.getUser();
+    var userInfoMap = {
+        arn: user.getArn(),
+        userId: user.getUserId(),
+        name: user.getUserName(),
+        creationDate: user.getCreateDate(),
+    };
+    USER_INFO = Immutable.Map(userInfoMap);
 })();
+
 
 /**
  * Global constants
  * @type {Object}
  * @global
- * @property {string} CLOUD_FORMATION.TEMPLATE_VERSION - The AWS CloudFormation <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html">Format Version</a>
+ * @property {string} CLOUD_FORMATION.TEMPLATE_VERSION - The AWS CloudFormation
+ *           <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html">Format Version</a>
+ * @property { object} MAPPINGS.KEYNAME - Default keyname mappings
  * @property {string} MAPPINGS.KEYNAMES.REGION_ARCH_2_AMI - The default Mapping keyname
  * @property { object} MAPPINGS.DEFINITIONS Default mappings
  * @property { object} MAPPINGS.DEFINITIONS.INSTANCE_TYPE_2_ARCH - The most recent AWS instance type map
  * @property { object} MAPPINGS.DEFINITIONS.REGION_ARCH_2_AMI - The default region to AWS Linux AMI
  *
+ * @property { object} PARAMETERS.KEYNAMES - The default parameter names, corresponding to keynames in the JSON input
  * @property { string} PARAMETERS.KEYNAMES.INSTANCE_TYPE - The default template parameter name specifying the EC2 instance type to use
- * @property { string} PARAMETERS.KEYNAMES.BUCKET_NAME - The default template parameter name specifying the S3 bucket to use to store the evaluated CloudFormation Template
- * @property { string} PARAMETERS.KEYNAMES.BUCKET_NAME - The default template parameter name specifying the EC2 SSH KeyPair name to use for the newly created instances
+ * @property { string} PARAMETERS.KEYNAMES.BUCKET_NAME -
+ *           The default template parameter name specifying the S3 bucket to use to store the evaluated CloudFormation Template
+ * @property { string} PARAMETERS.KEYNAMES.BUCKET_NAME -
+ *           The default template parameter name specifying the EC2 SSH KeyPair name to use for the newly created instances
  * @property {string} CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME - The default JSON keyname to use when constructing the CloudFormation::Init block
  */
 var CONSTANTS =

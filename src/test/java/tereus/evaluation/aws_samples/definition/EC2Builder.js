@@ -4,7 +4,7 @@ CloudFormationTemplate("EC2InstanceWithSecurityGroupSample")({
   "Description": "Validate the EC2 helper object",
   "Resources" :
   {
-    "MyEC2Instance" : EC2.WithProperties({
+    "MyEC2Instance" : AWS.EC2.WithProperties({
         "Metadata": {
           "Builder":"Created"
         }
