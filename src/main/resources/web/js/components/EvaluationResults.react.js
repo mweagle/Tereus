@@ -93,7 +93,7 @@ var EvaluationResults = React.createClass({
                       <Highlight className="json">{JSON.stringify(this.state.outputs.results.evaluated, null, ' ')}</Highlight>
                   </div>
                   <div role="tabpanel" className="tab-pane" id="template">
-                    <Highlight className="no-highlight">{this.state.outputs.results.template}</Highlight>
+                    <Highlight className="JavaScript">{this.state.outputs.results.template}</Highlight>
                   </div>
                 </div>
               </div>
