@@ -8,3 +8,4 @@ build/*
 /src/main/resources/js/bindings/node_modules/*
 /src/main/resources/web/node_modules/*
 /src/main/resources/web/docs/*
+/src/test/java/tereus/evaluation/aws_samples/definition/resources/npminstall/node_modules/*
