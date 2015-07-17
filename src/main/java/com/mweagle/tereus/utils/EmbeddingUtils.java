@@ -58,7 +58,7 @@ public class EmbeddingUtils implements IEngineBinding {
         return "EmbeddingUtilsImpl";
     }
 
-    public EmbeddingUtils(Path templateRoot, ScriptEngine engine, Logger logger) {
+    public EmbeddingUtils(Path templateRoot, ScriptEngine engine, boolean dryRun, Logger logger) {
         this.logger = logger;
     }
 

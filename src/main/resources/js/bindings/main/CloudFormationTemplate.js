@@ -1,4 +1,4 @@
-/* global logger,__templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtilsImpl,EmbeddingUtils */
+/* global logger,__templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtilsImpl,EmbeddingUtilsImpl,LambdaUtilsImpl */
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 // Permission is hereby granted, free of charge, to
@@ -101,7 +101,22 @@ function CloudFormationTemplate(stackName) {
                 resourceDefinition.Properties.Tags || {});
         }
     };
-
+    var __lambdaFunctions = function(accumulator, resourceDefinition /*, logicalResourceName */)
+    {
+        var lambdaTarget = ['AWS::Lambda::Function'];
+        if (_.contains(lambdaTarget, resourceDefinition.Type) &&
+            resourceDefinition.Properties)
+        {
+            var source = resourceDefinition.Properties.Code;
+            if (_.isString(source))
+            {
+                var bucket = PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.BUCKET_NAME);
+                accumulator[source] = accumulator[source] ||
+                                        JSON.parse(LambdaUtilsImpl.createFunction(source, bucket));
+                resourceDefinition.Properties.Code = accumulator[source];
+            }
+        }
+    };
     var __cloudInitInstances = function (resourceDefinition, logicalResourceName) {
 
         var cloudInitTarget = ['AWS::AutoScaling::AutoScalingGroup',
@@ -138,10 +153,16 @@ function CloudFormationTemplate(stackName) {
          */
         definition.AWSTemplateFormatVersion = CONSTANTS.CLOUD_FORMATION.TEMPLATE_VERSION;
 
+        ////////////////////////////////////////////////////////////////////////
+        // BEGIN - Template resolution
         // Scan the resources and insert tags for anything that might have a tag
         _.each(definition.Resources, __tagResource.bind(this));
 
+        // CloudInit bindings
         _.each(definition.Resources, __cloudInitInstances.bind(this));
+
+        // Lambda uploads
+        _.reduce(definition.Resources, __lambdaFunctions.bind(this), {});
 
         // Put the result into something we can get at
         __templateTunnel.expandedTemplate = JSON.stringify(definition);

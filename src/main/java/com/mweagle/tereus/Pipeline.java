@@ -53,7 +53,8 @@ public class Pipeline {
     private static final String BINDING_PACKAGE = "com.mweagle.tereus.utils";
     private static final String[] BINDING_CLASSES = {"CloudFormationTemplateUtils",
                                                     "EmbeddingUtils",
-                                                    "FileUtils"};  
+                                                    "FileUtils",
+                                                    "LambdaUtils"};  
 
     private static final String BINDING_RESOURCE_ROOT = "js/bindings";
     private static final String[] JS_FILES = {
@@ -181,7 +182,7 @@ public class Pipeline {
         @Override
         public void accept(String resourceName) {
             final String resourcePath = String.format("%s/%s", this.resourcesRoot, resourceName);
-            this.logger.debug("Requiring resource: " + resourcePath);
+            this.logger.debug("Loading resource: " + resourcePath);
             final InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             super.evaluate(reader, "Failed to load resource: " + resourcePath);
@@ -206,8 +207,8 @@ public class Pipeline {
                 Constructor<?> ctor = null;
                 IEngineBinding bound = null;
                 try {
-                    ctor = clazz.getConstructor(Path.class, ScriptEngine.class, Logger.class);
-                    bound = (IEngineBinding) ctor.newInstance(this.templateRootPath, this.engine, tereusInput.logger);
+                    ctor = clazz.getConstructor(Path.class, ScriptEngine.class, boolean.class, Logger.class);
+                    bound = (IEngineBinding) ctor.newInstance(this.templateRootPath, this.engine, tereusInput.dryRun, tereusInput.logger);
                 } catch (NoSuchMethodException ex) {
                     ctor = clazz.getConstructor();
                     bound = (IEngineBinding) ctor.newInstance();

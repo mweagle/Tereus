@@ -39,7 +39,7 @@ public class FileUtils implements IEngineBinding {
 
     private final Path templateRoot;
     private final Logger logger;
-    public FileUtils(Path templateRoot, ScriptEngine engine, Logger logger) {
+    public FileUtils(Path templateRoot, ScriptEngine engine, boolean dryRun, Logger logger) {
         this.templateRoot = templateRoot;
         this.logger = logger;
         this.logger.debug("Resource root directory: {}", this.templateRoot.toAbsolutePath());

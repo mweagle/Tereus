@@ -41,7 +41,7 @@ AWS.EC2 = {
      *
      * @param {Object} additionalUserProps  - Additional user properties to compose with defaults.
      */
-    WithProperties: function (additionalUserProps) {
+    Instance: function (additionalUserProps) {
         return _.extend({
             'InstanceType': {
                 'Ref': CONSTANTS.PARAMETERS.KEYNAMES.INSTANCE_TYPE

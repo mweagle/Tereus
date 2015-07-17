@@ -24,6 +24,9 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle.tereus.aws;
 
+import java.io.InputStream;
+import java.util.Optional;
+
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -32,19 +35,13 @@ import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.s3.transfer.model.UploadResult;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Optional;
-
 /**
  * Created by mweagle on 5/7/15.
  */
 public class S3Resource implements AutoCloseable {
     private final String bucketName;
-    private final String baseKeyName;
-    private final String data;
+    private final String keyName;
+    private final InputStream inputStream;
     public Optional<String> getResourceURL() {
         return resourceURL;
     }
@@ -60,31 +57,24 @@ public class S3Resource implements AutoCloseable {
         this.released = released;
     }
 
-
-    public S3Resource(String bucketName, String baseKeyName, String data)
+    public S3Resource(String bucketName, String keyName, InputStream is)
     {
         this.bucketName = bucketName;
-        this.baseKeyName = baseKeyName;
-        this.data = data;
+        this.keyName = keyName;
+        this.inputStream = is;
         this.resourceURL = Optional.empty();
         this.released = false;
     }
 
     public Optional<String> upload()
     {
-        final String templateDigest = DigestUtils.sha256Hex(this.data);
-        final String keyName = String.format("%s-%s.cf.template", this.baseKeyName, templateDigest);
         try {
             DefaultAWSCredentialsProviderChain credentialProviderChain = new DefaultAWSCredentialsProviderChain();
             final TransferManager transferManager = new TransferManager(
                     credentialProviderChain.getCredentials());
 
-            final byte[] templateBytes = this.data.getBytes("UTF-8");
-            final InputStream is = new ByteArrayInputStream(templateBytes);
             final ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(templateBytes.length);
-
-            final PutObjectRequest uploadRequest = new PutObjectRequest(bucketName, keyName, is, metadata);
+            final PutObjectRequest uploadRequest = new PutObjectRequest(bucketName, keyName, this.inputStream, metadata);
             final Upload templateUpload = transferManager.upload(uploadRequest);
             @SuppressWarnings("unused")
 			final UploadResult uploadResult = templateUpload.waitForUploadResult();

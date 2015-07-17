@@ -24,8 +24,11 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -209,16 +212,6 @@ public class Tereus {
             }
         }
 
-        /**
-         * To put this into JSON:
-         * This is the result, but
-         * Gson gson = new GsonBuilder().setPrettyPrinting().create();
-         * return gson.toJson(result);
-         */
-        // Upload the two templates to s3...
-
-        // Get the template
-
         // Upload the parameterized template to S3, validate it, and cleanup
         validateTemplate(tereusInput, new GsonBuilder().disableHtmlEscaping().create().toJson(prepopulatedTemplate.get()));
 
@@ -251,7 +244,7 @@ public class Tereus {
         }).collect(Collectors.toList());
     }
 
-    protected void createStack(TereusInput tereusInput, JsonElement templateData, boolean logTemplate)
+    protected void createStack(TereusInput tereusInput, JsonElement templateData, boolean logTemplate) throws UnsupportedEncodingException
     {
         if (tereusInput.dryRun)
         {
@@ -267,7 +260,12 @@ public class Tereus {
             final String bucketName = tereusInput.params.get(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME).toString();
             // Upload the template
             final String templateContent = new GsonBuilder().create().toJson(templateData);
-            try ( S3Resource resource = new S3Resource(bucketName, "template", templateContent))
+            final byte[] templateBytes = templateContent.getBytes("UTF-8");
+            final InputStream is = new ByteArrayInputStream(templateBytes);           
+            final String templateDigest = DigestUtils.sha256Hex(templateBytes);
+            final String keyName = String.format("%s-tereus.cf.template", templateDigest);
+
+            try ( S3Resource resource = new S3Resource(bucketName, keyName, is))
             {
                 resource.upload();
                 final EstimateTemplateCostRequest costRequest = new EstimateTemplateCostRequest();
@@ -298,7 +296,7 @@ public class Tereus {
         }
     }
 
-    protected void validateTemplate(TereusInput tereusInput, String parameterizedTemplate)  {
+    protected void validateTemplate(TereusInput tereusInput, String parameterizedTemplate) throws UnsupportedEncodingException  {
         if (tereusInput.dryRun)
         {
             tereusInput.logger.info("Dry run requested (-n/--noop). Stack validation bypassed.");
@@ -306,8 +304,13 @@ public class Tereus {
         else
         {
             tereusInput.logger.info("Validating template with AWS");
-            final String bucketName = tereusInput.params.get(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME).toString();
-            try ( S3Resource resource = new S3Resource(bucketName, "prepopulated", parameterizedTemplate))
+            final String bucketName = tereusInput.params.get(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME).toString();  
+            final byte[] templateBytes = parameterizedTemplate.getBytes("UTF-8");
+            final InputStream is = new ByteArrayInputStream(templateBytes);
+            
+            final String templateDigest = DigestUtils.sha256Hex(templateBytes);
+            final String keyName = String.format("%s-tereus-pre.cf.template", templateDigest);
+            try ( S3Resource resource = new S3Resource(bucketName, keyName, is))
             {
                 Optional<String> templateURL = resource.upload();
                 final ValidateTemplateRequest validationRequest = new ValidateTemplateRequest();

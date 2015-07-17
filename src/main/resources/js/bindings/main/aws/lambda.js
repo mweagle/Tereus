@@ -1,4 +1,4 @@
-/* global AWS */
+/* global AWS,_, USER_INFO*/
 
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
@@ -35,6 +35,16 @@ CloudFormation resources.
 @namespace AWS.Lambda
 */
 AWS.Lambda = {
+  Function: function (additionalUserProps)
+  {
+    var properties = _.extend({
+      Role: USER_INFO.get('arn'),
+      Runtime: 'nodejs'
+    }, additionalUserProps);
 
-
+    return {
+      'Type': 'AWS::Lambda::Function',
+      'Properties': properties
+    };
+  }
 };
