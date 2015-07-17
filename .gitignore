@@ -1,5 +1,10 @@
 Tereus.iws
-build/*
+/build/classes/*
+/build/dependency-cache/*
+/build/reports/*
+/build/resources/*
+/build/test-results/*
+/build/tmp/*
 .gradle/*
 /bin/
 /.settings/*
@@ -9,3 +14,5 @@ build/*
 /src/main/resources/web/node_modules/*
 /src/main/resources/web/docs/*
 /src/test/java/tereus/evaluation/aws_samples/definition/resources/npminstall/node_modules/*
+
+
