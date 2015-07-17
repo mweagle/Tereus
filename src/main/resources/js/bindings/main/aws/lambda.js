@@ -35,6 +35,24 @@ CloudFormation resources.
 @namespace AWS.Lambda
 */
 AWS.Lambda = {
+    /**
+     * Return an <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html#cfn-lambda-function-code">
+     * AWS::Lambda::Function</a>
+     * object for CloudFormation.  Providing a template-directory relative string value
+     * for the <code>Code</code> will trigger an automatic:
+     *    <ol>
+     *     <li><i>npm install</i></li>
+     *     <li>ZIPping of the resulting source archive</li>
+     *     <li>Automatic upload of the Zipfile to S3 for referencing</li>
+     *    </ol>
+     * The standard <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-code.html">Code</a>
+     * object is also supported and no additional upload is performed.  Note that
+     * uploads are based on template-relative <code>Code</code> definitions.  Multiple
+     * Lambda resources based on the same source directory will <b>all</b> use the same
+     * ZIP archive.
+     *
+     * @param {Object} additionalUserProps  - Additional user properties to compose with defaults.
+     */
   Function: function (additionalUserProps)
   {
     var properties = _.extend({
