@@ -7,6 +7,7 @@ CloudFormationTemplate("EC2InstanceWithSecurityGroupSample")({
     "LambdaTest" : AWS.Lambda.Function(
      {
     	    "Code" : "./resources/simple",
+    	    "S3Key" : "LambdaTest.zip",
     	    "Description" : "Simple AWS Lambda function",
     	    "Handler" : "index.handler"
      })

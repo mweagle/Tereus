@@ -36,7 +36,7 @@ public class LambdaUtils implements IEngineBinding {
 		return "LambdaUtilsImpl";
 	}
 	
-	public String createFunction(final String lambdaSourceRoot, final String bucketName) throws IOException, InterruptedException
+	public String createFunction(final String lambdaSourceRoot, final String bucketName, final String s3KeyName) throws IOException, InterruptedException
 	{
 		
 		// Install, zip it, and upload it.  Return:
@@ -87,7 +87,9 @@ public class LambdaUtils implements IEngineBinding {
 			ZipUtil.pack(new File(lambdaDir), tempZip.toFile());
 			this.logger.info("Compressed filesize: {} bytes", tempZip.toFile().length());
 			
-	        final String keyName = String.format("%s-tereus-lambda.zip", UUID.randomUUID().toString());
+	        final String keyName = !s3KeyName.isEmpty() ? 
+	        						s3KeyName : 
+	        						String.format("%s-tereus-lambda.zip", UUID.randomUUID().toString());
 			JsonObject jsonObject = new JsonObject();
 			jsonObject.add("S3Bucket", new JsonPrimitive(bucketName));
 			jsonObject.add("S3Key", new JsonPrimitive(keyName));

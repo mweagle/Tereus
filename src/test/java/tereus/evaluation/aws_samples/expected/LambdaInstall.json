@@ -1,0 +1,19 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Validate the Lambda function",
+  "Resources": {
+    "LambdaTest": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Role": "arn:aws:iam::027159405834:root",
+        "Runtime": "nodejs",
+        "Code": {
+          "S3Bucket": "testBucket",
+          "S3Key": "LambdaInstallTest.zip"
+        },
+    	"Description" : "Simple AWS Lambda function that requires `npm install`",
+        "Handler": "index.handler"
+      }
+    }
+  }
+}

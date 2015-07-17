@@ -112,8 +112,10 @@ function CloudFormationTemplate(stackName) {
             {
                 var bucket = PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.BUCKET_NAME);
                 accumulator[source] = accumulator[source] ||
-                                        JSON.parse(LambdaUtilsImpl.createFunction(source, bucket));
+                                        JSON.parse(LambdaUtilsImpl.createFunction(source, bucket, resourceDefinition.Properties.S3Key || ''));
                 resourceDefinition.Properties.Code = accumulator[source];
+                // Make sure there's no S3Key at the root...
+                resourceDefinition.Properties.S3Key = undefined;
             }
         }
     };
