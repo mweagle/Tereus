@@ -46,8 +46,7 @@ public class LambdaUtils implements IEngineBinding {
 			  "S3Key" : String,
 			  "S3ObjectVersion" : String - TODO
 			}
-		*/
-		
+		*/		
         final String lambdaDir = this.templateRoot.resolve(lambdaSourceRoot).normalize().toAbsolutePath().toString();
 		
         // Is there a package.json file?
@@ -98,10 +97,11 @@ public class LambdaUtils implements IEngineBinding {
 			if (!this.dryRun)
 			{
 				final FileInputStream fis = new FileInputStream(tempZip.toFile());
-	            try ( S3Resource resource = new S3Resource(bucketName, keyName, fis))
+	            try ( S3Resource resource = new S3Resource(bucketName, keyName, fis, Optional.of(tempZip.toFile().length())))
 	            {
 	            	Optional<String> result = resource.upload();
 	            	this.logger.info("Uploaded Lambda source to: {}", result.get());
+	            	resource.setReleased(true);
 	            }
 			}
 			else
