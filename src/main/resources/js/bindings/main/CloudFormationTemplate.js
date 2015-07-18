@@ -101,16 +101,19 @@ function CloudFormationTemplate(stackName) {
                 resourceDefinition.Properties.Tags || {});
         }
     };
-    var __lambdaFunctions = function(accumulator, resourceDefinition /*, logicalResourceName */)
+    var __lambdaFunction = function(accumulator, resourceDefinition, logicalResourceName)
     {
         var lambdaTarget = ['AWS::Lambda::Function'];
         if (_.contains(lambdaTarget, resourceDefinition.Type) &&
             resourceDefinition.Properties)
         {
             var source = resourceDefinition.Properties.Code;
+        	logger.info('Handling lamdbda: ' + logicalResourceName + ', source: ' + source);
+
             if (_.isString(source))
             {
                 var bucket = PARAMS.get(CONSTANTS.PARAMETERS.KEYNAMES.BUCKET_NAME);
+
                 accumulator[source] = accumulator[source] ||
                                         JSON.parse(LambdaUtilsImpl.createFunction(source, bucket, resourceDefinition.Properties.S3Key || ''));
                 resourceDefinition.Properties.Code = accumulator[source];
@@ -164,8 +167,15 @@ function CloudFormationTemplate(stackName) {
         _.each(definition.Resources, __cloudInitInstances.bind(this));
 
         // Lambda uploads
-        _.reduce(definition.Resources, __lambdaFunctions.bind(this), {});
-
+        var logicalResources = Object.keys(definition.Resources);
+        var self = this;
+        _.reduce(logicalResources, 
+        		function (memo, eachLogicalResource)
+        		{
+        			__lambdaFunction.call(self, memo, definition.Resources[eachLogicalResource], eachLogicalResource);
+        			return memo;
+        		},
+        		{});
         // Put the result into something we can get at
         __templateTunnel.expandedTemplate = JSON.stringify(definition);
 
