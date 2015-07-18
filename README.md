@@ -66,24 +66,27 @@ OPTIONS
 
 ## Web Interface
 
-Tereus also supports a Web-based UI to support interactive usage.  The UI is available by providing the `-i/--gui` command line option as in:
+Tereus also supports a Web-based UI to support interactive usage.
+The UI is available by providing the `gui` command line option as in:
 
 ```
 java -jar Tereus.jar gui
-12:55 $ java -jar build/libs/Tereus.jar --gui
+$ java -jar Tereus.jar gui
 [Thread-0] INFO spark.webserver.SparkServer - == Spark has ignited ...
 [Thread-0] INFO spark.webserver.SparkServer - >> Listening on 0.0.0.0:4567
 [Thread-0] INFO org.eclipse.jetty.server.Server - jetty-9.0.z-SNAPSHOT
-[Thread-0] INFO org.eclipse.jetty.server.ServerConnector - Started ServerConnector@507d0e15{HTTP/1.1}{0.0.0.0:4567}
-12:58:15.071 [main] INFO  com.mweagle.Tereus - Tereus UI available at http://localhost:4567/
+[Thread-0] INFO org.eclipse.jetty.server.ServerConnector - Started ServerConnector@642eb442{HTTP/1.1}{0.0.0.0:4567}
+10:07:29.149 [main] INFO  com.mweagle.Tereus - Tereus UI available at http://localhost:4567/
 ```
-
 And visiting [http://localhost:4567/](http://localhost:4567/).  (The port can be overriden using the `-p/--port` CLI option.)
 
 ![Tereus GUI](Tereus.png)
 
 The UI is served by [Spark](http://sparkjava.com/) and the client is backed by [ReactJS](http://facebook.github.io/react/) and [Flux](https://github.com/facebook/flux).
 
+The navigation bar also includes an *Evaluation Docs* link which describes what
+libraries, convenience methods, and global namespace are available to make composing
+CloudFormation templates easier.
 
 # Building Tereus
 
