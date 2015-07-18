@@ -62,12 +62,6 @@ public class CONSTANTS {
          */
         public final static String SSH_KEY_NAME = "SSHKeyName";
         /**
-         * Optional URL to Docker image available on S3.  The docker image is created by `docker --save --output image.tar.gz`.
-         * If this parameter is provided and there is an ASG or EC2 provisioned, then the Docker image
-         * will be started on the instance
-         */
-        public final static String DOCKER_IMAGE_S3_URL =  "DockerImageS3URL";
-        /**
          * Instance type to use.  Typically refers to the `AWSInstanceType2Arch`
          * Mappings entry.
          */
