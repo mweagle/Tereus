@@ -17,9 +17,8 @@
   "templates": {
     "cleverLinks": false,
     "monospaceLinks": false,
-    "default": {
-      "outputSourceFiles": true
-    },
+    "outputSourceFiles": true,
+    "outputSourcePath": true,
     "systemName": "Tereus Evaluation Docs",
     "footer": "",
     "copyright": "Copyright (c) 2015 Matt Weagle - <a href=\"http://github.com/mweagle/Tereus\">GitHub</a>",
