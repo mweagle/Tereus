@@ -291,7 +291,7 @@ CONSTANTS.PARAMETERS.DEFINITIONS[CONSTANTS.PARAMETERS.KEYNAMES.SSH_KEY_NAME] = {
 };
 
 CONSTANTS.PARAMETERS.DEFINITIONS[CONSTANTS.PARAMETERS.KEYNAMES.BUCKET_NAME] = {
-    'Description': 'Name of an S3 bucket that includes the Docker image to deploy',
+    'Description': 'Name of an S3 bucket that will be used for Stack related resources',
     'Type': 'String',
     'Default': 'S3 Bucket Name in Stack Region',
     'MinLength': '1',
