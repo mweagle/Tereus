@@ -81,10 +81,8 @@ AWS.Lambda = {
   Function: function (additionalUserProps)
   {
     var properties = _.extend({
-      Role: USER_INFO.get('arn'),
       Runtime: 'nodejs'
     }, additionalUserProps);
-
     return {
       'Type': 'AWS::Lambda::Function',
       'Properties': properties
