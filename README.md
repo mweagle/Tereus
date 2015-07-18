@@ -90,6 +90,7 @@ The UI is served by [Spark](http://sparkjava.com/) and the client is backed by [
 To build Tereus, ensure you have:
 
 - Java 1.8
+
     ```
     $java -version
     java version "1.8.0_51"
