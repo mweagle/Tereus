@@ -8,8 +8,9 @@ extended using built-in and user-defined JavaScript functions.
 # Usage
 
 Tereus supports two modes of operation:
-    * Command Line
-    * Web Interface
+
+  - Command Line
+  - Web Interface
 
 ## Command Line
 
