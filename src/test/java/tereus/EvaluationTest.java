@@ -3,9 +3,10 @@ package tereus;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.mweagle.Tereus;
 import com.mweagle.TereusInput;
 import com.mweagle.tereus.CONSTANTS;
+import com.mweagle.tereus.commands.CreateCommand;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
@@ -39,7 +40,7 @@ public abstract class EvaluationTest {
 
     protected void verifyEvaluation(final TereusInput input, final Path expectedResultPath) throws Exception
     {
-        Tereus tereus = new Tereus();
+        CreateCommand tereus = new CreateCommand();
 
         Optional<ByteArrayOutputStream> os = Optional.empty();
         boolean shouldTestPass = true;
@@ -47,7 +48,7 @@ public abstract class EvaluationTest {
         {
             shouldTestPass = Files.exists(expectedResultPath);
             os = Optional.of(new ByteArrayOutputStream());
-            tereus.run(input, os);
+            tereus.create(input, os);
             final JsonElement evaluated = new JsonParser().parse(os.get().toString("UTF-8"));
             final String evaluatedString = new GsonBuilder().create().toJson(evaluated);
 

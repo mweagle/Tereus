@@ -41,6 +41,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.mweagle.tereus.CONSTANTS;
+import com.mweagle.tereus.commands.CreateCommand;
 public class TereusGui {
 
 	 @SuppressWarnings("unchecked")
@@ -73,7 +74,7 @@ public class TereusGui {
 										                            true);
 
 			            final ByteArrayOutputStream osStream = new ByteArrayOutputStream();
-		                new Tereus().run(tereusInput, Optional.of(osStream));
+		                new CreateCommand().create(tereusInput, Optional.of(osStream));
 
 		                // Return both the raw template and the evaluated version
 		                final String templateContent = new String(Files.readAllBytes(Paths.get(path)),"UTF-8");

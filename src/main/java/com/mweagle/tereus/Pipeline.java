@@ -24,27 +24,35 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle.tereus;
 
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.GetUserResult;
-import com.google.gson.Gson;
-import com.mweagle.TereusInput;
-import com.mweagle.tereus.utils.IEngineBinding;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.GetUserResult;
+import com.google.gson.Gson;
+import com.mweagle.TereusInput;
+import com.mweagle.tereus.utils.IEngineBinding;
 
 /**
  * Created by mweagle on 4/25/15.
@@ -66,7 +74,8 @@ public class Pipeline {
             /** AWS Helpers **/
             "main/aws/index.js",
             "main/aws/lambda.js",
-            "main/aws/ec2.js"
+            "main/aws/ec2.js",
+            "main/aws/iam.js"
             };
     
     /**
@@ -123,7 +132,7 @@ public class Pipeline {
     	final AmazonIdentityManagementClient client = new AmazonIdentityManagementClient();	
     	final GetUserResult result = client.getUser();
         engine.put("UserInfoImpl", result);
-    	
+
         // And the logger
         final Logger templateLogger  = LogManager.getLogger("com.mweagle.Tereus.TemplateEvaluation");
         engine.put("logger", templateLogger);
