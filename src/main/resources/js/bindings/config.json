@@ -22,7 +22,7 @@
     },
     "systemName": "Tereus Evaluation Docs",
     "footer": "",
-    "copyright": "Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)",
+    "copyright": "Copyright (c) 2015 Matt Weagle - <a href=\"http://github.com/mweagle/Tereus\">GitHub</a>",
     "navType": "vertical",
     "theme": "cosmo",
     "linenums": true,

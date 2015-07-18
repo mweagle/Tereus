@@ -18,7 +18,13 @@ definition passed to the `CloudFormationTemplate` function.  For example:
 CloudFormationTemplate("Test")({
     "Description": "Test",
     "Resources": {
-        "Hello": "World"
+        "SomeResource" :{
+          "Type" : "AWS::....",
+          "Properties" :
+          {
+
+          }
+        }
     },
     "Outputs": {}
 });
@@ -28,7 +34,7 @@ The `CloudFormationTemplate` function accepts a single argument (the _Stack Name
 returns a function whose single argument is a JSON-object representing a CloudFormation
 template.
 
-The evaluation context includes a set of global functions to assist constructing
+The evaluation context includes a set of global functions and namespaces to assist constructing
 CloudFormation templates.  For instance:
 
 ```
@@ -67,13 +73,24 @@ var provideSomeData = function()
 // main.js
 load('helpers.js');
 
-var someData = provideSomeData();
+CloudFormationTemplate("Test")({
+    "Description": "Test",
+     "Resources": {
+       "SomeResource" : {
+         "Metadata":
+         {
+           "ExtraData" : provideSomeData()
+         }
+       }
+     },
+     "Outputs": {}
+});
 
 ```
 
 ## Accessing Java APIs
 
-Finally, it's also possible to call Java code directly inside
+Finally, you can also call Java code directly inside
 the JS evaluation context using *Java.type*.  For instance,
 
 ```

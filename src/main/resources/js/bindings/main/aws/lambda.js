@@ -41,7 +41,7 @@ AWS.Lambda = {
      * object for CloudFormation.  Providing a template-directory relative string value
      * for the <code>Code</code> will trigger an automatic:
      *    <ol>
-     *     <li><i>npm install</i></li>
+     *     <li><b>npm install</b> (if <i>package.json</i> detected)</li>
      *     <li>ZIPping of the resulting source archive</li>
      *     <li>Automatic upload of the Zipfile to S3 for referencing</li>
      *    </ol>
@@ -50,6 +50,31 @@ AWS.Lambda = {
      * uploads are based on template-relative <code>Code</code> definitions.  Multiple
      * Lambda resources based on the same source directory will <b>all</b> use the same
      * ZIP archive.
+     *
+     An illustration of how to provision a Lambda resource is below.
+
+     * @example <caption><i>definition.js</i></caption>
+
+     "LambdaTest" : AWS.Lambda.Function(
+     {
+          "Code" : "./resources/lambdaSourceDirectory",
+          "Description" : "Serverless is the future",
+          "Handler" : "index.handler"
+     })
+
+     * @example <caption><i>./resources/lambdaSourceDirectory/index.js</i></caption>
+
+    ////////////////////////////////////
+    // File: index.js
+    console.log('Loading function');
+
+    exports.handler = function(event, context) {
+        console.log('value1 =', event.key1);
+        console.log('value2 =', event.key2);
+        console.log('value3 =', event.key3);
+        context.succeed(event.key1);  // Echo back the first key value
+        // context.fail('Something went wrong');
+    };
      *
      * @param {Object} additionalUserProps  - Additional user properties to compose with defaults.
      */
