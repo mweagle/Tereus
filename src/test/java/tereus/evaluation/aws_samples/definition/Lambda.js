@@ -1,12 +1,18 @@
-/* global CloudFormationTemplate,EC2 */
-CloudFormationTemplate("EC2InstanceWithSecurityGroupSample")({
+/* global CloudFormationTemplate,AWS */
+CloudFormationTemplate("Lambda")({
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Validate the Lambda function",
+  "Parameters" :
+	  {
+	  	"BucketName" : CONSTANTS.PARAMETERS.DEFINITIONS.BucketName
+	  },
   "Resources" :
   {
-    "LambdaTest" : AWS.Lambda.Function(
+	 "LambdaRole" : AWS.IAM.LambdaRole,
+     "LambdaTest" : AWS.Lambda.Function(
      {
     	    "Code" : "./resources/simple",
+    	    "Role" : {"Fn::GetAtt" : ["LambdaRole", "Arn"]},
     	    "S3Key" : "LambdaTest.zip",
     	    "Description" : "Simple AWS Lambda function",
     	    "Handler" : "index.handler"

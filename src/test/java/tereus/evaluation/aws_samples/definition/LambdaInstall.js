@@ -1,5 +1,5 @@
-/* global CloudFormationTemplate,EC2 */
-CloudFormationTemplate("EC2InstanceWithSecurityGroupSample")({
+/* global CloudFormationTemplate,AWS */
+CloudFormationTemplate("LambdaInstall")({
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Validate the Lambda function",
   "Resources" :

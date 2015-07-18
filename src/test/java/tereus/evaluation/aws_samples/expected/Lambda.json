@@ -1,19 +1,57 @@
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Validate the Lambda function",
-  "Resources": {
-    "LambdaTest": {
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Role": "arn:aws:iam::027159405834:root",
-        "Runtime": "nodejs",
-        "Code": {
-          "S3Bucket": "testBucket",
-          "S3Key": "LambdaTest.zip"
-        },
-        "Description": "Simple AWS Lambda function",
-        "Handler": "index.handler"
-      }
-    }
+ "AWSTemplateFormatVersion": "2010-09-09",
+ "Description": "Validate the Lambda function",
+ "Parameters": {
+  "BucketName": {
+   "Description": "Name of an S3 bucket that will be used for Stack related resources",
+   "Type": "String",
+   "Default": "S3 Bucket Name in Stack Region",
+   "MinLength": "1",
+   "MaxLength": "255",
+   "AllowedPattern": "[\\x20-\\x7E]*",
+   "ConstraintDescription": "can contain only ASCII characters."
   }
+ },
+ "Resources": {
+  "LambdaRole": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Effect": "Allow",
+       "Action": [
+        "sts:AssumeRole"
+       ],
+       "Principal": {
+        "Service": [
+         "lambda.amazonaws.com"
+        ]
+       }
+      }
+     ]
+    },
+    "Path": "/"
+   }
+  },
+  "LambdaTest": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Runtime": "nodejs",
+    "Code": {
+     "S3Bucket": "testBucket",
+     "S3Key": "LambdaTest.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LambdaRole",
+      "Arn"
+     ]
+    },
+    "Description": "Simple AWS Lambda function",
+    "Handler": "index.handler"
+   }
+  }
+ }
 }
