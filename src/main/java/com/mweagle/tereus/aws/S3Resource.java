@@ -42,6 +42,8 @@ public class S3Resource implements AutoCloseable {
     private final String bucketName;
     private final String keyName;
     private final InputStream inputStream;
+    private final Optional<Long> inputStreamLength;
+    
     public Optional<String> getResourceURL() {
         return resourceURL;
     }
@@ -57,11 +59,12 @@ public class S3Resource implements AutoCloseable {
         this.released = released;
     }
 
-    public S3Resource(String bucketName, String keyName, InputStream is)
+    public S3Resource(String bucketName, String keyName, InputStream is, Optional<Long> streamLength)
     {
         this.bucketName = bucketName;
         this.keyName = keyName;
         this.inputStream = is;
+        this.inputStreamLength = streamLength;
         this.resourceURL = Optional.empty();
         this.released = false;
     }
@@ -74,6 +77,10 @@ public class S3Resource implements AutoCloseable {
                     credentialProviderChain.getCredentials());
 
             final ObjectMetadata metadata = new ObjectMetadata();
+            if (this.inputStreamLength.isPresent())
+            {
+            	metadata.setContentLength(this.inputStreamLength.get());
+            }
             final PutObjectRequest uploadRequest = new PutObjectRequest(bucketName, keyName, this.inputStream, metadata);
             final Upload templateUpload = transferManager.upload(uploadRequest);
             @SuppressWarnings("unused")
