@@ -36,9 +36,10 @@ var tappedLoad = load;
 var load = function(pathArg)
 {
     // Find the first useful thing
+    var exception = null;
     var candidates = [pathArg, FileUtilsImpl.resolvedPath(pathArg)];
     var loaded = false;
-    for (var i = 0; i !== candidates.length && !loaded; ++i)
+    for (var i = 0; i !== candidates.length && !loaded && !exception; ++i)
     {
       var resourcePath = candidates[i];
       try
@@ -49,7 +50,17 @@ var load = function(pathArg)
       }
       catch (e)
       {
-    	  // NOP
+        if (-1 !== e.toString().indexOf('SyntaxError'))
+        {
+          exception = e;
+        }
       }
+    }
+
+    if (!loaded)
+    {
+      // Halt evaluation
+      exception = exception || ('Unknown error for source: ' + pathArg);
+      throw exception;
     }
 };
