@@ -1,4 +1,4 @@
-/* global AWS,_, USER_INFO*/
+/* global AWS,_*/
 
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
@@ -50,6 +50,11 @@ AWS.Lambda = {
      * uploads are based on template-relative <code>Code</code> definitions.  Multiple
      * Lambda resources based on the same source directory will <b>all</b> use the same
      * ZIP archive.
+     *
+     * <b>Note</b>: Including an <code>S3Key</code> property as part of the
+     * <code>additionalUserProps</code> defines a stable identifier for the Lambda
+     * payload upload.  If this key is not defined, Tereus will use an automatically
+     * generated S3 keyname.
      *
      An illustration of how to provision a Lambda resource is below.
 
