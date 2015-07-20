@@ -102,8 +102,19 @@ public class Pipeline {
         Arrays.stream(JS_FILES).forEach(new JavaScriptInputStreamPublisher(engine, BINDING_RESOURCE_ROOT, cfInput.logger));
         cfInput.logger.debug("Evaluating template");
 
-        // Run the template...
-        engine.eval(cfTemplate);
+        // Evaluate the template
+        try
+        {
+            engine.eval(cfTemplate);        	
+        }
+        catch (Exception ex)
+        {
+        	final String msg = String.format("Failed to evaluate: %s\n%s: %s", 
+        									cfInput.stackDefinitionPath.toString(),
+        									ex.getClass().getName(),
+        									ex.getMessage());
+        	throw new Exception(msg, ex.getCause());
+        }
 
         HashMap<String, Object> result = new HashMap<>();
         for (IEngineBinding eachBinding : boundInstances) {
