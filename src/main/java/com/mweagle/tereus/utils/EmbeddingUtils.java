@@ -32,8 +32,6 @@ import org.apache.logging.log4j.Logger;
 import javax.script.ScriptEngine;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,8 +44,6 @@ public class EmbeddingUtils implements IEngineBinding {
     /**
      * http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html
      */
-    public static final String[] AWS_PSEUDO_PARAMS_LIST = new String[]{"AWS::AccountId", "AWS::NotificationARNs", "AWS::NoValue", "AWS::Region", "AWS::StackId", "AWS::StackName"};
-    public static final Set<String> AWS_PSEUDO_PARAMS = new HashSet<String>(Arrays.asList(AWS_PSEUDO_PARAMS_LIST));
     private final static Pattern PATTERN_MUSTACHE = Pattern.compile("\\{{2}([^\\}]+)\\}{2}");
 
 
@@ -62,6 +58,9 @@ public class EmbeddingUtils implements IEngineBinding {
         this.logger = logger;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+    	    value="NM_METHOD_NAMING_CONVENTION", 
+    	    justification="This is published into Nashorn")
     public String Literal(String rawData) throws Exception {
         JsonArray jsonContent =  this.parseResource(rawData);
         JsonArray fnJoinContent = new JsonArray();

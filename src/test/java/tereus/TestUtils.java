@@ -33,7 +33,7 @@ import com.google.common.base.Preconditions;
 
 public class TestUtils
 {
-	public final static Path TestRoot() 
+	public final static Path testRoot() 
 	{
 		final String cwd = new File("").getAbsolutePath();
 		final Path testRootDirectory = Paths.get(cwd, "src", "test", "java",

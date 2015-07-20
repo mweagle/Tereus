@@ -41,7 +41,7 @@ public class SingleEvaluationTest extends EvaluationTest {
 		
 	private static Path inputPath(final String testType, final String fileRelativePath)
 	{		
-		return Paths.get(TestUtils.TestRoot().toString(), 
+		return Paths.get(TestUtils.testRoot().toString(), 
 						 "evaluation",
 						 testType,
 						 "definition",
@@ -50,7 +50,7 @@ public class SingleEvaluationTest extends EvaluationTest {
 	
 	private static Path resultPath(final String testType, final String fileRelativePath)
 	{
-		return Paths.get(TestUtils.TestRoot().toString(), 
+		return Paths.get(TestUtils.testRoot().toString(), 
 				 "evaluation",
 				 testType,
 				 "expected",

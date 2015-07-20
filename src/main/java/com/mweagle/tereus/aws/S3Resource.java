@@ -33,7 +33,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
-import com.amazonaws.services.s3.transfer.model.UploadResult;
 
 /**
  * Created by mweagle on 5/7/15.
@@ -83,8 +82,8 @@ public class S3Resource implements AutoCloseable {
             }
             final PutObjectRequest uploadRequest = new PutObjectRequest(bucketName, keyName, this.inputStream, metadata);
             final Upload templateUpload = transferManager.upload(uploadRequest);
-            @SuppressWarnings("unused")
-			final UploadResult uploadResult = templateUpload.waitForUploadResult();
+
+			templateUpload.waitForUploadResult();
             this.resourceURL = Optional.of(String.format("https://s3.amazonaws.com/%s/%s", bucketName, keyName));
         }
         catch (Exception ex){

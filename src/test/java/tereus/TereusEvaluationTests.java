@@ -50,7 +50,7 @@ public class TereusEvaluationTests extends EvaluationTest {
 
     @Parameters
     public static List<Object[]> data() throws IOException {
-        final List<Path> testDirectories = Files.list(Paths.get(TestUtils.TestRoot().toString(), "evaluation")).
+        final List<Path> testDirectories = Files.list(Paths.get(TestUtils.testRoot().toString(), "evaluation")).
                                                 filter(Files::isDirectory).
                                                 collect(Collectors.toList());
         List<Object[]> testPairs = new LinkedList<>();

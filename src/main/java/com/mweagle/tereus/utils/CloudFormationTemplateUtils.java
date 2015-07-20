@@ -27,19 +27,24 @@ package com.mweagle.tereus.utils;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonParser;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.script.ScriptEngine;
+
+import org.apache.logging.log4j.Logger;
 
 /**
  * Created by mweagle on 4/26/15.
  */
 public class CloudFormationTemplateUtils implements IEngineBinding {
 
-    public String stackName;
-    public String expandedTemplate;
-    public String parameterizedTemplate;
-
+    public String stackName = "";
+    public String expandedTemplate = "";
+    public String parameterizedTemplate = "";
+    
     @Override
     public String getBindingName() {
         return "__templateTunnel";

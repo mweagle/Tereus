@@ -52,7 +52,7 @@ public class CreationTest  {
 
 	private static Path lambdaDefinitionPath()
 	{				
-		return Paths.get(TestUtils.TestRoot().toString(), 
+		return Paths.get(TestUtils.testRoot().toString(), 
 						 "evaluation",
 						 "aws_samples",
 						 "definition",

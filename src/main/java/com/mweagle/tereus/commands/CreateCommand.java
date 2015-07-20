@@ -26,6 +26,7 @@ package com.mweagle.tereus.commands;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -52,6 +53,7 @@ import com.amazonaws.services.cloudformation.model.Parameter;
 import com.amazonaws.services.cloudformation.model.Tag;
 import com.amazonaws.services.cloudformation.model.ValidateTemplateRequest;
 import com.amazonaws.services.cloudformation.model.ValidateTemplateResult;
+import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -93,6 +95,11 @@ public class CreateCommand extends AbstractTereusCommand
 	@Option(name = { "-n", "--noop" }, description = "Dry run - stack will NOT be created (default=true)")
 	public boolean noop = true;
 
+	
+	
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({
+        "DM_EXIT", 
+        "OBL_UNSATISFIED_OBLIGATION"})
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run()
@@ -101,7 +108,7 @@ public class CreateCommand extends AbstractTereusCommand
 		try
 		{
 			final String argumentJSON = (null != this.jsonParamAndTagsPath)
-					? new String(Files.readAllBytes(Paths.get(this.jsonParamAndTagsPath)), "UTF-8") : null;
+					? new String(Files.readAllBytes(Paths.get(this.jsonParamAndTagsPath)), Charsets.UTF_8) : null;
 
 			Map<String, Object> jsonJavaRootObject = (null != argumentJSON)
 					? new Gson().fromJson(argumentJSON, Map.class) : Collections.emptyMap();
@@ -126,6 +133,7 @@ public class CreateCommand extends AbstractTereusCommand
 
 			TereusInput tereusInput = new TereusInput(this.stackName, this.stackTemplatePath, this.region, parameters,
 					tags, this.noop);
+
 			Optional<OutputStream> osSink = Optional.empty();
 			try
 			{
@@ -139,11 +147,18 @@ public class CreateCommand extends AbstractTereusCommand
 			{
 				LogManager.getLogger().error(ex);
 				exitCode = 2;
-			} finally
+			} 
+			finally
 			{
 				if (osSink.isPresent())
 				{
-					osSink.get().close();
+					try
+					{
+						osSink.get().close();
+					} catch (Exception e)
+					{
+						// NOP
+					}
 				}
 			}
 		} catch (Exception ex)

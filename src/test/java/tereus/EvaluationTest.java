@@ -92,7 +92,7 @@ public abstract class EvaluationTest {
         catch (AssertionError err)
         {
             final String expected = new String(os.get().toByteArray(), "UTF-8");
-            final String errMsg = String.format("%s\nExpected:\n%s\n%s", input.stackDefinitionPath, expected, err.getMessage());
+            final String errMsg = String.format("%s%nExpected:%n%s%n%s", input.stackDefinitionPath, expected, err.getMessage());
             throw new AssertionError(errMsg);
         }
         catch (Exception ex)
@@ -104,7 +104,7 @@ public abstract class EvaluationTest {
                     final String expected = new String(os.get().toByteArray(), "UTF-8");
                     logger.error("Expected:\n{}", expected);
                 }
-                final String errMsg = String.format("Failed to validate definition: %s\nExpected: %s\n%s", input.stackDefinitionPath, expectedResultPath, ex.getMessage());
+                final String errMsg = String.format("Failed to validate definition: %s%nExpected: %s%n%s", input.stackDefinitionPath, expectedResultPath, ex.getMessage());
                 throw new RuntimeException(errMsg);
             }
         }

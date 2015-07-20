@@ -50,6 +50,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.GetUserResult;
+import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.mweagle.TereusInput;
 import com.mweagle.tereus.utils.IEngineBinding;
@@ -84,7 +85,7 @@ public class Pipeline {
      */
     public HashMap<String, Object> run(final TereusInput cfInput ) throws Exception {
         final Instant startTime = Instant.now();
-        final String cfTemplate = new String(Files.readAllBytes(cfInput.stackDefinitionPath));
+        final String cfTemplate = new String(Files.readAllBytes(cfInput.stackDefinitionPath), Charsets.UTF_8);
 
         cfInput.logger.debug("Creating ScriptEngine Context");
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -109,7 +110,7 @@ public class Pipeline {
         }
         catch (Exception ex)
         {
-        	final String msg = String.format("Failed to evaluate: %s\n%s: %s", 
+        	final String msg = String.format("Failed to evaluate: %s%n%s: %s", 
         									cfInput.stackDefinitionPath.toString(),
         									ex.getClass().getName(),
         									ex.getMessage());
@@ -151,7 +152,7 @@ public class Pipeline {
         return engine;
     }
 
-    protected class ClassNameBuilder implements Function<String, String> {
+    protected static class ClassNameBuilder implements Function<String, String> {
         @Override
         public String apply(String s) {
             return String.join(".", Pipeline.BINDING_PACKAGE, s);
@@ -204,12 +205,12 @@ public class Pipeline {
             final String resourcePath = String.format("%s/%s", this.resourcesRoot, resourceName);
             this.logger.debug("Loading resource: " + resourcePath);
             final InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charsets.UTF_8));
             super.evaluate(reader, "Failed to load resource: " + resourcePath);
         }
     }
 
-    protected class EngineBinding implements Function<String, IEngineBinding> {
+    protected static class EngineBinding implements Function<String, IEngineBinding> {
         private final TereusInput tereusInput;
         private final ScriptEngine engine;
         private final Path templateRootPath;
