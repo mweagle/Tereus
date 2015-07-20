@@ -3,6 +3,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'eclipse'
+    id 'findbugs'
 }
 
 defaultTasks = ['clean', 'jar']
