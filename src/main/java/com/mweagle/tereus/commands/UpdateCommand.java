@@ -30,7 +30,7 @@ public class UpdateCommand extends AbstractTereusCommand
 	@Override
 	public void run()
 	{
-		// TODO - Implement me
+		// TODO - Implement UpdateCommand with JSONPatch expression
 		throw new UnsupportedOperationException();
 	}
 

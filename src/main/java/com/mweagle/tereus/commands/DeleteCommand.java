@@ -29,7 +29,7 @@ public class DeleteCommand extends AbstractTereusCommand
 	@Override
 	public void run()
 	{
-		// TODO - Implement me
+		// TODO - Implement DeleteCommand
 		throw new UnsupportedOperationException();
 	}
 
