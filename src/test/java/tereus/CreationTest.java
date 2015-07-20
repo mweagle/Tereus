@@ -26,11 +26,9 @@ import com.mweagle.tereus.commands.CreateCommand;
 public class CreationTest  {
     final protected Logger logger = LogManager.getLogger(CreationTest.class.getName());
 
-	private static String TEST_FILES_ROOT = System.getenv("JUNIT_TEST_ROOT");
-
 	private static Path lambdaDefinitionPath()
 	{				
-		return Paths.get(CreationTest.TEST_FILES_ROOT, 
+		return Paths.get(TestUtils.TestRoot().toString(), 
 						 "evaluation",
 						 "aws_samples",
 						 "definition",
@@ -40,7 +38,8 @@ public class CreationTest  {
 	
     @Test
     public void test() throws Exception {
-    	if (System.getenv().containsKey("JUNIT_CREATE_STACK"))
+    	final String createStack = System.getenv("JUNIT_CREATE_STACK");
+    	if (System.getenv().containsKey("JUNIT_CREATE_STACK") && Boolean.parseBoolean(createStack))
     	{
         	// Create the Lambda stack
             Map<String, Object> params = new HashMap<>();
@@ -57,7 +56,7 @@ public class CreationTest  {
     	}
     	else
     	{
-    		logger.warn("Creation test bypassed.  Set env.JUNIT_CREATE_STACK to enable");
+    		logger.warn("Creation test bypassed.  Set env.JUNIT_CREATE_STACK=true to enable");
     	}
     }
 }

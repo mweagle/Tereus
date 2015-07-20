@@ -24,45 +24,28 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package tereus;
 
-//import java.io.File;
-//import java.util.Map;
-
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.google.common.base.Preconditions;
 
-/**
- * Created by mweagle on 5/12/15.
- */
-@RunWith(org.junit.runners.JUnit4.class)
-public class SingleEvaluationTest extends EvaluationTest {
-		
-	private static Path inputPath(final String testType, final String fileRelativePath)
-	{		
-		return Paths.get(TestUtils.TestRoot().toString(), 
-						 "evaluation",
-						 testType,
-						 "definition",
-						 fileRelativePath + ".js").toAbsolutePath();
-	};
-	
-	private static Path resultPath(final String testType, final String fileRelativePath)
+public class TestUtils
+{
+	public final static Path TestRoot() 
 	{
-		return Paths.get(TestUtils.TestRoot().toString(), 
-				 "evaluation",
-				 testType,
-				 "expected",
-				 fileRelativePath + ".json").toAbsolutePath();
-	};	
+		final String cwd = new File("").getAbsolutePath();
+		final Path testRootDirectory = Paths.get(cwd, "src", "test", "java",
+				"tereus");
+        Preconditions.checkArgument(TestUtils.isValidRootArgument(testRootDirectory), 
+        							"Failed to resolve test root directory (eg: ~/Documents/Tereus/src/test/java/tereus)");
+        return testRootDirectory;
+	}
 	
-    @Test
-    public void test() throws Exception {
-    	final String testType = "aws_samples";
-    	final String testName = "EC2Builder";
-    	final Path inputFile = SingleEvaluationTest.inputPath(testType, testName);
-    	final Path expectedFile = SingleEvaluationTest.resultPath(testType, testName);
-    	super.verifyEvaluation(inputFile, expectedFile);
+    protected static boolean isValidRootArgument(Path argument)
+    {
+        return (Files.exists(argument) &&
+                Files.isDirectory(argument));
     }
 }
