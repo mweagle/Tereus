@@ -26,7 +26,6 @@ package com.mweagle.tereus.commands;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -68,7 +67,7 @@ import io.airlift.airline.Help;
 import io.airlift.airline.Option;
 
 @Command(name = "create", description = "Create a CloudFormation stack")
-public class CreateCommand extends AbstractTereusCommand
+public class CreateCommand extends AbstractTereusAWSCommand
 {
 	@Option(name = { "-t",
 			"--template" }, description = "Path to CloudFormation definition [REQUIRED]", required = true)
@@ -82,19 +81,12 @@ public class CreateCommand extends AbstractTereusCommand
 			"--bucket" }, description = "S3 Bucketname to host stack resources. MUST be CLI option OR `Parameters.BucketName` value in JSON input")
 	public String s3BucketName;
 
-	@Option(name = { "-r", "--region" }, description = "AWS Region (default=us-east-1)")
-	public String region = "us-east-1";
-
 	@Option(name = { "-s",
 			"--stack" }, description = "Optional Stack Name to use.  If empty, {basename+SHA256(templateData)} will be provided")
 	public String stackName;
 
 	@Option(name = { "-o", "--output" }, description = "Optional file to which evaluated template will be saved")
 	public String outputFilePath;
-
-	@Option(name = { "-n", "--noop" }, description = "Dry run - stack will NOT be created (default=true)")
-	public boolean noop = true;
-
 	
 	
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({

@@ -24,13 +24,59 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle.tereus.commands;
 
-public class DeleteCommand extends AbstractTereusCommand
+import io.airlift.airline.Command;
+import io.airlift.airline.Option;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
+import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
+import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
+import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
+
+@Command(name = "delete", description = "Delete a CloudFormation stack by Name or Id")
+public class DeleteCommand extends AbstractTereusAWSCommand
 {
+	@Option(name = { "-s",
+	"--stack" }, description = "StackName or StackId to delete")
+	public String stackName;
+	
 	@Override
 	public void run()
 	{
-		// TODO - Implement DeleteCommand
-		throw new UnsupportedOperationException();
+		// Get the stack, delete the stack...
+		int exitCode = 0;
+		final Logger logger = LogManager.getLogger();
+
+		try
+		{
+			final AmazonCloudFormationClient awsClient = new AmazonCloudFormationClient();
+			awsClient.setRegion(RegionUtils.getRegion(this.region));
+			final DescribeStacksRequest describeRequest = new DescribeStacksRequest().withStackName(this.stackName);
+			final DescribeStacksResult describeResult = awsClient.describeStacks(describeRequest);
+			logger.info(describeResult);
+			logger.info("Deleting stack: {}", this.stackName);
+			
+			if (this.noop)
+			{
+				logger.info("Dry run requested (-n/--noop). Stack deletion bypassed.");
+			}
+			else
+			{
+				final DeleteStackRequest deleteRequest = new DeleteStackRequest().withStackName(this.stackName);
+				awsClient.deleteStack(deleteRequest);
+			}
+		}
+		catch (Exception ex)
+		{
+			logger.error(ex.getMessage());
+			exitCode = 1;
+		}
+		System.exit(exitCode);
 	}
 
 }
