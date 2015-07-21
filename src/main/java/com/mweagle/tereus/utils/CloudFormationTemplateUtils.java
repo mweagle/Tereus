@@ -24,17 +24,12 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle.tereus.utils;
 
-import com.google.common.base.Preconditions;
-import com.google.gson.JsonParser;
-
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.script.ScriptEngine;
-
-import org.apache.logging.log4j.Logger;
+import com.google.common.base.Preconditions;
+import com.google.gson.JsonParser;
 
 /**
  * Created by mweagle on 4/26/15.
