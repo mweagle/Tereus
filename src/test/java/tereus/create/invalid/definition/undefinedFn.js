@@ -1,11 +1,9 @@
-load("invalidFilePath.js");
-
 CloudFormationTemplate("Test")({
     "Description": "Test Unreferenced function",
     "Resources": {
         "EC2Instance": {
             "Type": "AWS::EC2::Instance",
-            "Properties": EC2.UndefinedFunction()
+            "Properties": AWS.EC2.UndefinedFunction()
         }
     },
     "Outputs": {
