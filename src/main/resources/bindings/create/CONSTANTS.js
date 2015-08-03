@@ -26,9 +26,11 @@
 // DEALINGS IN THE SOFTWARE
 
 /**
+ * <span class="label label-info">Creation Context</span><hr />
  * Global template evaluation Parameter values.  Parameters
  * are wrapped as an <a href="https://facebook.github.io/immutable-js/">immutable
  * object</a>.
+ *
  *
  * @example <caption>Accessing PARAMS</caption>
  *
@@ -39,6 +41,7 @@
 var PARAMS = {};
 
 /**
+ * <span class="label label-info">Creation Context</span><hr />
  * Global template evaluation Tag values.  Tags
  * are wrapped as an <a href="https://facebook.github.io/immutable-js/">immutable
  * object</a>.  All CloudFormation resources that support
@@ -54,28 +57,6 @@ var PARAMS = {};
 var TAGS = {};
 
 
-
-/**
- * Global object representing UserInfo state, wrapped in an Immutable.JS map
- *
- * @type {Object}
- * @property {string} USER_INFO.arn - The ARN of the user currently executing Tereus
- * @property {string} USER_INFO.userId - The userID currently executing Tereus
- * @property {string} USER_INFO.name - The username currently executing Tereus
- * @property {string} USER_INFO.creationDate - The creation date of the user currently executing Tereus
- *
- * @example <caption>Accessing USER_INFO</caption>
- *
- * USER_INFO.get('arn') // => arn:aws:iam::000000000000:root
- *
- */
-var USER_INFO = {
-    arn: null,
-    userId: null,
-    name: null,
-    creationDate:null
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 (function initializer() {
     var args = JSON.parse(ArgumentsImpl());
@@ -90,20 +71,11 @@ var USER_INFO = {
 
     PARAMS = Immutable.Map(args.params || {});
     TAGS = Immutable.Map(args.tags || {});
-
-    // User info...
-    var user = UserInfoImpl.getUser();
-    var userInfoMap = {
-        arn: user.getArn(),
-        userId: user.getUserId(),
-        name: user.getUserName(),
-        creationDate: user.getCreateDate(),
-    };
-    USER_INFO = Immutable.Map(userInfoMap);
 })();
 
 
 /**
+ * <span class="label label-info">Creation Context</span><hr />
  * Global constants
  * @type {Object}
  * @global

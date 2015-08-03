@@ -1,4 +1,4 @@
-/* global logger,__templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtilsImpl,EmbeddingUtilsImpl,LambdaUtilsImpl */
+/* global logger,__templateTunnel,_,PARAMS,TAGS,CONSTANTS,FileUtilsImpl,Java,LambdaUtilsImpl */
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 // Permission is hereby granted, free of charge, to
@@ -46,8 +46,11 @@ var CfnInitUserData = function (logicalResourceName) {
 };
 
 /**
+ * <span class="label label-info">Creation Context</span><hr />
+ *
  * The global CloudFormationTemplate function responsible
  * for expanding the inline stack definition.
+ *
  *
  * @param {string} stackName - Name of the Stack
  */
@@ -108,7 +111,7 @@ function CloudFormationTemplate(stackName) {
             resourceDefinition.Properties)
         {
             var source = resourceDefinition.Properties.Code;
-        	logger.info('Handling lamdbda: ' + logicalResourceName + ', source: ' + source);
+        	logger.info('Handling lambda: ' + logicalResourceName + ', source: ' + source);
 
             if (_.isString(source))
             {
@@ -169,7 +172,7 @@ function CloudFormationTemplate(stackName) {
         // Lambda uploads
         var logicalResources = Object.keys(definition.Resources);
         var self = this;
-        _.reduce(logicalResources, 
+        _.reduce(logicalResources,
         		function (memo, eachLogicalResource)
         		{
         			__lambdaFunction.call(self, memo, definition.Resources[eachLogicalResource], eachLogicalResource);
@@ -187,11 +190,13 @@ function CloudFormationTemplate(stackName) {
     };
 }
 /**
+<span class="label label-info">Creation Context</span><hr />
 
 Encapsulates functions that handle embedding external resource files
 into the expanded CloudFormation template.  Resources will be automatically
 parsed and transformed into <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-join.html">
     Fn::Join</a> compatible representations.
+
 
 @namespace Embed
 */
@@ -226,7 +231,8 @@ var Embed = {
      */
     Literal: function(stringContent)
     {
-        var parsed = EmbeddingUtilsImpl.Literal(stringContent);
+    	var embeddingUtils = Java.type('com.mweagle.tereus.commands.utils.EmbeddingUtils');
+        var parsed = embeddingUtils.Literal(stringContent);
         return JSON.parse(parsed);
     },
     /**
@@ -258,6 +264,7 @@ var Embed = {
 };
 
 /**
+ * <span class="label label-info">Creation Context</span><hr />
  * Create the set of cfn-init instructions necessary to Bootstrap a specific EC2 instance
  * @global
  * @param  {...initializationObjects} - Variable number of <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html">CloudFormation::Init</a> blocks to sequence.

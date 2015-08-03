@@ -1,11 +1,11 @@
 {
   "name": "tereus-bindings",
   "version": "0.1.0",
-  "description": "Nashorn bindings for Tereus CloudFormation evaluation",
+  "description": "Nashorn bindings for Tereus CloudFormation manipulation",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docs" : "rm -rf ../../web/docs && ./node_modules/.bin/jsdoc --readme README.md -t ./node_modules/ink-docstrap/template -d ../../web/docs -c config.json -r"
+    "docs" : "rm -rf ../web/docs && ./node_modules/.bin/jsdoc --readme README.md -t ./node_modules/ink-docstrap/template -d ../web/docs -c config.json -r"
   },
   "author": "",
   "license": "MIT",
@@ -13,7 +13,8 @@
     "immutable": "3.7.4",
     "underscore": "1.8.3",
     "jsdoc": "3.3.2",
-    "ink-docstrap": "0.5.2"
+    "ink-docstrap": "0.5.2",
+    "json8-patch" : "0.2.1"
   },
   "jshintConfig" :
   {

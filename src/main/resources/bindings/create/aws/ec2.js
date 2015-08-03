@@ -27,6 +27,7 @@
 // DEALINGS IN THE SOFTWARE
 
 /**
+<span class="label label-info">Creation Context</span><hr />
 
 Encapsulates functions that are convenience builders for creating
 <a href="http://docs.aws.amazon.com/search/doc-search.html?searchPath=documentation-guide&searchQuery=EC2&x=0&y=0&this_doc_product=AWS+CloudFormation&this_doc_guide=User+Guide&doc_locale=en_us#facet_doc_product=AWS%20CloudFormation&facet_doc_guide=User%20Guide">EC2</a>

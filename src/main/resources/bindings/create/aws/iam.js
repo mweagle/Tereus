@@ -1,4 +1,5 @@
-/* global AWS */
+/* global AWS,_, USER_INFO*/
+
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 // Permission is hereby granted, free of charge, to
@@ -26,9 +27,41 @@
 // DEALINGS IN THE SOFTWARE
 
 /**
+<span class="label label-info">Creation Context</span><hr />
 
-Global object that scopes custom AWS resource builders.
+Encapsulates functions that are convenience builders for creating
+<a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-iam.html">IAM::*</a>
+CloudFormation resources.
 
-@namespace AWS
+@namespace AWS.IAM
 */
-var AWS = {};
+AWS.IAM = {
+    /**
+     * Return an <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html">
+     * AWS::IAM::Role</a>
+     * object for CloudFormation that enables Lambda execution.
+     */
+  LambdaRole: {
+    "Type": "AWS::IAM::Role",
+    "Properties": {
+      "AssumeRolePolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [{
+          "Effect": "Allow",
+          "Action": [
+            "sts:AssumeRole"
+          ],
+          "Principal": {
+            "Service": [
+              "lambda.amazonaws.com"
+            ]
+          }
+        }]
+      },
+      "Path": "/"
+    }
+  }
+};
+
+
+

@@ -27,6 +27,7 @@
 // DEALINGS IN THE SOFTWARE
 
 /**
+<span class="label label-info">Creation Context</span><hr />
 
 Encapsulates functions that are convenience builders for creating
 <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html">Lambda</a>
