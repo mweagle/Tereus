@@ -107,7 +107,7 @@ var ArgumentsView = React.createClass({
                 </div>
               </div>
               <div className="col-md-2">
-                  <AWSRegionSelector selectedRegion={this.selectedRegion} onChange={this.onStateChange('region')} />
+                  <AWSRegionSelector defaultRegion={this.state.region} onChange={this.onStateChange('region')} />
               </div>
               <div className="col-md-4">
                 <div className={argumentClasses} ref="arguments">

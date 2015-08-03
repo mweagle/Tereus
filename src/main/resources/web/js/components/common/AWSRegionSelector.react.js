@@ -47,7 +47,7 @@ var REGION_MARKUP = _.map(REGIONS,
 
 var AWSRegionSelector = React.createClass({
   propTypes: {
-    selectedRegion: ReactPropTypes.string,
+    defaultRegion: ReactPropTypes.string,
     onChange: React.PropTypes.func.isRequired
   },
 
@@ -55,7 +55,7 @@ var AWSRegionSelector = React.createClass({
     return(
       <div className="form-group">
         <label for="inputRegion">AWS Region</label>
-        <select value={this.selectedRegion} className="form-control input-sm" onChange={this.props.onChange}>{REGION_MARKUP}</select>
+        <select defaultValue={this.props.defaultRegion} className="form-control input-sm" onChange={this.props.onChange}>{REGION_MARKUP}</select>
       </div>
       )
   }

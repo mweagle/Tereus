@@ -86,7 +86,7 @@ var TereusState = {};
 //   ARGUMENTS: ['path', 'stackName', 'paramsAndTags', 'region'],
 var API = {
   'create' : ['path', 'stackName', 'paramsAndTags', 'region'],
-  'update' : ['path', 'patchName', 'arguments', 'region']
+  'update' : ['path', 'stackName', 'arguments', 'region']
 };
 
 _.each(API, function(requestKeys, apiName) {
