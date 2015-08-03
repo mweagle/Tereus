@@ -86,7 +86,7 @@ public class UpdatePipeline extends NashornEvaluator
 	protected void publishGlobals(ScriptEngine engine)
 	{
 		// Get the current stack definition
-		if (!this.stackName.isEmpty())
+		if ((null != this.stackName) && !this.stackName.isEmpty())
 		{
 			final GetTemplateRequest templateRequest = new GetTemplateRequest().withStackName(this.stackName);
 	        final AmazonCloudFormationAsyncClient awsClient = new AmazonCloudFormationAsyncClient(this.awsCredentials);
