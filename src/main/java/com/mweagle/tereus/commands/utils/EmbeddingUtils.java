@@ -24,45 +24,42 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE
 
-package com.mweagle.tereus.utils;
+package com.mweagle.tereus.commands.utils;
 
-import com.google.gson.*;
-import org.apache.logging.log4j.Logger;
-
-import javax.script.ScriptEngine;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 /**
  * Created by mweagle on 4/26/15.
  */
-public class EmbeddingUtils implements IEngineBinding {
+public class EmbeddingUtils  {
 
-	final static Pattern RE_TRAILING_NEWLINE = Pattern.compile(".+\\n$");
+  final static Pattern RE_TRAILING_NEWLINE = Pattern.compile(".+\\n$");
     /**
      * http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html
      */
     private final static Pattern PATTERN_MUSTACHE = Pattern.compile("\\{{2}([^\\}]+)\\}{2}");
 
 
-    private final Logger logger;
-
-    @Override
-    public String getBindingName() {
-        return "EmbeddingUtilsImpl";
-    }
-
-    public EmbeddingUtils(Path templateRoot, ScriptEngine engine, boolean dryRun, Logger logger) {
-        this.logger = logger;
-    }
+    private static final Logger logger = LogManager.getLogger(EmbeddingUtils.class.getName());
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
-    	    value="NM_METHOD_NAMING_CONVENTION", 
-    	    justification="This is published into Nashorn")
-    public String Literal(String rawData) throws Exception {
-        JsonArray jsonContent =  this.parseResource(rawData);
+          value="NM_METHOD_NAMING_CONVENTION",
+          justification="This is published into Nashorn")
+
+    public static String Literal(String rawData) throws Exception {
+        JsonArray jsonContent =  parseResource(rawData);
         JsonArray fnJoinContent = new JsonArray();
         fnJoinContent.add(new JsonPrimitive(""));
         fnJoinContent.add(jsonContent);
@@ -73,7 +70,7 @@ public class EmbeddingUtils implements IEngineBinding {
         return stringified;
     }
 
-    protected JsonArray parseResource(final String resourceData) throws Exception {
+    protected static JsonArray parseResource(final String resourceData) throws Exception {
         JsonArray parsedContent = new JsonArray();
         Arrays.stream(resourceData.split("\\r?\\n")).forEach(eachLine ->
                 parsedContent.addAll(parseLine(eachLine)));
@@ -81,19 +78,19 @@ public class EmbeddingUtils implements IEngineBinding {
         // content then remove the final newline delimiter
         final JsonElement finalElement = parsedContent.get(parsedContent.size()-1);
         if (finalElement instanceof JsonPrimitive) {
-			JsonPrimitive finalPrimitive = (JsonPrimitive) finalElement;
-			final String primitiveContent = finalPrimitive.getAsString();
-			if (RE_TRAILING_NEWLINE.matcher(primitiveContent).matches())
-			{
-				final JsonPrimitive trimmedPrimitive = new JsonPrimitive(primitiveContent.substring(0, primitiveContent.length()-1));
-				parsedContent.set(parsedContent.size()-1, trimmedPrimitive);
-			}
+      JsonPrimitive finalPrimitive = (JsonPrimitive) finalElement;
+      final String primitiveContent = finalPrimitive.getAsString();
+      if (RE_TRAILING_NEWLINE.matcher(primitiveContent).matches())
+      {
+        final JsonPrimitive trimmedPrimitive = new JsonPrimitive(primitiveContent.substring(0, primitiveContent.length()-1));
+        parsedContent.set(parsedContent.size()-1, trimmedPrimitive);
+      }
 
-		}
+    }
         return parsedContent;
     }
 
-    protected JsonArray parseLine(final String input) throws IllegalArgumentException {
+    protected static JsonArray parseLine(final String input) throws IllegalArgumentException {
         Matcher match = EmbeddingUtils.PATTERN_MUSTACHE.matcher(input);
         JsonArray parsed = new JsonArray();
         int lastPos = 0;
@@ -119,7 +116,7 @@ public class EmbeddingUtils implements IEngineBinding {
             }
             catch (Exception ex)
             {
-                this.logger.error("Failed to parse line for AWS expressions: {{}}", input);
+                logger.error("Failed to parse line for AWS expressions: {{}}", input);
                 throw ex;
             }
 

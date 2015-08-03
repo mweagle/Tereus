@@ -22,7 +22,7 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package com.mweagle.tereus.utils;
+package com.mweagle.tereus.commands.evaluation.create;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,23 +30,24 @@ import java.util.Map;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonParser;
+import com.mweagle.tereus.INashornEvaluationAccumulator;
 
 /**
  * Created by mweagle on 4/26/15.
  */
-public class CloudFormationTemplateUtils implements IEngineBinding {
+public class CloudFormationTemplateUtils implements INashornEvaluationAccumulator {
 
     public String stackName = "";
     public String expandedTemplate = "";
     public String parameterizedTemplate = "";
-    
+
     @Override
-    public String getBindingName() {
+    public String getAccumulatorName() {
         return "__templateTunnel";
     }
 
     @Override
-    public Map<String, Object> getEvaluationResult() {
+    public Map<String, Object> getAccumulationResult() {
         Map<String, Object> map = new HashMap<>();
 
         Preconditions.checkArgument(isValidResult(this.stackName),

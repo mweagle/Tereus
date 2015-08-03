@@ -44,10 +44,14 @@ task npmInstallUI(type:Exec) {
 }
 
 task npmInstallEvaluation(type:Exec) {
-  workingDir './src/main/resources/js/bindings'
+  workingDir './src/main/resources/bindings'
   commandLine 'npm', 'install'
 }
 
+task devStart(type:Exec) {
+  workingDir './src/main/resources/web'
+  commandLine 'npm', 'run-script', 'start'
+}
 
 task uiBuild(type:Exec) {
   workingDir './src/main/resources/web'
@@ -55,7 +59,7 @@ task uiBuild(type:Exec) {
 }
 
 task docsBuild(type:Exec) {
-  workingDir './src/main/resources/js/bindings'
+  workingDir './src/main/resources/bindings'
   commandLine 'npm', 'run-script', 'docs'
 }
 

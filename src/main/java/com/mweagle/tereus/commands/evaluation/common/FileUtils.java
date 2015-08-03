@@ -22,31 +22,32 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package com.mweagle.tereus.utils;
+package com.mweagle.tereus.commands.evaluation.common;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.logging.log4j.Logger;
-
-import javax.script.ScriptEngine;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
+import com.mweagle.tereus.INashornEvaluationAccumulator;
+import com.mweagle.tereus.INashornEvaluatorContext;
+
 /**
  * Created by mweagle on 4/29/15.
  */
-public class FileUtils implements IEngineBinding {
+public class FileUtils implements INashornEvaluationAccumulator {
 
     private final Path templateRoot;
-    private final Logger logger;
-    public FileUtils(Path templateRoot, ScriptEngine engine, boolean dryRun, Logger logger) {
-        this.templateRoot = templateRoot;
-        this.logger = logger;
-        this.logger.debug("Resource root directory: {}", this.templateRoot.toAbsolutePath());
+
+    public FileUtils(INashornEvaluatorContext context)
+    {
+        this.templateRoot = context.getEvaluationSource().getParent();
+        context.getLogger().debug("Resource root directory: {}", this.templateRoot.toAbsolutePath());
     }
 
     @Override
-    public String getBindingName() {
+    public String getAccumulatorName() {
         return "FileUtilsImpl";
     }
 

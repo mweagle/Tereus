@@ -22,17 +22,17 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package com.mweagle.tereus.utils;
+package com.mweagle.tereus;
 
 import java.util.Map;
 
 /**
  * Created by mweagle on 4/26/15.
  */
-public interface IEngineBinding {
-    public String getBindingName();
+public interface INashornEvaluationAccumulator {
+    public String getAccumulatorName();
 
-    default public Map<String, Object> getEvaluationResult() {
+    default public Map<String, Object> getAccumulationResult() {
         return null;
     }
 }

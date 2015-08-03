@@ -41,8 +41,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.mweagle.Tereus;
-import com.mweagle.TereusInput;
 import com.mweagle.tereus.CONSTANTS;
+import com.mweagle.tereus.input.TereusInput;
+import com.mweagle.tereus.input.UpdateInput;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
@@ -59,9 +60,9 @@ public class GuiCommand extends AbstractTereusCommand {
 		staticFileLocation("/web");
         port(this.port);
         /**
-         * The single evaluation endpoint
+         * The creation endpoint
          */
-        post("/api/evaluator", (request, response) -> {
+        post("/api/create", (request, response) -> {
         	final Optional<String> requestInput = Optional.ofNullable(request.body());
         	if (requestInput.isPresent() && !requestInput.get().isEmpty())
         	{
@@ -106,6 +107,48 @@ public class GuiCommand extends AbstractTereusCommand {
         	}
         	return null;
         });
+        
+        
+        post("/api/update", (request, response) -> {
+        	final Optional<String> requestInput = Optional.ofNullable(request.body());
+        	if (requestInput.isPresent() && !requestInput.get().isEmpty())
+        	{
+	        	final Map<String, Object> jsonRequest = (Map<String, Object>)(new Gson().fromJson(requestInput.get(), Map.class));
+	        	try
+	        	{	        		
+		        	final String path = (String)jsonRequest.get("path");
+		        	final String stackName = (String)jsonRequest.get("stackName");
+		        	final String region = (String)jsonRequest.get("region");
+		        	final Map<String, Object> arguments = (Map<String, Object>)(jsonRequest.getOrDefault("arguments", new HashMap<>()));
+
+		        	final UpdateInput input = new UpdateInput(path, arguments, stackName, region, true);
+		            final ByteArrayOutputStream osStream = new ByteArrayOutputStream();
+	                new UpdateCommand().update(input, Optional.of(osStream));
+
+	                // Return the raw template
+	                // TODO - return the original CloudFormation template for application, use JS to apply the patch
+	                // if we have the source CF template
+	                final String templateContent = new String(Files.readAllBytes(Paths.get(path)),"UTF-8");
+
+	                HashMap<String, String> results = new HashMap<>();
+	                results.put("template", templateContent);
+	                results.put("evaluated", osStream.toString("UTF-8"));
+	                Gson gson = new Gson();
+	    			return gson.toJson(results);
+	        	}
+	        	catch (Exception ex)
+	        	{
+	        		halt(400, "Invalid request. (Error: " + ex.toString() + ")");
+	        	}
+        	}
+        	else
+        	{
+        		halt(400, "Invalid request.  Please provide a JSON object including path, stackName, and arguments.");
+        	}
+        	return null;
+        });
+        
+        
         final Logger logger = LogManager.getLogger(Tereus.class.getName());
         logger.info(String.format("Tereus UI available at http://localhost:%d/", this.port));		
 	}

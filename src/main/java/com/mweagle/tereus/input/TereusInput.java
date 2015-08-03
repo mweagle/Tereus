@@ -22,9 +22,8 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package com.mweagle;
+package com.mweagle.tereus.input;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -32,28 +31,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.google.common.base.Preconditions;
+import com.mweagle.Tereus;
 import com.mweagle.tereus.CONSTANTS;
 
 /**
  * Created by mweagle on 5/8/15.
  */
-public class TereusInput {
+public class TereusInput extends TereusAWSInput{
     public final String stackName;
     public final Path stackDefinitionPath;
-    public final Region awsRegion;
     public final Map<String, Object> params;
     public final Map<String, Object> tags;
-    public final boolean dryRun;
-    public final AWSCredentials awsCredentials;
-    public final Logger logger;
 
     public TereusInput(String stackName,
                        String stackDefinitionPath,
@@ -62,6 +51,7 @@ public class TereusInput {
                        final Map<String, Object> cliTags,
                        boolean dryRun)
     {
+    	super(awsRegion, dryRun, Tereus.class.getName());
         Preconditions.checkArgument(isValidPathArgument(stackDefinitionPath), "Please provide a stack definition path");
         Preconditions.checkNotNull(cliParams.get(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME),
                 "Please provide the S3 bucketname in the JSON Parameters object (%s.%s)",
@@ -76,26 +66,11 @@ public class TereusInput {
         this.stackDefinitionPath = Paths.get(stackDefinitionPath);
         this.params = cliParams;//Collections.unmodifiableMap(listToMap(cliParams));
         this.tags = cliTags;//Collections.unmodifiableMap(listToMap(cliTags));
-        this.dryRun = dryRun;
-        this.logger = LogManager.getLogger(Tereus.class.getName());
-
-        // AWS Credentials
-        DefaultAWSCredentialsProviderChain credentialProviderChain = new DefaultAWSCredentialsProviderChain();
-        this.awsCredentials = credentialProviderChain.getCredentials();
-        this.awsRegion = (null != awsRegion) ?
-                            Region.getRegion(Regions.fromName(awsRegion)):
-                            Region.getRegion(Regions.US_EAST_1);
 
         // Log everything
         this.logInput();
     }
-    protected boolean isValidPathArgument(String argument)
-    {
-        return (null != argument &&
-        		!argument.isEmpty() &&
-                Files.exists(Paths.get(argument)) &&
-                !Files.isDirectory(Paths.get(argument)));
-    }
+
     protected void logInput()
     {
         this.logger.info("Tereus Inputs:");

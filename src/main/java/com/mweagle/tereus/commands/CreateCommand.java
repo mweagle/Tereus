@@ -56,11 +56,11 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.mweagle.TereusInput;
 import com.mweagle.tereus.CONSTANTS;
-import com.mweagle.tereus.Pipeline;
 import com.mweagle.tereus.aws.CloudFormation;
 import com.mweagle.tereus.aws.S3Resource;
+import com.mweagle.tereus.commands.create.CreationPipeline;
+import com.mweagle.tereus.input.TereusInput;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Help;
@@ -164,13 +164,9 @@ public class CreateCommand extends AbstractTereusAWSCommand
 
 	public void create(final TereusInput tereusInput, Optional<? extends OutputStream> osSinkTemplate) throws Exception
 	{
-		java.security.Security.setProperty("networkaddress.cache.ttl", "30");
-
-		// Validate the arguments
-		Pipeline pipeline = new Pipeline();
-
-		// Expand the template
-		Map<String, Object> evaluationResult = pipeline.run(tereusInput);
+		final CreationPipeline pipeline = new CreationPipeline(tereusInput);
+		Map<String, Object> evaluationResult = pipeline.run(tereusInput.stackDefinitionPath, tereusInput.logger);
+				
 		final Optional<Object> templateData = Optional.ofNullable(evaluationResult.get("Template"));
 		final Optional<Object> prepopulatedTemplate = Optional
 				.ofNullable(evaluationResult.get("ParameterizedTemplate"));
