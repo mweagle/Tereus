@@ -40,6 +40,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import com.mweagle.Tereus;
 import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.input.TereusInput;
@@ -123,7 +124,7 @@ public class GuiCommand extends AbstractTereusCommand {
 
 		        	final UpdateInput input = new UpdateInput(path, arguments, stackName, region, true);
 		            final ByteArrayOutputStream osStream = new ByteArrayOutputStream();
-	                new UpdateCommand().update(input, Optional.of(osStream));
+	                final Map<String, Object> updateResults = new UpdateCommand().update(input, Optional.of(osStream));
 
 	                // Return the raw template
 	                // TODO - return the original CloudFormation template for application, use JS to apply the patch
@@ -133,6 +134,8 @@ public class GuiCommand extends AbstractTereusCommand {
 	                HashMap<String, String> results = new HashMap<>();
 	                results.put("template", templateContent);
 	                results.put("evaluated", osStream.toString("UTF-8"));
+	                results.put("target", updateResults.getOrDefault("Target", "").toString());
+	                results.put("applied", updateResults.getOrDefault("Result", "").toString());
 	                Gson gson = new Gson();
 	    			return gson.toJson(results);
 	        	}

@@ -52,7 +52,6 @@ var ArgumentsView = React.createClass({
     return function(event) {
       var mergeState = {};
       mergeState[stateKeyname] = event.target.value;
-
       // If this is the JSON data...validate it
       if (stateKeyname === 'arguments' && !_.isEmpty(event.target.value))
       {

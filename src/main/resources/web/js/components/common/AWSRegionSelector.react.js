@@ -55,7 +55,7 @@ var AWSRegionSelector = React.createClass({
     return(
       <div className="form-group">
         <label for="inputRegion">AWS Region</label>
-        <select value={this.selectedRegion} className="form-control input-sm" onChange={this.onChange}>{REGION_MARKUP}</select>
+        <select value={this.selectedRegion} className="form-control input-sm" onChange={this.props.onChange}>{REGION_MARKUP}</select>
       </div>
       )
   }

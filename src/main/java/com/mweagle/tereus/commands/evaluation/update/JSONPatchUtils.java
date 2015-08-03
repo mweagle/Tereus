@@ -62,8 +62,6 @@ public class JSONPatchUtils implements INashornEvaluationAccumulator {
      map.put("Patch", new JsonParser().parse(this.patchContents));
      map.put("Target", new JsonParser().parse(this.patchTarget));
      map.put("Result", new JsonParser().parse(this.appliedResult));
-
-
      return Collections.unmodifiableMap(map);
  }
 

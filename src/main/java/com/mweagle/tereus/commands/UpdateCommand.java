@@ -111,12 +111,13 @@ public class UpdateCommand extends AbstractTereusAWSCommand
 		System.exit(exitCode);
 	}
 	
-	public void update(final UpdateInput input, Optional<? extends OutputStream> osSinkTemplate) throws Exception
+	public Map<String, Object> update(final UpdateInput input, Optional<? extends OutputStream> osSinkTemplate) throws Exception
 	{
 		final UpdatePipeline pipeline = new UpdatePipeline(input.patchPath.getParent(),
 															input.arguments,
 															input.stackName,
 															input.awsCredentials,
+															input.awsRegion,
 															input.dryRun,
 															input.logger);
 				
@@ -135,6 +136,7 @@ public class UpdateCommand extends AbstractTereusAWSCommand
 		
 		
 		// Wait
+		return evaluationResult;
 	}
     public static void main(String[] args) throws Exception {   
     	

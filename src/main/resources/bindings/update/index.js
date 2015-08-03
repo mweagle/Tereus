@@ -196,13 +196,13 @@ var JSONPatch = function(patchName)
     __patchTunnel.appliedResult = '';
     try
     {
-      __patchTunnel.patchTarget = JSON.stringify(TemplateInfoImpl.getTemplateBody());
-      var parsedTemplate = JSON.parse(TemplateInfoImpl.getTemplateBody());
-      __patchTunnel.appliedResult = JSON.parse(JSON8Patch.apply(parsedTemplate, expanded));
+      __patchTunnel.patchTarget = TemplateInfoImpl.getTemplateBody();
+      var parsedTemplate = JSON.parse(__patchTunnel.patchTarget);
+      __patchTunnel.appliedResult = JSON.stringify(JSON8Patch.apply(parsedTemplate, expanded));
     }
     catch (ex)
     {
-      // NOP
+      logger.error(ex.toString());
     }
   };
 };

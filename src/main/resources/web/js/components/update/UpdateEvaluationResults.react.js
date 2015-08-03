@@ -47,7 +47,22 @@ var EvaluationResults = React.createClass({
   componentWillUnmount: function() {
     TereusStore.removeChangeListener(this.onStoreChange);
   },
-
+  __prettyFormattedResult: function(resultValue)
+  {
+    var pretty = '';
+    if (resultValue)
+    {
+      try
+      {
+        pretty = JSON.stringify(JSON.parse(resultValue), null, ' ');
+      }
+      catch (e)
+      {
+        pretty = JSON.stringify({error: e.toString()}, null, ' ');
+      }
+    }
+    return pretty;
+  },
   /**
    * @return {object}
    */
@@ -83,15 +98,23 @@ var EvaluationResults = React.createClass({
             <div className="panel-body">
               <div role="tabpanel">
                 <ul className="nav nav-tabs" role="tablist">
-                  <li role="presentation" className="active"><a href="#evaluated" aria-controls="evaluated" role="tab" data-toggle="tab">Evaluated</a></li>
-                  <li role="presentation"><a href="#template" aria-controls="template" role="tab" data-toggle="tab">Raw Template</a></li>
+                  <li role="presentation" className="active"><a href="#evaluated" aria-controls="evaluated" role="tab" data-toggle="tab">JSON Patch</a></li>
+                  <li role="presentation"><a href="#template" aria-controls="template" role="tab" data-toggle="tab">Patch Definition</a></li>
+                  <li role="presentation"><a href="#targetTemplate" aria-controls="template" role="tab" data-toggle="tab">Target Template</a></li>
+                  <li role="presentation"><a href="#transformedTemplate" aria-controls="template" role="tab" data-toggle="tab">Transformed Template</a></li>
                 </ul>
                 <div className="tab-content">
                   <div role="tabpanel" className="tab-pane active" id="evaluated">
-                      <Highlight className="json">{JSON.stringify(JSON.parse(renderOutputs.results.evaluated), null, ' ')}</Highlight>
+                    <Highlight className="json">{this.__prettyFormattedResult(renderOutputs.results.evaluated)}</Highlight>
                   </div>
                   <div role="tabpanel" className="tab-pane" id="template">
                     <Highlight className="JavaScript">{renderOutputs.results.template}</Highlight>
+                  </div>
+                  <div role="tabpanel" className="tab-pane" id="targetTemplate">
+                    <Highlight className="json">{this.__prettyFormattedResult(renderOutputs.results.target)}</Highlight>
+                  </div>
+                  <div role="tabpanel" className="tab-pane" id="transformedTemplate">
+                    <Highlight className="json">{this.__prettyFormattedResult(renderOutputs.results.applied)}</Highlight>
                   </div>
                 </div>
               </div>

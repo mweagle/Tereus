@@ -38,6 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationAsyncClient;
 import com.amazonaws.services.cloudformation.model.GetTemplateRequest;
 import com.amazonaws.services.cloudformation.model.GetTemplateResult;
@@ -65,6 +66,7 @@ public class UpdatePipeline extends NashornEvaluator
 	private final Map<String, Object> arguments;
 	private final String stackName;
 	private final AWSCredentials awsCredentials;
+	private final Region awsRegion;
 	private final boolean dryRun;
 	private final Logger logger;
     
@@ -72,6 +74,7 @@ public class UpdatePipeline extends NashornEvaluator
 							final Map<String, Object> arguments, 
 							final String stackName,
 							final AWSCredentials awsCredentials, 
+							final Region awsRegion,
 							final boolean dryRun, 
 							final Logger logger)
     {
@@ -79,6 +82,7 @@ public class UpdatePipeline extends NashornEvaluator
     	this.arguments = arguments;
     	this.stackName = stackName;
     	this.awsCredentials = awsCredentials;
+    	this.awsRegion = awsRegion;
     	this.dryRun = dryRun;
     	this.logger = logger;
     }
@@ -90,6 +94,7 @@ public class UpdatePipeline extends NashornEvaluator
 		{
 			final GetTemplateRequest templateRequest = new GetTemplateRequest().withStackName(this.stackName);
 	        final AmazonCloudFormationAsyncClient awsClient = new AmazonCloudFormationAsyncClient(this.awsCredentials);
+	        awsClient.setRegion(this.awsRegion);
 			final GetTemplateResult templateResult = awsClient.getTemplate(templateRequest);
 	        engine.put("TemplateInfoImpl", templateResult);			
 		}
