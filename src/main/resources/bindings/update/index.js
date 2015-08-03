@@ -61,15 +61,18 @@ var CurriedPatch = function(pathlessOp)
 /**
 <span class="label label-info">Update Context</span><hr />
 
+Encapsulates functions that facilitate creating [JSON Patch](http://tools.ietf.org/html/rfc6902) documents.
+The object's nested properties become the implicit [JSON Pointer](https://tools.ietf.org/html/rfc6901)
+_path_ value for most operations.
 
 @namespace Patch
 */
-
 var Patch =
 {
-  /**
- * Embed an external file
- * @param {String} pathArg  - Path, relative to template directory root, to embed
+ /**
+ * Return an <a href="http://tools.ietf.org/html/rfc6902#page-4">add</a> object.  The property key
+ * is the implied JSON Pointer in the target document.
+ * @param {Object} newValue  - Updated value to use
  */
   Add: function(newValue) {
     return CurriedPatch({
@@ -78,6 +81,10 @@ var Patch =
       'value': newValue
     });
   },
+ /**
+ * Return a <a href="http://tools.ietf.org/html/rfc6902#page-6">remove</a> object. The property key
+ * is the implied JSON Pointer in the target document.
+ */
   Remove: function()
   {
     return CurriedPatch({
@@ -85,6 +92,11 @@ var Patch =
       'path': null
     });
   },
+ /**
+ * Return a <a href="http://tools.ietf.org/html/rfc6902#page-6">replace</a> object. The property key
+ * is the implied JSON Pointer in the target document.
+ * @param {Object} newValue  - Updated value to use
+ */
   Replace: function(newValue)
   {
     return CurriedPatch({
@@ -93,6 +105,11 @@ var Patch =
       'value' : newValue
     });
   },
+ /**
+ * Return a <a href="http://tools.ietf.org/html/rfc6902#page-6">move</a> object. The property key
+ * is the implied JSON Pointer in the target document.
+ * @param {String} someOtherPathSpecifier  - New JSON Pointer path to use for value
+ */
   Move: function(someOtherPathSpecifier)
   {
     return CurriedPatch({
@@ -101,6 +118,11 @@ var Patch =
       'from' : someOtherPathSpecifier
     });
   },
+ /**
+ * Return a <a href="http://tools.ietf.org/html/rfc6902#page-7">copy</a> object. The property key
+ * is the implied JSON Pointer in the target document.
+ * @param {String} someOtherPathSpecifier  - New JSON Pointer path to use for duplicated value
+ */
   Copy: function(someOtherPathSpecifier)
   {
     return CurriedPatch({
@@ -109,6 +131,11 @@ var Patch =
       'from' : someOtherPathSpecifier
     });
   },
+ /**
+ * Return a <a href="http://tools.ietf.org/html/rfc6902#page-7">test</a> object. The property key
+ * is the implied JSON Pointer in the target document.
+ * @param {Object} verifyValue  - Value to verify as part of patch application
+ */
   Test: function(verifyValue)
   {
     return CurriedPatch({
@@ -119,6 +146,23 @@ var Patch =
   }
 };
 
+/**
+ * <span class="label label-info">Update Context</span><hr />
+ *
+ * The global JSONPatch function responsible
+ * for expanding the inline patch definition.
+ *
+ * @example <caption>JSONPatch</caption>
+  JSONPatch("SomePatch")({
+    "Resources":
+    {
+      "MyEc2" : Patch.Add("Foobar")
+    }
+  });
+ *
+ *
+ * @param {string} patchName - Patch Name
+ */
 var JSONPatch = function(patchName)
 {
   var visitingPatchAccumulator = function(rootItem, pathSpec, accumulator)
@@ -147,17 +191,18 @@ var JSONPatch = function(patchName)
     __patchTunnel.patchName = patchName;
     __patchTunnel.patchContents = JSON.stringify(expanded);
 
-    // Conditionally apply the patch if we have a template definition
-    if (TemplateInfoImpl)
+    // Conditional  ly apply the patch if we have a template definition
+    __patchTunnel.patchTarget = '';
+    __patchTunnel.appliedResult = '';
+    try
     {
       __patchTunnel.patchTarget = JSON.stringify(TemplateInfoImpl.getTemplateBody());
       var parsedTemplate = JSON.parse(TemplateInfoImpl.getTemplateBody());
       __patchTunnel.appliedResult = JSON.parse(JSON8Patch.apply(parsedTemplate, expanded));
     }
-    else
+    catch (ex)
     {
-      __patchTunnel.patchTarget = '';
-      __patchTunnel.appliedResult = '';
+      // NOP
     }
   };
 };
