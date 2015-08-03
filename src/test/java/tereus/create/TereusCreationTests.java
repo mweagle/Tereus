@@ -22,47 +22,37 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package tereus;
+package tereus.create;
 
-//import java.io.File;
-//import java.util.Map;
-
+import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
+
+import tereus.TestUtils;
 
 /**
  * Created by mweagle on 5/12/15.
  */
-@RunWith(org.junit.runners.JUnit4.class)
-public class SingleEvaluationTest extends EvaluationTest {
-		
-	private static Path inputPath(final String testType, final String fileRelativePath)
-	{		
-		return Paths.get(TestUtils.testRoot().toString(), 
-						 "evaluation",
-						 testType,
-						 "definition",
-						 fileRelativePath + ".js").toAbsolutePath();
-	};
-	
-	private static Path resultPath(final String testType, final String fileRelativePath)
-	{
-		return Paths.get(TestUtils.testRoot().toString(), 
-				 "evaluation",
-				 testType,
-				 "expected",
-				 fileRelativePath + ".json").toAbsolutePath();
-	};	
-	
+@RunWith(Parameterized.class)
+public class TereusCreationTests extends EvaluationTest {
+    @Parameter(0)
+    public Path evaluationFilepath;
+    @Parameter(1)
+    public Path expectedFilepath;
+
+    @Parameters
+    public static List<Object[]> data() throws IOException {
+    	return TestUtils.definitionAndResultPairs("create");
+    }
+
     @Test
     public void test() throws Exception {
-    	final String testType = "aws_samples";
-    	final String testName = "EC2Builder";
-    	final Path inputFile = SingleEvaluationTest.inputPath(testType, testName);
-    	final Path expectedFile = SingleEvaluationTest.resultPath(testType, testName);
-    	super.verifyEvaluation(inputFile, expectedFile);
+        super.verifyEvaluation(this.evaluationFilepath, this.expectedFilepath);
     }
 }

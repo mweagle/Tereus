@@ -22,14 +22,14 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package tereus;
+package tereus.create;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.mweagle.TereusInput;
 import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.commands.CreateCommand;
+import com.mweagle.tereus.input.TereusInput;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -97,6 +97,7 @@ public abstract class EvaluationTest {
         }
         catch (Exception ex)
         {
+        	logger.error(ex.toString());
             if (shouldTestPass)
             {
                 if (os.isPresent())

@@ -25,9 +25,13 @@
 package tereus;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 
@@ -41,6 +45,39 @@ public class TestUtils
         Preconditions.checkArgument(TestUtils.isValidRootArgument(testRootDirectory), 
         							"Failed to resolve test root directory (eg: ~/Documents/Tereus/src/test/java/tereus)");
         return testRootDirectory;
+	}
+	
+	public static List<Object[]> definitionAndResultPairs(final String subfolder) throws IOException
+	{
+		final List<Path> testDirectories = Files.list(Paths.get(TestUtils.testRoot().toString(), subfolder))
+				.filter(Files::isDirectory).collect(Collectors.toList());
+		List<Object[]> testPairs = new LinkedList<>();
+		testDirectories.forEach(eachPath -> {
+			try
+			{
+				final Path definitionDirectory = eachPath.resolve("definition");
+				final Path expectedDirectory = eachPath.resolve("expected");
+				try
+				{
+					Files.list(definitionDirectory).forEach(eachDefinitionPath -> {
+						if (Files.isRegularFile(eachDefinitionPath))
+						{
+							final String filename = eachDefinitionPath.getFileName().toString();
+							final String expectedFilename = String.format("%son", filename);
+							testPairs.add(new Object[] { eachDefinitionPath.toAbsolutePath(),
+									expectedDirectory.resolve(expectedFilename).toAbsolutePath() });
+						}
+					});
+				} catch (Exception ex)
+				{
+					throw new RuntimeException(ex);
+				}
+			} catch (Exception ex)
+			{
+				throw new RuntimeException(ex);
+			}
+		});
+		return testPairs;
 	}
 	
     protected static boolean isValidRootArgument(Path argument)

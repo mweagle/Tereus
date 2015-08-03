@@ -22,7 +22,7 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package tereus;
+package tereus.create;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
@@ -39,9 +39,10 @@ import org.junit.runner.RunWith;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.mweagle.TereusInput;
 import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.commands.CreateCommand;
+import com.mweagle.tereus.input.TereusInput;
+import tereus.TestUtils;
 
 /**
  * Created by mweagle on 5/12/15.
@@ -53,7 +54,7 @@ public class CreationTest  {
 	private static Path lambdaDefinitionPath()
 	{				
 		return Paths.get(TestUtils.testRoot().toString(), 
-						 "evaluation",
+						 "create",
 						 "aws_samples",
 						 "definition",
 						 "Lambda.js").toAbsolutePath();
