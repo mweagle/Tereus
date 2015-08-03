@@ -35,7 +35,6 @@ var http = require('http');
 
 var CHANGE_EVENT = 'change';
 
-
 var isSuccessfulResponse = function(response)
 {
   return (response &&
@@ -44,42 +43,10 @@ var isSuccessfulResponse = function(response)
             response.statusCode <= 299);
 };
 
-var CONSTANTS = {
-  ARGUMENTS: ['path', 'stackName', 'paramsAndTags', 'region'],
-  DEFAULTS: {
-    paramsAndTags: {
-      Parameters: {
-        BucketName : 'S3 BUCKET NAME'
-      },
-      Tags: {}
-    },
-    region: 'us-east-1'
-  }
-};
-
-var API_EVALUATOR_OPTIONS = {
-  method: 'POST',
-  path: '/api/evaluator',
-  headers: {
-    'Content-Type' : 'application/json'
-  }
-};
-
-var evaluatorRequestOptions = function(requestLength)
-{
-  var options = _.clone(API_EVALUATOR_OPTIONS);
-  if (requestLength)
-  {
-    options.headers['Content-Length'] = requestLength;
-  }
-  return options;
-};
-
-
 var localCacheKeyname = function(/*parts*/)
 {
   var keyname = Array.prototype.slice.call(arguments, 0);
-  return (['io.mweagle.tereus'].concat(keyname)).join('.');
+  return (['io.mweagle.tereus'].concat('inputs', keyname)).join('.');
 };
 
 var LocalCache = {};
@@ -114,40 +81,47 @@ LocalCache.set = function(keyname, value)
 // TereusState
 ////////////////////////////////////////////////////////////////////////////////
 var TereusState = {};
-TereusState.inputs = _.reduce(CONSTANTS.ARGUMENTS,
-                  function (memo, eachArgument)
-                  {
-                    memo[eachArgument] = LocalCache.get(eachArgument,
-                                        CONSTANTS.DEFAULTS[eachArgument]);
 
-                    return memo;
-                  },
-                  {});
-TereusState.outputs = {
-  error: null,
-  results : ''
+// Map of URL paths to their potentiall cached values
+//   ARGUMENTS: ['path', 'stackName', 'paramsAndTags', 'region'],
+var API = {
+  'create' : ['path', 'stackName', 'paramsAndTags', 'region'],
+  'update' : ['path', 'patchName', 'arguments', 'region']
 };
 
+_.each(API, function(requestKeys, apiName) {
+  TereusState[apiName] = {};
+  TereusState[apiName].inputs = _.reduce(requestKeys,
+                                        function(memo, eachKeyname)
+                                        {
+                                          var keyname = [apiName, eachKeyname].join('.');
+                                          memo[eachKeyname] = LocalCache.get(keyname, null);
+                                          return memo;
+                                        },
+                                        {});
+  TereusState[apiName].outputs = {
+  };
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 // TereusStore
 ////////////////////////////////////////////////////////////////////////////////
 var TereusStore = assign({}, EventEmitter.prototype, {
   workQueue : async.queue(function (action, callback) {
-    var actionHandler = TereusStore.actionHandlers[action.actionType];
+    var actionHandler = TereusStore.actionHandlers[action.api];
     if (_.isFunction(actionHandler))
     {
       var onResult = function(error, results)
       {
-        TereusState.outputs.error = error ? error.toString() : null;
-        TereusState.outputs.results = TereusState.outputs.error ? null : results;
-        TereusStore.emitChange.call(TereusStore);
-        TereusState.processing = false;
+        TereusState[action.api].outputs.error = error ? error.toString() : null;
+        TereusState[action.api].outputs.results = error ? null : results;
+        TereusState[action.api].processing = false;
         TereusStore.emitChange.call(TereusStore);
         callback(null, null);
       };
       var propertyBag = _.omit(action, 'actionType');
-      TereusState.processing = true;
+      TereusState[action.api].processing = true;
+      TereusState[action.api].outputs = {};
       TereusStore.emitChange.call(TereusStore);
       actionHandler.call(TereusStore, propertyBag, onResult);
     }
@@ -178,74 +152,39 @@ var TereusStore = assign({}, EventEmitter.prototype, {
 
 });
 
-// Register the action handlers
-TereusStore.actionHandlers[TereusConstants.TEREUS_EVALUATE] = function(propertyBag, callback)
+TereusStore.__apiCall = function(pathComponent, jsonRequest, callback)
 {
   // Clear the current state
   this.emitChange();
 
-  // Post the data to the server and send it back
-  var tasks = [];
-
-  tasks[0] = function(requestCB)
+  var apiOptions = {
+    method: 'POST',
+    path: '/api/' + pathComponent,
+    headers: {}
+  };
+  var body = jsonRequest ? JSON.stringify(jsonRequest) : null;
+  if (jsonRequest)
   {
+    apiOptions.headers['Content-Type'] = 'application/json';
+    apiOptions.headers['Content-Length'] = Buffer.byteLength(body, 'utf-8');
+
     // Save the state
-    _.each(propertyBag, function (eachValue, eachKey) {
-      LocalCache.set(eachKey, eachValue);
+    _.each(jsonRequest, function (eachValue, eachKey) {
+      var nsKey = [pathComponent, eachKey].join('.');
+      LocalCache.set(nsKey, eachValue);
     });
-    var body = JSON.stringify(propertyBag);
-    var options = evaluatorRequestOptions(Buffer.byteLength(body, 'utf-8'));
-    var req = http.request(options);
-    req.on('response', function (response)
-    {
-      if (_.isNumber(response.statusCode))
-      {
-        if (0 === response.statusCode)
-        {
-          // Network error, it'll be turned into an error event
-
-        }
-        else
-        {
-            requestCB(null, response);
-        }
-      }
-    });
-    req.on('error', function (e)
-    {
-      requestCB(e, null);
-    });
-    req.end(body);
-  };
-
-  tasks[1] = function(response, requestCB)
-  {
-    // Consume the response
-    var data = '';
-    response.on('data', function (chunk) {
-      data += chunk;
-    });
-    response.on('end', function(){
-      response.body = data;
-      requestCB(null, response);
-    });
-  };
-
+  }
   var terminus = function(error, response)
   {
     if (!error && !isSuccessfulResponse(response))
     {
         error = new Error(response.body);
     }
-    TereusState.outputs.error = error ? error.toString() : null;
-    if (!TereusState.outputs.error && response)
+    else if (response)
     {
       try
       {
         response = JSON.parse(response.body);
-
-        // The evaluated property is JSON
-        response.evaluated = JSON.parse(response.evaluated);
       }
       catch (e)
       {
@@ -254,8 +193,44 @@ TereusStore.actionHandlers[TereusConstants.TEREUS_EVALUATE] = function(propertyB
     }
     callback(error, response);
   };
-  async.waterfall(tasks, terminus);
+
+  var req = http.request(apiOptions);
+  req.on('response', function (response)
+  {
+    if (_.isNumber(response.statusCode))
+    {
+      if (0 === response.statusCode)
+      {
+        // Network error, it'll be turned into an error event
+      }
+      else
+      {
+        // Consume the response...
+        var data = '';
+        response.on('data', function (chunk) {
+          data += chunk;
+        });
+        response.on('end', function(){
+          response.body = data;
+          terminus(null, response);
+        });
+      }
+    }
+    else
+    {
+      terminus(new Error('Unknown response'));
+    }
+  });
+  req.on('error', function (e)
+  {
+    terminus(e, null);
+  });
+  req.end(body || null);
 };
+
+// Register the action handlers
+TereusStore.actionHandlers[TereusConstants.TEREUS_CREATE] = _.bind(_.partial(TereusStore.__apiCall, TereusConstants.TEREUS_CREATE), TereusStore);
+TereusStore.actionHandlers[TereusConstants.TEREUS_UPDATE] = _.bind(_.partial(TereusStore.__apiCall, TereusConstants.TEREUS_UPDATE), TereusStore);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register action handlers with the Dispatcher

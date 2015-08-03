@@ -24,29 +24,39 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE
 
-
-
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
-var ArgumentsView = require('./ArgumentsView.react');
-var EvaluationResults = require('./EvaluationResults.react');
+var CreateArgumentsView = require('./create/CreateArgumentsView.react');
+var CreateEvaluationResults = require('./create/CreateEvaluationResults.react');
+var UpdateArgumentsView = require('./update/UpdateArgumentsView.react');
+var UpdateEvaluationResults = require('./update/UpdateEvaluationResults.react');
+var TereusConstants = require('../constants/TereusConstants');
+var TereusStore = require('../stores/TereusStore');
 
 var MainView = React.createClass({
-  propTypes: {
-    arguments: ReactPropTypes.object.isRequired
-  },
-
   /**
    * @return {object}
    */
   render: function() {
     return (
-      <div className="container">
-        <ArgumentsView arguments={this.props.arguments} />
-        <EvaluationResults arguments={this.props.arguments} />
+      <div>
+        <ul className="nav nav-tabs" role="tablist">
+          <li role="presentation" className="active"><a href="#create" aria-controls="create" role="tab" data-toggle="tab">Create</a></li>
+          <li role="presentation"><a href="#update" aria-controls="update" role="tab" data-toggle="tab">Update</a></li>
+        </ul>
+
+        <div className="tab-content">
+          <div role="tabpanel" className="tab-pane active" id="create">
+            <CreateArgumentsView />
+            <CreateEvaluationResults />
+          </div>
+          <div role="tabpanel" className="tab-pane" id="update">
+            <UpdateArgumentsView />
+            <UpdateEvaluationResults />
+          </div>
+        </div>
       </div>
-    );
-  }
+  )}
 });
 
 module.exports = MainView;

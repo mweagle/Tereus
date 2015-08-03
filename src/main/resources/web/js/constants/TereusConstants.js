@@ -24,8 +24,8 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE
 
-var keyMirror = require('keymirror');
-
-module.exports = keyMirror({
-  TEREUS_EVALUATE: null
-});
+// Action constants correspond to their API path component name
+module.exports = {
+                    TEREUS_CREATE: 'create',
+                    TEREUS_UPDATE: 'update'
+                  };

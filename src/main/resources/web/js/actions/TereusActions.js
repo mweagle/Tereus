@@ -37,13 +37,23 @@ var TereusActions = {
    * @param  {Object} paramsAndTags Parameters and Tags object
    * @return {undefined}            Undefined
    */
-  evaluate: function(templatePath, region, stackName, paramsAndTags) {
+  create: function(templatePath, region, stackName, paramsAndTags) {
     AppDispatcher.dispatch({
-      actionType: TereusConstants.TEREUS_EVALUATE,
+      api: TereusConstants.TEREUS_CREATE,
       path: templatePath,
       stackName: stackName,
       region: region,
       paramsAndTags: paramsAndTags
+    });
+  },
+  update: function(patchPath, region, stackName, updateArgs)
+  {
+    AppDispatcher.dispatch({
+      api: TereusConstants.TEREUS_UPDATE,
+      path: patchPath,
+      stackName: stackName,
+      region: region,
+      arguments: updateArgs
     });
   }
 };

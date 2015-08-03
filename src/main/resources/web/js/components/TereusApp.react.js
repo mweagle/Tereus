@@ -30,13 +30,8 @@
 var React = require('react');
 var NavBar = require('./NavBar.react');
 var MainView = require('./MainView.react');
-var TereusStore = require('../stores/TereusStore');
 
 var TereusApp = React.createClass({
-  getInitialState: function() {
-    return TereusStore.getState();
-  },
-
   /**
    * @return {object}
    */
@@ -44,7 +39,7 @@ var TereusApp = React.createClass({
     return (
       <div>
         <NavBar />
-        <MainView arguments={this.state.inputs} />
+        <MainView />
       </div>
     );
   }
