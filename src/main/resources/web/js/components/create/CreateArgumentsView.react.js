@@ -107,7 +107,7 @@ var ArgumentsView = React.createClass({
 
             <div className="row">
               <div className="col-md-6">
-                  <AWSRegionSelector selectedRegion={this.selectedRegion} onChange={this.onStateChange('region')} />
+                  <AWSRegionSelector defaultRegion={this.state.region} onChange={this.onStateChange('region')} />
                   <div className="form-group">
                     <label for="inputName">Stack Name (optional)</label>
                     <input type="string" className="form-control input-sm" id="inputName" placeholder="Name" defaultValue={this.state.stackName} onChange={this.onStateChange('stackName')}></input>
