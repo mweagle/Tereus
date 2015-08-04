@@ -27,43 +27,62 @@ package tereus.create;
 //import java.io.File;
 //import java.util.Map;
 import tereus.TestUtils;
+import tereus.EvaluationTest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import com.mweagle.tereus.CONSTANTS;
+import com.mweagle.tereus.commands.CreateCommand;
+import com.mweagle.tereus.input.TereusInput;
+
 
 /**
  * Created by mweagle on 5/12/15.
  */
-@RunWith(org.junit.runners.JUnit4.class)
+@RunWith(Parameterized.class)
 public class SingleCreationTest extends EvaluationTest {
-		
-	private static Path inputPath(final String testType, final String fileRelativePath)
-	{		
-		return Paths.get(TestUtils.testRoot().toString(), 
-						 "create",
-						 testType,
-						 "definition",
-						 fileRelativePath + ".js").toAbsolutePath();
-	};
+	final public static String TEST_TYPE = "aws_samples";
+	final public static String TEST_NAME = "EC2Builder";
 	
-	private static Path resultPath(final String testType, final String fileRelativePath)
-	{
-		return Paths.get(TestUtils.testRoot().toString(), 
+	
+    @Parameters
+    public static List<Object[]> data() throws IOException {
+    	
+    	final Path inputPath = Paths.get(TestUtils.testRoot().toString(), 
+				 "create",
+				 TEST_TYPE,
+				 "definition",
+				 TEST_NAME + ".js").toAbsolutePath();
+    	
+    	final Path resultPath = Paths.get(TestUtils.testRoot().toString(), 
 				 "evaluation",
-				 testType,
+				 TEST_TYPE,
 				 "expected",
-				 fileRelativePath + ".json").toAbsolutePath();
-	};	
+				 TEST_NAME + ".json").toAbsolutePath();
+    	return TestUtils.singleDataPair(inputPath, resultPath);
+    }
 	
-    @Test
-    public void test() throws Exception {
-    	final String testType = "aws_samples";
-    	final String testName = "EC2Builder";
-    	final Path inputFile = SingleCreationTest.inputPath(testType, testName);
-    	final Path expectedFile = SingleCreationTest.resultPath(testType, testName);
-    	super.verifyEvaluation(inputFile, expectedFile);
+	
+    @Override
+    protected  void run(Path evaluationInput, Optional<ByteArrayOutputStream> evaluationResults) throws Exception
+    {
+        Map<String, Object> params = new HashMap<>();
+        params.put(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, "testBucket");
+
+        final TereusInput input = new TereusInput(null, evaluationFilepath.toString(), null, params, new HashMap<String, Object>(), true);
+        new CreateCommand().create(input, evaluationResults);
     }
 }

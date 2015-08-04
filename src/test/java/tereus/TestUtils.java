@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,6 +46,13 @@ public class TestUtils
         Preconditions.checkArgument(TestUtils.isValidRootArgument(testRootDirectory), 
         							"Failed to resolve test root directory (eg: ~/Documents/Tereus/src/test/java/tereus)");
         return testRootDirectory;
+	}
+	
+	public static List<Object[]> singleDataPair(final Path input, final Path output)
+	{
+    	List<Object[]> pairs = new ArrayList<Object[]>();
+    	pairs.add(new Path[]{input, output});
+        return pairs;
 	}
 	
 	public static List<Object[]> definitionAndResultPairs(final String subfolder) throws IOException

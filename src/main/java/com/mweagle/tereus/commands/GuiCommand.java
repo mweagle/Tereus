@@ -40,7 +40,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.mweagle.Tereus;
 import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.input.TereusInput;
@@ -126,9 +125,6 @@ public class GuiCommand extends AbstractTereusCommand {
 		            final ByteArrayOutputStream osStream = new ByteArrayOutputStream();
 	                final Map<String, Object> updateResults = new UpdateCommand().update(input, Optional.of(osStream));
 
-	                // Return the raw template
-	                // TODO - return the original CloudFormation template for application, use JS to apply the patch
-	                // if we have the source CF template
 	                final String templateContent = new String(Files.readAllBytes(Paths.get(path)),"UTF-8");
 
 	                HashMap<String, String> results = new HashMap<>();

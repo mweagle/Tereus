@@ -24,9 +24,13 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package tereus.create;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,25 +38,30 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.mweagle.tereus.CONSTANTS;
+import com.mweagle.tereus.commands.CreateCommand;
+import com.mweagle.tereus.input.TereusInput;
+
 import tereus.TestUtils;
 
 /**
  * Created by mweagle on 5/12/15.
  */
 @RunWith(Parameterized.class)
-public class TereusCreationTests extends EvaluationTest {
-    @Parameter(0)
-    public Path evaluationFilepath;
-    @Parameter(1)
-    public Path expectedFilepath;
-
+public class TereusCreationTests extends tereus.EvaluationTest {
     @Parameters
     public static List<Object[]> data() throws IOException {
-    	return TestUtils.definitionAndResultPairs("create");
+        return TestUtils.definitionAndResultPairs("create");
     }
+	
+    @Override
+    protected  void run(Path evaluationInput, Optional<ByteArrayOutputStream> evaluationResults) throws Exception
+    {
+        Map<String, Object> params = new HashMap<>();
+        params.put(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, "testBucket");
 
-    @Test
-    public void test() throws Exception {
-        super.verifyEvaluation(this.evaluationFilepath, this.expectedFilepath);
+        final TereusInput input = new TereusInput(null, evaluationFilepath.toString(), null, params, new HashMap<String, Object>(), true);
+        new CreateCommand().create(input, evaluationResults);
     }
 }
+	
