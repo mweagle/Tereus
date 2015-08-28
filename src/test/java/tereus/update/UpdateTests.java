@@ -24,15 +24,20 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package tereus.update;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import com.mweagle.tereus.commands.UpdateCommand;
+import com.mweagle.tereus.input.UpdateInput;
 
 import tereus.TestUtils;
 
@@ -40,22 +45,19 @@ import tereus.TestUtils;
  * Created by mweagle on 5/12/15.
  */
 @RunWith(Parameterized.class)
-public class UpdateTests  {
-    @Parameter(0)
-    public Path evaluationFilepath;
-    @Parameter(1)
-    public Path expectedFilepath;
-
+public class UpdateTests extends tereus.EvaluationTest {
     @Parameters
     public static List<Object[]> data() throws IOException {
         return TestUtils.definitionAndResultPairs("update");
     }
 
-    @Test
-    public void test() throws Exception {
-    	// For each pair, verify that they match up...
-    	
+    @Override
+    protected  void run(Path evaluationInput, Optional<ByteArrayOutputStream> evaluationResults) throws Exception
+    {
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("UnitTestArgument", 42);
 
-    	
+    	final UpdateInput input = new UpdateInput(evaluationInput.toString(), arguments, "", null, true);
+        new UpdateCommand().update(input, evaluationResults);
     }
 }
