@@ -27,6 +27,7 @@ package com.mweagle;
 import com.mweagle.tereus.commands.CreateCommand;
 import com.mweagle.tereus.commands.DeleteCommand;
 import com.mweagle.tereus.commands.GuiCommand;
+import com.mweagle.tereus.commands.UpdateCommand;
 
 import io.airlift.airline.Cli;
 import io.airlift.airline.Cli.CliBuilder;
@@ -40,12 +41,12 @@ public class Tereus {
 		CliBuilder<Runnable> builder = Cli.<Runnable>builder("Tereus")
                 .withDescription("Executable CloudFormation definitions")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class, CreateCommand.class, DeleteCommand.class);
+                .withCommands(Help.class, CreateCommand.class, UpdateCommand.class, DeleteCommand.class);
 
         builder.withGroup("cli")
                 .withDescription("Command line mode")
                 .withDefaultCommand(CreateCommand.class)
-                .withCommands(CreateCommand.class, DeleteCommand.class);
+                .withCommands(CreateCommand.class, UpdateCommand.class, DeleteCommand.class);
 
         builder.withGroup("gui")
 		        .withDescription("Localhost GUI mode")
