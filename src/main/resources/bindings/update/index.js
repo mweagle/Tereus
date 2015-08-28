@@ -1,4 +1,4 @@
-/* global __patchTunnel,ArgumentsImpl,TemplateInfoImpl,JSON8Patch,Immutable,_ */
+/* global _,logger,__patchTunnel,ArgumentsImpl,TemplateInfoImpl,jsonpatch,Immutable*/
 
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
@@ -149,11 +149,14 @@ var Patch =
 /**
  * <span class="label label-info">Update Context</span><hr />
  *
- * The global JSONPatch function responsible
- * for expanding the inline patch definition.
+ * The global CloudFormationUpdate function responsible
+ * for expanding the inline patch definition.  Note that the patch
+ * syntax does not support creating intermediate
+ * <a href="https://tools.ietf.org/html/rfc6901">JSON Pointer</a>
+ * <i>path</i> components that did not exist in the target document.
  *
- * @example <caption>JSONPatch</caption>
-  JSONPatch("SomePatch")({
+ * @example <caption>CloudFormationUpdate</caption>
+  CloudFormationUpdate("SomePatch")({
     "Resources":
     {
       "MyEc2" : Patch.Add("Foobar")
@@ -163,7 +166,7 @@ var Patch =
  *
  * @param {string} patchName - Patch Name
  */
-var JSONPatch = function(patchName)
+var CloudFormationUpdate = function(patchName)
 {
   var visitingPatchAccumulator = function(rootItem, pathSpec, accumulator)
   {
@@ -184,25 +187,79 @@ var JSONPatch = function(patchName)
     return accumulator;
   };
 
+
+  var ensureAddJSONPointer = function(targetDocument)
+  {
+    // [{"op":"add","path":"/Key/Subkey","value":"Value"}]
+    var mkPath = function(rootItem, pathComponents)
+    {
+      if (!_.isEmpty(pathComponents))
+      {
+        rootItem[pathComponents[0]] = rootItem[pathComponents[0]] || {};
+        return mkPath(rootItem[pathComponents[0]], pathComponents.slice(1));
+      }
+    };
+
+    return function(eachPatchOperation)
+    {
+      if (eachPatchOperation.op === 'add')
+      {
+        // Skip the first, empty root-path component
+        mkPath(targetDocument, eachPatchOperation.path.split('/').slice(1));
+      }
+    };
+  };
+
   return function(patchSpec)
   {
     var expanded = visitingPatchAccumulator(patchSpec, '');
     // Put the result into something we can get at
     __patchTunnel.patchName = patchName;
     __patchTunnel.patchContents = JSON.stringify(expanded);
-
     // Conditional  ly apply the patch if we have a template definition
     __patchTunnel.patchTarget = '';
     __patchTunnel.appliedResult = '';
+
+    // Default template body, in the event that we aren't supplied a patch
+    // name to update.
+    var templateInfo = {
+                          getTemplateBody: function() {
+                            return '{}';
+                          }
+                        };
     try
     {
-      __patchTunnel.patchTarget = TemplateInfoImpl.getTemplateBody();
-      var parsedTemplate = JSON.parse(__patchTunnel.patchTarget);
-      __patchTunnel.appliedResult = JSON.stringify(JSON8Patch.apply(parsedTemplate, expanded));
+      templateInfo = TemplateInfoImpl;
     }
     catch (ex)
     {
-      logger.error(ex.toString());
+      // NOP - if the input didn't include a stackname to target
+      // then there's nothing to apply the patch to.
+    }
+
+    __patchTunnel.patchTarget = templateInfo.getTemplateBody();
+    var parsedTemplate = JSON.parse(__patchTunnel.patchTarget);
+    if (!_.isEmpty(parsedTemplate))
+    {
+      try
+      {
+        // Ensure that any 'add' operations have a valid path to operate
+        // against.  If this check isn't done, then absent intermediate
+        // path components in the patch spec will create a PatchConflictError
+        // exception
+        _.each(expanded, ensureAddJSONPointer(parsedTemplate));
+        // Then apply the transform
+        jsonpatch.apply(parsedTemplate, expanded);
+        __patchTunnel.appliedResult = JSON.stringify(parsedTemplate);
+      }
+      catch (ex)
+      {
+        throw new Error('Failed to apply patch: ' + ex.toString());
+      }
+    }
+    else
+    {
+      __patchTunnel.appliedResult = '';
     }
   };
 };

@@ -1,4 +1,4 @@
-/* global logger,UserInfoImpl,FileUtilsImpl,Immutable,_ */
+/* global logger,AWSInfoImpl,UserInfoImpl,FileUtilsImpl,Immutable,_ */
 
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
@@ -48,8 +48,34 @@ var USER_INFO = {
     creationDate:null
 };
 
+/**
+ * <span class="label label-info">All Contexts</span><hr />
+ * Global object storing AWS credentials & region, wrapped in an Immutable.JS map
+ *
+ * @type {Object}
+ * @property {object} AWS_INFO.credentials - Object containing accessKey and secretAccessKey
+ * @property {string} AWS_INFO.credentials.accessKeyId - AWS accessKeyId
+ * @property {string} AWS_INFO.credentials.secretAccessKey - AWS secretAccessKey
+ * @property {string} AWS_INFO.region - Target AWS region
+
+ * @example <caption>Accessing AWS_INFO</caption>
+ *
+ * AWS_INFO.get('region') // => 'us-east-1'
+ *
+ */
+var AWS_INFO = {
+  credentials:
+  {
+    accessKeyId: null,
+    secretAccessKey: null
+  },
+  region: null
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 (function initializer() {
+  try
+  {
     var user = UserInfoImpl.getUser();
     var userInfoMap = {
         arn: user.getArn(),
@@ -58,6 +84,20 @@ var USER_INFO = {
         creationDate: user.getCreateDate(),
     };
     USER_INFO = Immutable.Map(userInfoMap);
+  }
+  catch (ex)
+  {
+    logger.warn('Failed to initialize USER_INFO: ' + ex.toString());
+  }
+  try
+  {
+    // Turn that into a map
+    AWS_INFO = Immutable.Map(JSON.parse(AWSInfoImpl()));
+  }
+  catch (ex)
+  {
+    logger.warn('Failed to initialize AWS UserInfo:' + ex.toString());
+  }
 })();
 
 var tappedLoad = load;

@@ -8,6 +8,7 @@
   },
   "source": {
     "include": [
+      "./common",
       "./create",
       "./update"
     ],
