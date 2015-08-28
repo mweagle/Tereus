@@ -22,7 +22,7 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package com.mweagle.tereus.commands.create;
+package com.mweagle.tereus.commands.pipelines;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -34,20 +34,14 @@ import java.util.stream.Stream;
 
 import javax.script.ScriptEngine;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.regions.Region;
-import com.amazonaws.services.cloudformation.AmazonCloudFormationAsyncClient;
-import com.amazonaws.services.cloudformation.model.GetTemplateRequest;
 import com.amazonaws.services.cloudformation.model.GetTemplateResult;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.GetUserResult;
 import com.google.gson.Gson;
-import com.mweagle.tereus.NashornEvaluator;
 
-public class UpdatePipeline extends NashornEvaluator
+public class UpdatePipeline extends AWSEvaluationPipeline
 {
     private static final String BINDING_PACKAGE = "com.mweagle.tereus.commands.evaluation";
     private static final String[] BINDING_CLASSES = {"common.FileUtils",
@@ -59,48 +53,42 @@ public class UpdatePipeline extends NashornEvaluator
             "node_modules/immutable/dist/immutable.min.js",
     		"common/init.js",
     		"update/index.js",
-    		"node_modules/json8-patch/JSON8Patch.js"
+    		"node_modules/json-patch/jsonpatch.js"
             };
     
 	private final Path patchSource;
 	private final Map<String, Object> arguments;
-	private final String stackName;
-	private final AWSCredentials awsCredentials;
-	private final Region awsRegion;
+	private final GetTemplateResult stackTemplateResult;
 	private final boolean dryRun;
-	private final Logger logger;
     
 	public UpdatePipeline(final Path patchSource, 
 							final Map<String, Object> arguments, 
-							final String stackName,
+							final GetTemplateResult stackTemplateResult,
 							final AWSCredentials awsCredentials, 
 							final Region awsRegion,
 							final boolean dryRun, 
 							final Logger logger)
     {
+		super(awsCredentials, awsRegion, logger);
+		
 		this.patchSource = patchSource;
     	this.arguments = arguments;
-    	this.stackName = stackName;
-    	this.awsCredentials = awsCredentials;
-    	this.awsRegion = awsRegion;
+    	this.stackTemplateResult = stackTemplateResult;
     	this.dryRun = dryRun;
-    	this.logger = logger;
     }
 
 	protected void publishGlobals(ScriptEngine engine)
 	{
+		super.publishGlobals(engine);
+		
 		// Get the current stack definition
-		if ((null != this.stackName) && !this.stackName.isEmpty())
+		if (null != this.stackTemplateResult)
 		{
-			final GetTemplateRequest templateRequest = new GetTemplateRequest().withStackName(this.stackName);
-	        final AmazonCloudFormationAsyncClient awsClient = new AmazonCloudFormationAsyncClient(this.awsCredentials);
-	        awsClient.setRegion(this.awsRegion);
-			final GetTemplateResult templateResult = awsClient.getTemplate(templateRequest);
-	        engine.put("TemplateInfoImpl", templateResult);			
+	        engine.put("TemplateInfoImpl", this.stackTemplateResult);			
 		}
 		else
 		{
-			this.logger.warn("StackName not provided. Applied patch result will not be available");
+			getLogger().warn("StackName not provided. Applied patch result will not be available");
 		}
 	
 		// Stuff the arguments in there...
@@ -111,15 +99,6 @@ public class UpdatePipeline extends NashornEvaluator
             return gson.toJson(args);
         };
         engine.put("ArgumentsImpl", fnArgs);
-    	
-    	// get the info
-    	final AmazonIdentityManagementClient client = new AmazonIdentityManagementClient();	
-    	final GetUserResult result = client.getUser();
-        engine.put("UserInfoImpl", result);
-
-        // And the logger
-        final Logger templateLogger  = LogManager.getLogger(UpdatePipeline.class);
-        engine.put("logger", templateLogger);	
 	}
 	
 	protected Stream<String>  javaClassnames()
@@ -142,11 +121,5 @@ public class UpdatePipeline extends NashornEvaluator
 	public boolean isDryRun()
 	{
 		return this.dryRun;
-	}
-
-	@Override
-	public Logger getLogger()
-	{
-		return this.logger;
 	}
 }

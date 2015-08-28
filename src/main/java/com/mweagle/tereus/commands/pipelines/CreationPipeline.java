@@ -22,7 +22,7 @@
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-package com.mweagle.tereus.commands.create;
+package com.mweagle.tereus.commands.pipelines;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -34,16 +34,10 @@ import java.util.stream.Stream;
 
 import javax.script.ScriptEngine;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
-import com.amazonaws.services.identitymanagement.model.GetUserResult;
 import com.google.gson.Gson;
-import com.mweagle.tereus.NashornEvaluator;
 import com.mweagle.tereus.input.TereusInput;
 
-public class CreationPipeline extends NashornEvaluator
+public class CreationPipeline extends AWSEvaluationPipeline
 {
     private static final String BINDING_PACKAGE = "com.mweagle.tereus.commands.evaluation";
     private static final String[] BINDING_CLASSES = {"common.FileUtils",
@@ -69,12 +63,16 @@ public class CreationPipeline extends NashornEvaluator
  
 	public CreationPipeline(final TereusInput input)
     {
+		super(input.awsCredentials, input.awsRegion, input.logger);
+
     	this.cfInput = input;
     }
  
 	protected void publishGlobals(ScriptEngine engine)
 	{
-	 Supplier<String> fnArgs = () -> {
+		super.publishGlobals(engine);
+		
+		Supplier<String> fnArgs = () -> {
             HashMap<String, Map<String, Object>> args = new HashMap<>();
             args.put("params", this.cfInput.params);
             args.put("tags", this.cfInput.tags);
@@ -82,15 +80,6 @@ public class CreationPipeline extends NashornEvaluator
             return gson.toJson(args);
         };
         engine.put("ArgumentsImpl", fnArgs);
-    	
-    	// get the info
-    	final AmazonIdentityManagementClient client = new AmazonIdentityManagementClient();	
-    	final GetUserResult result = client.getUser();
-        engine.put("UserInfoImpl", result);
-
-        // And the logger
-        final Logger templateLogger  = LogManager.getLogger(CreationPipeline.class);
-        engine.put("logger", templateLogger);
 	}
 	
 	protected Stream<String>  javaClassnames()
@@ -103,24 +92,15 @@ public class CreationPipeline extends NashornEvaluator
 		return Arrays.stream(JS_FILES).map(name -> String.join(File.separator, CreationPipeline.BINDING_RESOURCE_ROOT, name));
 	}
 
-
 	@Override
 	public Path getEvaluationSource()
 	{
 		return this.cfInput.stackDefinitionPath;
 	}
 
-
 	@Override
 	public boolean isDryRun()
 	{
 		return this.cfInput.dryRun;
-	}
-
-
-	@Override
-	public Logger getLogger()
-	{
-		return this.cfInput.logger;
 	}
 }

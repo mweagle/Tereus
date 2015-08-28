@@ -59,7 +59,7 @@ import com.google.gson.JsonElement;
 import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.aws.CloudFormation;
 import com.mweagle.tereus.aws.S3Resource;
-import com.mweagle.tereus.commands.create.CreationPipeline;
+import com.mweagle.tereus.commands.pipelines.CreationPipeline;
 import com.mweagle.tereus.input.TereusInput;
 
 import io.airlift.airline.Command;
@@ -124,7 +124,7 @@ public class CreateCommand extends AbstractTereusAWSCommand
 					.getOrDefault(CONSTANTS.ARGUMENT_JSON_KEYNAMES.TAGS, Collections.emptyMap());
 
 			TereusInput tereusInput = new TereusInput(this.stackName, this.stackTemplatePath, this.region, parameters,
-					tags, this.noop);
+					tags, this.dryRun);
 
 			Optional<OutputStream> osSink = Optional.empty();
 			try
@@ -162,7 +162,7 @@ public class CreateCommand extends AbstractTereusAWSCommand
 		System.exit(exitCode);
 	}
 
-	public void create(final TereusInput tereusInput, Optional<? extends OutputStream> osSinkTemplate) throws Exception
+	public Map<String, Object> create(final TereusInput tereusInput, Optional<? extends OutputStream> osSinkTemplate) throws Exception
 	{
 		final CreationPipeline pipeline = new CreationPipeline(tereusInput);
 		Map<String, Object> evaluationResult = pipeline.run(tereusInput.stackDefinitionPath, tereusInput.logger);
@@ -196,6 +196,7 @@ public class CreateCommand extends AbstractTereusAWSCommand
 					.toJson(templateData.get());
 			osSinkTemplate.get().write(formattedTemplate.getBytes(Charset.forName("UTF-8")));
 		}
+		return evaluationResult;
 	}
 
 	protected List<Parameter> toParameterList(final Map<String, Object> values)

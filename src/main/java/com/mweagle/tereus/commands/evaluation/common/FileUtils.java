@@ -43,7 +43,10 @@ public class FileUtils implements INashornEvaluationAccumulator {
     public FileUtils(INashornEvaluatorContext context)
     {
         this.templateRoot = context.getEvaluationSource().getParent();
-        context.getLogger().debug("Resource root directory: {}", this.templateRoot.toAbsolutePath());
+        if (null != context.getLogger())
+        {
+            context.getLogger().debug("Resource root directory: {}", this.templateRoot.toAbsolutePath());
+        }
     }
 
     @Override

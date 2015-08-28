@@ -79,8 +79,7 @@ public abstract class NashornEvaluator implements INashornEvaluatorContext
 
 		// Add the custom JavaScript classes to the evaluation context
 		this.javascriptResources().forEach(new JavaScriptInputStreamPublisher(engine, logger));
-		logger.debug("Evaluating");
-
+		
 		// Evaluate the template
 		try
 		{

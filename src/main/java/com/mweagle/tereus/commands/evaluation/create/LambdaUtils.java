@@ -68,7 +68,7 @@ public class LambdaUtils implements INashornEvaluationAccumulator {
 			{
 			  "S3Bucket" : String,
 			  "S3Key" : String,
-			  "S3ObjectVersion" : String - TODO
+			  "S3ObjectVersion" : "TODO - not yet implemented"
 			}
 		*/
 

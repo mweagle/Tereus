@@ -1,5 +1,3 @@
-
-
 //Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
 //Permission is hereby granted, free of charge, to

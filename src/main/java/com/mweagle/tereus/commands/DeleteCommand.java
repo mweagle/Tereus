@@ -24,19 +24,17 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package com.mweagle.tereus.commands;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
 import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
 import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
+
+import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 
 @Command(name = "delete", description = "Delete a CloudFormation stack by Name or Id")
 public class DeleteCommand extends AbstractTereusAWSCommand
@@ -45,6 +43,9 @@ public class DeleteCommand extends AbstractTereusAWSCommand
 	"--stack" }, description = "StackName or StackId to delete")
 	public String stackName;
 	
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({
+        "DM_EXIT", 
+        "OBL_UNSATISFIED_OBLIGATION"})
 	@Override
 	public void run()
 	{
@@ -61,7 +62,7 @@ public class DeleteCommand extends AbstractTereusAWSCommand
 			logger.info(describeResult);
 			logger.info("Deleting stack: {}", this.stackName);
 			
-			if (this.noop)
+			if (this.dryRun)
 			{
 				logger.info("Dry run requested (-n/--noop). Stack deletion bypassed.");
 			}
