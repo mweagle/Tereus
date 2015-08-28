@@ -8,21 +8,21 @@ gradually encapsulated & extended using built-in and user-defined JavaScript fun
 
 # Example
 
-    ```
-    /* global CloudFormationTemplate,EC2 */
-    CloudFormationTemplate("EC2Instance")({
-      "AWSTemplateFormatVersion": "2010-09-09",
-      "Description": "Validate the EC2 helper object",
-      "Resources" :
-      {
-        "MyEC2Instance" : AWS.EC2.Instance({
-            "Metadata": {
-              "Builder":"Created"
-            }
-          })
-      }
-    });
-    ```
+```
+/* global CloudFormationTemplate,EC2 */
+CloudFormationTemplate("EC2Instance")({
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Validate the EC2 helper object",
+  "Resources" :
+  {
+    "MyEC2Instance" : AWS.EC2.Instance({
+        "Metadata": {
+          "Builder":"Created"
+        }
+      })
+  }
+});
+```
 
 # Evaluation Context
 
