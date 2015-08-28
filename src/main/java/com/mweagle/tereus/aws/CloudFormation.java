@@ -29,6 +29,8 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationAsyncClient;
 import com.amazonaws.services.cloudformation.model.*;
+import com.google.common.collect.Sets;
+
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
@@ -39,7 +41,17 @@ import java.util.function.Predicate;
  * Created by mweagle on 5/8/15.
  */
 public class CloudFormation {
-
+		
+	protected final static Set<String> TERMINAL_EVENTS  = Collections.unmodifiableSet(Sets.newHashSet("CREATE_FAILED", 
+																								"CREATE_COMPLETE", 
+																								"DELETE_FAILED",
+																								"DELETE_COMPLETE",
+																								"UPDATE_FAILED",
+																								"UPDATE_COMPLETE",
+																								"ROLLBACK_COMPLETE",
+																								"ROLLBACK_FAILED"));
+	
+	
     public Optional<DescribeStacksResult> createStack(final CreateStackRequest request, final Region awsRegion, Logger logger)
     {
         DefaultAWSCredentialsProviderChain credentialProviderChain = new DefaultAWSCredentialsProviderChain();
@@ -50,10 +62,11 @@ public class CloudFormation {
 
         try
         {
+        	// There are no prior events for a creation request
             Future<CreateStackResult> createStackRequest = awsClient.createStackAsync(request);
             final CreateStackResult stackResult = createStackRequest.get();
             logger.info("Stack ({}) creation in progress.", stackResult.getStackId());
-            completionResult = waitForStackComplete(awsClient, stackResult.getStackId(), logger);
+            completionResult = waitForStackComplete(awsClient, stackResult.getStackId(), Collections.emptyList(), logger);
         }
         catch (Exception ex)
         {
@@ -62,6 +75,31 @@ public class CloudFormation {
         return completionResult;
     }
 
+    public Optional<DescribeStacksResult> updateStack(final UpdateStackRequest request, final Region awsRegion, Logger logger)
+    {
+        DefaultAWSCredentialsProviderChain credentialProviderChain = new DefaultAWSCredentialsProviderChain();
+        final AmazonCloudFormationAsyncClient awsClient = new AmazonCloudFormationAsyncClient(credentialProviderChain.getCredentials());
+        awsClient.setRegion(awsRegion);
+        logger.info("Updating stack: {}", request.getStackName());
+        Optional<DescribeStacksResult> completionResult = Optional.empty();
+
+        try
+        {
+            final List<StackEvent> priorEvents = getStackEvents(awsClient, request.getStackName(), logger);
+            logger.info("Total number of pre-existing stack events: {}", priorEvents.size());
+            Future<UpdateStackResult> updateStackResult = awsClient.updateStackAsync(request);
+            final UpdateStackResult stackResult = updateStackResult.get();
+            logger.info("Stack ({}) creation in progress.", stackResult.getStackId());
+            completionResult = waitForStackComplete(awsClient, request.getStackName(), priorEvents, logger);
+        }
+        catch (Exception ex)
+        {
+            logger.error(ex);
+        }
+        return completionResult;
+    }
+
+    
     protected List<StackEvent> getStackEvents(final AmazonCloudFormationAsyncClient awsClient, final String stackName, Logger logger) throws Exception
     {
         List<StackEvent> events = new ArrayList<StackEvent>();
@@ -81,23 +119,29 @@ public class CloudFormation {
         } while (token.isPresent());
         return events;
     }
+    
     protected Optional<DescribeStacksResult> describeStack(final AmazonCloudFormationAsyncClient awsClient, final String stackName, Logger logger) throws Exception
     {
         final DescribeStacksRequest describeStacksRequest = new DescribeStacksRequest();
         describeStacksRequest.setStackName(stackName);
         return Optional.of(awsClient.describeStacks(describeStacksRequest));
     }
-    protected Optional<DescribeStacksResult> waitForStackComplete(final AmazonCloudFormationAsyncClient awsClient, final String stackName, Logger logger) throws Exception
+    
+    protected Optional<DescribeStacksResult> waitForStackComplete(final AmazonCloudFormationAsyncClient awsClient, final String stackName, List<StackEvent> priorEvents, Logger logger) throws Exception
     {
         Map<String, StackEvent> eventHistory = new HashMap<>();
+        for (StackEvent eachEvent: priorEvents)
+        {
+        	eventHistory.put(eachEvent.getEventId(), eachEvent);
+        }
         Optional<StackEvent> terminationEvent = Optional.empty();
 
         final Predicate<StackEvent> isNewEvent = event -> {
             return !eventHistory.containsKey(event.getEventId());
         };
 
-        final Predicate<StackEvent> isTerminalEvent = stackEvent -> {
-            return ((stackEvent.getResourceStatus().contains("_COMPLETE")) &&
+        final Predicate<StackEvent> isTerminalEvent = stackEvent -> {        						
+            return (CloudFormation.TERMINAL_EVENTS.contains(stackEvent.getResourceStatus()) &&
                     stackEvent.getResourceType().equals("AWS::CloudFormation::Stack"));
         };
 
@@ -119,9 +163,13 @@ public class CloudFormation {
             // Find the first terminal event
             terminationEvent = events.stream().filter(isTerminalEvent).findFirst();
         }
-        if (!terminationEvent.get().getResourceStatus().equals("CREATE_COMPLETE"))
+        
+        // Don't ever delete anything, unless the initial event set length was empty, implying
+        // a creation event
+        if (priorEvents.size() <= 0 && 
+        	terminationEvent.get().getResourceStatus().contains("_FAILED"))
         {
-            logger.warn("Stack creation failed. Deleting stack.");
+            logger.warn("Stack creation . Deleting stack.");
             final DeleteStackRequest deleteStackRequest = new DeleteStackRequest();
             deleteStackRequest.setStackName(stackName);
             awsClient.deleteStack(deleteStackRequest);
