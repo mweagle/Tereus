@@ -38,9 +38,10 @@ The default evaluation context includes:
   - `load()` support to include your own set of JS functions
   - Access to the AWS credentials & region to directly invoke APIs through the Java SDK
 
-More information on the evaluation context is available at:
-    1. java -jar Tereus.jar gui
-    1. open http://localhost:4567/docs/index.html
+More information on the evaluation context is available via:
+
+  1. java -jar Tereus.jar gui
+  1. open http://localhost:4567/docs/index.html
 
 # Usage
 
