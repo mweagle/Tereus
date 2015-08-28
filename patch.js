@@ -1,7 +1,12 @@
-/* global JSONPatch,Patch,ARGUMENTS */
-JSONPatch("SomePatch")({
+/* global CloudFormationUpdate,Patch,ARGUMENTS */
+CloudFormationUpdate("SomePatch")({
   "Resources":
   {
-    "MyEc2" : Patch.Add(ARGUMENTS.get("MyKey") || "DefaultArgumentValueInTemplate")
+    "LambdaTest" :
+    {
+      "Metadata": {
+        "SomeKey": Patch.Add(ARGUMENTS.get("MyKey") || "DefaultArgumentValueInTemplate")
+      }
+    }
   }
 });
