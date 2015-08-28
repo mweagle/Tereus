@@ -1,3 +1,9 @@
+# Elevator Pitch
+
+Use JS functions to define & compose CloudFormation Templates. 
+
+Plus, external files parsed from native format to `Fn::Join`-compatible representations.
+
 # Overview
 
 Tereus simplifies defining, composing, and creating AWS
@@ -27,10 +33,10 @@ CloudFormationTemplate("EC2Instance")({
 # Evaluation Context
 
 The default evaluation context includes:
-    * default AWS resource wrappers (EC2, Lambda, etc)
-    * Affordances for specific resource types.  For instance, `Lambda` resources can be automatically _npm install_'d, ZIP'd, and uploaded to S3 as part of stack operations.
-    * `load()` support to include your own set of JS functions
-    * Access to the AWS credentials & region to directly invoke APIs through the Java SDK
+  - default AWS resource wrappers (EC2, Lambda, etc)
+  - Affordances for specific resource types.  For instance, `Lambda` resources can be automatically _npm install_'d, ZIP'd, and uploaded to S3 as part of stack operations.
+  - `load()` support to include your own set of JS functions
+  - Access to the AWS credentials & region to directly invoke APIs through the Java SDK
 
 More information on the evaluation context is available at:
     1. java -jar Tereus.jar gui
