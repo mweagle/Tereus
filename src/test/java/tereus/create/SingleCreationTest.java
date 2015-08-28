@@ -24,22 +24,15 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 package tereus.create;
 
-//import java.io.File;
-//import java.util.Map;
-import tereus.TestUtils;
-import tereus.EvaluationTest;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -47,6 +40,11 @@ import org.junit.runners.Parameterized.Parameters;
 import com.mweagle.tereus.CONSTANTS;
 import com.mweagle.tereus.commands.CreateCommand;
 import com.mweagle.tereus.input.TereusInput;
+
+import tereus.EvaluationTest;
+//import java.io.File;
+//import java.util.Map;
+import tereus.TestUtils;
 
 
 /**
@@ -56,26 +54,26 @@ import com.mweagle.tereus.input.TereusInput;
 public class SingleCreationTest extends EvaluationTest {
 	final public static String TEST_TYPE = "aws_samples";
 	final public static String TEST_NAME = "EC2Builder";
-	
+	final public static String TEST_CATEGORY = "create";
+
+	private static Path testFilePath(String subfolder, String extension) 
+	{
+		final Path testFilePath = Paths.get(TestUtils.testRoot().toString(),
+				 TEST_CATEGORY,
+				 TEST_TYPE,
+				 subfolder,
+				 TEST_NAME + extension).toAbsolutePath();
+		return testFilePath;
+	}
 	
     @Parameters
     public static List<Object[]> data() throws IOException {
-    	
-    	final Path inputPath = Paths.get(TestUtils.testRoot().toString(), 
-				 "create",
-				 TEST_TYPE,
-				 "definition",
-				 TEST_NAME + ".js").toAbsolutePath();
-    	
-    	final Path resultPath = Paths.get(TestUtils.testRoot().toString(), 
-				 "evaluation",
-				 TEST_TYPE,
-				 "expected",
-				 TEST_NAME + ".json").toAbsolutePath();
+
+    	final Path inputPath = testFilePath("definition", ".js");
+    	final Path resultPath = testFilePath("expected", ".json");
     	return TestUtils.singleDataPair(inputPath, resultPath);
     }
-	
-	
+
     @Override
     protected  void run(Path evaluationInput, Optional<ByteArrayOutputStream> evaluationResults) throws Exception
     {
