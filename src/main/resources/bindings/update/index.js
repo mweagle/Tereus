@@ -61,8 +61,8 @@ var CurriedPatch = function(pathlessOp)
 /**
 <span class="label label-info">Update Context</span><hr />
 
-Encapsulates functions that facilitate creating [JSON Patch](http://tools.ietf.org/html/rfc6902) documents.
-The object's nested properties become the implicit [JSON Pointer](https://tools.ietf.org/html/rfc6901)
+Encapsulates functions that facilitate creating <a href="http://tools.ietf.org/html/rfc6902">JSON Patch</a> documents.
+The object's nested properties become the implicit <a href="http://tools.ietf.org/html/rfc6901">JSON Pointer</a>
 _path_ value for most operations.
 
 @namespace Patch
@@ -150,8 +150,9 @@ var Patch =
  * <span class="label label-info">Update Context</span><hr />
  *
  * The global CloudFormationUpdate function responsible
- * for expanding the inline patch definition.  Note that the patch
- * syntax does not support creating intermediate
+ * for expanding the inline patch definition.  Note that intermediate
+ * JSON Pointer path components will be created iff the
+ * target is the subject of an <i>add</i> operation.
  * <a href="https://tools.ietf.org/html/rfc6901">JSON Pointer</a>
  * <i>path</i> components that did not exist in the target document.
  *
