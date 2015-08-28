@@ -1,4 +1,5 @@
 Tereus.iws
+/build/libs/*
 /build/classes/*
 /build/dependency-cache/*
 /build/reports/*
