@@ -2,7 +2,7 @@
 
 Use JS functions to define & compose CloudFormation Templates. 
 
-Plus, external files parsed from native format to `Fn::Join`-compatible representations.
+Plus, external scripts can be automatically scanned & transformed into `Fn::Join` representations (via `Embed.File("init.sh")`). 
 
 # Overview
 
