@@ -1,8 +1,11 @@
-# Elevator Pitch
+# TL;DR
 
-Use JS functions to define & compose CloudFormation Templates. 
+Use JS functions to define & compose CloudFormation Templates.
 
-Plus, external scripts can be automatically scanned & transformed into `Fn::Join` representations (via `Embed.File("init.sh")`). 
+Extras:
+
+  - External scripts can be automatically scanned & transformed into `Fn::Join` representations (via `Embed.File("init.sh")`).  For example, see this [definition](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/embedding/definition/inlineAWS.js#L4).
+  - Focus on [CloudFormation::Init](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html) JSON [externalized](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/cfn-init/definition/default.js#L8) with automatic [plumbing](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/cfn-init/expected/default.json#L45) included.
 
 # Overview
 
