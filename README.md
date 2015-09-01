@@ -6,6 +6,7 @@ Extras:
 
   - External scripts can be automatically scanned & transformed into `Fn::Join` representations (via `Embed.File("init.sh")`).  For example, see this [definition](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/embedding/definition/inlineAWS.js#L4).
   - Focus on [CloudFormation::Init](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html) JSON [externalized](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/cfn-init/definition/default.js#L8) with automatic [plumbing](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/cfn-init/expected/default.json#L45) included.
+  - DRY [enumeration](https://github.com/mweagle/Tereus/blob/master/src/main/resources/bindings/create/CONSTANTS.js#L178) of latest Amazon Linux AMIs (optional).
 
 # Overview
 
@@ -45,6 +46,8 @@ More information on the evaluation context is available via:
 
   1. java -jar Tereus.jar gui
   1. open http://localhost:4567/docs/index.html
+
+or via the [evaluation README](https://github.com/mweagle/Tereus/tree/master/src/main/resources/bindings).
 
 # Usage
 
