@@ -5,6 +5,8 @@ plugins {
     id 'findbugs'
 }
 
+def BUILD_DIR = System.getenv("TRAVIS_BUILD_DIR") ?: "."
+
 defaultTasks = ['clean', 'jar']
 
 repositories {
@@ -37,27 +39,27 @@ dependencies {
 }
 
 task devStart(type:Exec) {
-  workingDir './src/main/resources/web'
+  workingDir "$BUILD_DIR/src/main/resources/web"
   commandLine 'npm', 'run-script', 'start'
 }
 
 task npmInstallBindings(type:Exec) {
-  workingDir './src/main/resources/bindings'
+  workingDir "$BUILD_DIR/src/main/resources/bindings"
   commandLine 'npm', 'install'
 }
 
 task docsBuild(type:Exec, dependsOn: 'npmInstallBindings') {
-  workingDir './src/main/resources/bindings'
+  workingDir "$BUILD_DIR/src/main/resources/bindings"
   commandLine 'npm', 'run-script', 'docs'
 }
 
 task npmInstallUI(type:Exec) {
-  workingDir './src/main/resources/web'
+  workingDir "$BUILD_DIR/src/main/resources/web"
   commandLine 'npm', 'install'
 }
 
 task uiBuild(type:Exec, dependsOn: 'npmInstallBindings') {
-  workingDir './src/main/resources/web'
+  workingDir "$BUILD_DIR/src/main/resources/web"
   commandLine 'npm', 'run-script', 'build'
 }
 
