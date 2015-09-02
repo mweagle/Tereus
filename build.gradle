@@ -58,7 +58,7 @@ task npmInstallUI(type:Exec) {
   commandLine 'npm', 'install'
 }
 
-task uiBuild(type:Exec, dependsOn: 'npmInstallBindings') {
+task uiBuild(type:Exec, dependsOn: 'npmInstallUI') {
   workingDir "$BUILD_DIR/src/main/resources/web"
   commandLine 'npm', 'run-script', 'build'
 }
