@@ -41,7 +41,7 @@
     "Runtime": "nodejs",
     "Code": {
      "S3Bucket": "testBucket",
-     "S3Key": "Lambda-root.zip"
+     "S3Key": "Lambda-test.zip"
     },
     "Role": {
      "Fn::GetAtt": [

@@ -1,11 +1,4 @@
-/* global CloudFormationTemplate,AWS,USER_INFO */
-
-var lambdaS3KeyName = function()
-{
-	var JavaString = Java.type("java.lang.String");
-	var awsUserName = USER_INFO.get('arn').split(':').pop();
-	return JavaString.format("Lambda-%s.zip", awsUserName);
-};
+/* global CONSTANTS,CloudFormationTemplate,AWS */
 
 CloudFormationTemplate("Lambda")({
   "AWSTemplateFormatVersion": "2010-09-09",
@@ -21,7 +14,7 @@ CloudFormationTemplate("Lambda")({
      {
     	    "Code" : "./resources/simple",
     	    "Role" : {"Fn::GetAtt" : ["LambdaRole", "Arn"]},
-    	    "S3Key" : lambdaS3KeyName(),
+    	    "S3Key" : "Lambda-test.zip",
     	    "Description" : "Simple AWS Lambda function",
     	    "Handler" : "index.handler"
      })
