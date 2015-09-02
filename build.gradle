@@ -36,34 +36,32 @@ dependencies {
     testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
 }
 
-task npmInstallUI(type:Exec) {
-  workingDir './src/main/resources/web'
-  commandLine 'npm', 'install'
-}
-
-task npmInstallEvaluation(type:Exec) {
-  workingDir './src/main/resources/bindings'
-  commandLine 'npm', 'install'
-}
-
 task devStart(type:Exec) {
   workingDir './src/main/resources/web'
   commandLine 'npm', 'run-script', 'start'
 }
 
-task uiBuild(type:Exec) {
-  workingDir './src/main/resources/web'
-  commandLine 'npm', 'run-script', 'build'
+task npmInstallBindings(type:Exec) {
+  workingDir './src/main/resources/bindings'
+  commandLine 'npm', 'install'
 }
 
-task docsBuild(type:Exec) {
+task docsBuild(type:Exec, dependsOn: 'npmInstallBindings') {
   workingDir './src/main/resources/bindings'
   commandLine 'npm', 'run-script', 'docs'
 }
 
-processResources.dependsOn npmInstallUI
+task npmInstallUI(type:Exec) {
+  workingDir './src/main/resources/web'
+  commandLine 'npm', 'install'
+}
+
+task uiBuild(type:Exec, dependsOn: 'npmInstallBindings') {
+  workingDir './src/main/resources/web'
+  commandLine 'npm', 'run-script', 'build'
+}
+
 processResources.dependsOn docsBuild
-processResources.dependsOn npmInstallEvaluation
 processResources.dependsOn uiBuild
 
 jar {
