@@ -1,3 +1,5 @@
+<a href="https://travis-ci.org/mweagle/Tereus">![Build Status](https://travis-ci.org/mweagle/Tereus.svg?branch=master)</a>
+
 # TL;DR
 
 Use JS functions to define & compose CloudFormation Templates.
