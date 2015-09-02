@@ -59,6 +59,7 @@ public class TereusCreationTests extends tereus.EvaluationTest {
         params.put(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, "testBucket");
 
         final TereusInput input = new TereusInput(null, evaluationFilepath.toString(), null, params, new HashMap<String, Object>(), true);
+        super.logger.info("Creation test: {}", evaluationFilepath.toString());
         new CreateCommand().create(input, evaluationResults);
     }
 }
