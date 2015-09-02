@@ -111,7 +111,7 @@ test {
 
     // listen to events in the test execution lifecycle
     beforeTest { descriptor ->
-        logger.lifecycle("Running test: " + descriptor)
+        logger.lifecycle("-------------------------------------------------------------------------------")
     }
 
     // listen to standard out and standard error of the test JVM(s)
