@@ -121,5 +121,8 @@ test {
     testLogging {
         events "failed"
         exceptionFormat "short"
+        showStackTraces true
+        showCauses true
+        showExceptions true
     }
 }
