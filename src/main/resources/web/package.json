@@ -30,7 +30,7 @@
   },
   "scripts": {
     "start": "watchify -o js/bundle.js -v -d js/app.js",
-    "build": "echo \"Working Dir: $PWD\" && ulimit -n 2560 && ./node_modules/.bin/browserify . -t [envify --NODE_ENV production] | ./node_modules/.bin/uglifyjs -m -c warnings=false > js/bundle.min.js",
+    "build": "echo \"NodeJS version: `node --version`\" && ulimit -n 2560 && ./node_modules/.bin/browserify . -t [envify --NODE_ENV production] | ./node_modules/.bin/uglifyjs -m -c warnings=false > js/bundle.min.js",
     "test": "jest"
   },
   "author": "Matt Weagle",
