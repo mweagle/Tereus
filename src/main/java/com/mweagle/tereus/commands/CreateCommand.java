@@ -211,19 +211,12 @@ public class CreateCommand extends AbstractTereusAWSCommand
 
 	protected List<Tag> toTagList(final Map<String, Object> values)
 	{
-		List<Tag> creationTags = values.entrySet().stream().map(eachEntry -> {
+		return values.entrySet().stream().map(eachEntry -> {
 			Tag awsTag = new Tag();
 			awsTag.setKey(eachEntry.getKey());
 			awsTag.setValue(eachEntry.getValue().toString());
 			return awsTag;
 		}).collect(Collectors.toList());
-		
-		// Add the version tag
-	    final Tag versionTag = new Tag().
-	    						withKey(String.format("%s:version", CONSTANTS.TEREUS_TAG_NAMESPACE)).
-	    						withValue(CONSTANTS.TEREUS_VERSION);
-	    creationTags.add(versionTag);
-		return creationTags;
 	}
 
 	protected void createStack(TereusInput tereusInput, JsonElement templateData, boolean logTemplate)

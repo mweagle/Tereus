@@ -29,11 +29,8 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormationAsyncClient;
-import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
-import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
 import com.amazonaws.services.cloudformation.model.GetTemplateRequest;
 import com.amazonaws.services.cloudformation.model.GetTemplateResult;
-import com.amazonaws.services.cloudformation.model.Stack;
 import com.google.common.base.Preconditions;
 
 public class UpdateInput extends TereusAWSInput
@@ -42,7 +39,6 @@ public class UpdateInput extends TereusAWSInput
 	final public Map<String, Object> arguments;
 	final public String stackName;
 	final public GetTemplateResult stackTemplateResult;
-	final public Stack stackInfo;
 	
 	public UpdateInput(final String patchPath, Map<String, Object> arguments, final String stackName, String awsRegion, boolean dryRun) {
 		super(awsRegion, dryRun, UpdateInput.class.getName());
@@ -57,16 +53,10 @@ public class UpdateInput extends TereusAWSInput
 	        final AmazonCloudFormationAsyncClient awsClient = new AmazonCloudFormationAsyncClient(super.awsCredentials);
 	        awsClient.setRegion(super.awsRegion);
 	        this.stackTemplateResult = awsClient.getTemplate(templateRequest);
-	        
-	        // And the stack description
-			final DescribeStacksRequest stackRequest = new DescribeStacksRequest().withStackName(stackName);
-	        final DescribeStacksResult result = awsClient.describeStacks(stackRequest);
-	        this.stackInfo = result.getStacks().get(0);
 		}
 		else
 		{
 			this.stackTemplateResult = null;
-			this.stackInfo = null;
 		}
 	}
 }

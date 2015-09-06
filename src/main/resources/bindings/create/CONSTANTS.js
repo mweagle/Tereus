@@ -60,6 +60,15 @@ var TAGS = {};
 ////////////////////////////////////////////////////////////////////////////////
 (function initializer() {
     var args = JSON.parse(ArgumentsImpl());
+    // Make sure that the args map includes any Tereus tags
+    var tagNamespace = Java.type('com.mweagle.tereus.CONSTANTS').TEREUS_TAG_NAMESPACE;
+    var commonTags = {};
+    commonTags[tagNamespace + ':version'] = Java.type('com.mweagle.tereus.CONSTANTS').TEREUS_VERSION;
+
+    args.tags = _.extend({},
+                         args.tags || {},
+                        commonTags);
+
     PARAMS = Immutable.Map(args.params || {});
     TAGS = Immutable.Map(args.tags || {});
 })();

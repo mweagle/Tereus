@@ -27,7 +27,6 @@ package com.mweagle.tereus.aws;
 import java.io.InputStream;
 import java.util.Optional;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -68,18 +67,7 @@ public class S3Resource implements AutoCloseable {
         this.resourceURL = Optional.empty();
         this.released = false;
     }
-    public boolean exists()
-    {
-        DefaultAWSCredentialsProviderChain credentialProviderChain = new DefaultAWSCredentialsProviderChain();
-        final AmazonS3Client awsClient = new AmazonS3Client(credentialProviderChain);
-        try {
-        	awsClient.getObjectMetadata(bucketName, getS3Path()); 
-        } catch(AmazonServiceException e) {
-            return false;
-        }
-        return true;  
-    };
-    
+
     public Optional<String> upload()
     {
         try {
@@ -96,7 +84,7 @@ public class S3Resource implements AutoCloseable {
             final Upload templateUpload = transferManager.upload(uploadRequest);
 
 			templateUpload.waitForUploadResult();
-            this.resourceURL = Optional.of(getS3Path());
+            this.resourceURL = Optional.of(String.format("https://s3.amazonaws.com/%s/%s", bucketName, keyName));
         }
         catch (Exception ex){
             throw new RuntimeException(ex);
@@ -113,10 +101,5 @@ public class S3Resource implements AutoCloseable {
             final String keyname = parts[parts.length-1];
             awsClient.deleteObject(bucketName, keyname);
         }
-    }
-    
-    public String getS3Path()
-    {
-    	return String.format("https://s3.amazonaws.com/%s/%s", bucketName, keyName);
     }
 }

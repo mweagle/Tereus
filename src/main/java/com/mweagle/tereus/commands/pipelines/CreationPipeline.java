@@ -41,9 +41,8 @@ public class CreationPipeline extends AWSEvaluationPipeline
 {
     private static final String BINDING_PACKAGE = "com.mweagle.tereus.commands.evaluation";
     private static final String[] BINDING_CLASSES = {"common.FileUtils",
-    												"common.LambdaUtils",	
     												"create.CloudFormationTemplateUtils",
-                                                    };  
+                                                    "create.LambdaUtils"};  
 
     private static final String BINDING_RESOURCE_ROOT = "bindings";
     private static final String[] JS_FILES = {
