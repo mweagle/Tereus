@@ -117,6 +117,7 @@ public class UpdateCommand extends AbstractTereusAWSCommand
 		final UpdatePipeline pipeline = new UpdatePipeline(input.patchPath.getParent(),
 															input.arguments,
 															input.stackTemplateResult,
+															input.stackInfo,
 															input.awsCredentials,
 															input.awsRegion,
 															input.dryRun,

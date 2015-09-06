@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.script.ScriptEngine;
@@ -39,7 +40,9 @@ import org.apache.logging.log4j.Logger;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudformation.model.GetTemplateResult;
+import com.amazonaws.services.cloudformation.model.Stack;
 import com.google.gson.Gson;
+import com.amazonaws.services.cloudformation.model.Tag;
 
 public class UpdatePipeline extends AWSEvaluationPipeline
 {
@@ -52,6 +55,7 @@ public class UpdatePipeline extends AWSEvaluationPipeline
     		"node_modules/underscore/underscore-min.js",
             "node_modules/immutable/dist/immutable.min.js",
     		"common/init.js",
+    		"update/CONSTANTS.js",
     		"update/index.js",
     		"node_modules/json-patch/jsonpatch.js"
             };
@@ -59,11 +63,13 @@ public class UpdatePipeline extends AWSEvaluationPipeline
 	private final Path patchSource;
 	private final Map<String, Object> arguments;
 	private final GetTemplateResult stackTemplateResult;
+	private final Stack 	stackInfo;
 	private final boolean dryRun;
     
 	public UpdatePipeline(final Path patchSource, 
 							final Map<String, Object> arguments, 
 							final GetTemplateResult stackTemplateResult,
+							final Stack stackInfo,
 							final AWSCredentials awsCredentials, 
 							final Region awsRegion,
 							final boolean dryRun, 
@@ -74,6 +80,7 @@ public class UpdatePipeline extends AWSEvaluationPipeline
 		this.patchSource = patchSource;
     	this.arguments = arguments;
     	this.stackTemplateResult = stackTemplateResult;
+    	this.stackInfo = stackInfo;
     	this.dryRun = dryRun;
     }
 
@@ -91,10 +98,15 @@ public class UpdatePipeline extends AWSEvaluationPipeline
 			getLogger().warn("StackName not provided. Applied patch result will not be available");
 		}
 	
-		// Stuff the arguments in there...
+        final Map<String, Object> tags = stackInfo.
+        									getTags().
+        									stream().
+        									collect(Collectors.toMap(Tag::getKey, Tag::getValue));
+        
 		Supplier<String> fnArgs = () -> {
             HashMap<String, Map<String, Object>> args = new HashMap<>();
             args.put("arguments", this.arguments);
+            args.put("tags", tags);
             Gson gson = new Gson();
             return gson.toJson(args);
         };

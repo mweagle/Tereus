@@ -53,7 +53,7 @@ import tereus.TestUtils;
 @RunWith(Parameterized.class)
 public class SingleCreationTest extends EvaluationTest {
 	final public static String TEST_TYPE = "aws_samples";
-	final public static String TEST_NAME = "EC2Builder";
+	final public static String TEST_NAME = "EC2InstanceWithSecurityGroupSample";
 	final public static String TEST_CATEGORY = "create";
 
 	private static Path testFilePath(String subfolder, String extension) 
