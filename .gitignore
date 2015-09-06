@@ -1,12 +1,9 @@
 Tereus.iws
-/build/libs/*
-/build/classes/*
-/build/dependency-cache/*
-/build/reports/*
-/build/resources/*
-/build/test-results/*
-/build/tmp/*
+/build/*
 .gradle/*
+/src/test/java/tereus/create/aws_samples/definition/resources/gradlebuild/build/*
+/src/test/java/tereus/create/aws_samples/definition/resources/gradlebuild/.gradle/*
+/src/test/java/tereus/create/aws_samples/definition/resources/gradlebuild/*.jar
 /bin/
 /.settings/*
 .classpath*
