@@ -3,6 +3,8 @@ Tereus.iws
 .gradle/*
 /.idea/*
 /out/*
+/examples/lambda/original_source/node_modules/*
+/examples/lambda/updated_source/node_modules/*
 /src/test/java/tereus/create/aws_samples/definition/resources/gradlebuild/build/*
 /src/test/java/tereus/create/aws_samples/definition/resources/gradlebuild/.gradle/*
 /src/test/java/tereus/create/aws_samples/definition/resources/gradlebuild/*.jar
