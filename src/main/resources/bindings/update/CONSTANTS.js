@@ -25,14 +25,23 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE
 
-
 /**
  * <span class="label label-info">Creation Context</span><hr />
- * Global template evaluation Tag values.  Tags
+ * Global update argument values.  Parameters
  * are wrapped as an <a href="https://facebook.github.io/immutable-js/">immutable
- * object</a>.  All CloudFormation resources that support
- * <a href="http://docs.aws.amazon.com/search/doc-search.html?searchPath=documentation-guide&searchQuery=tags&x=0&y=0&this_doc_product=AWS+CloudFormation&this_doc_guide=User+Guide&doc_locale=en_us#facet_doc_product=AWS%20CloudFormation&facet_doc_guide=User%20Guide">Tags</a> will be
- * annotated with the supplied TAGS.
+ * object</a>.
+ *
+ * @example <caption>Accessing ARGUMENTS</caption>
+ *
+ * ARGUMENTS.get('someProperty')
+ *
+ * @type {Object}
+ */
+var ARGUMENTS = {};
+
+/**
+ * <span class="label label-info">Update Context</span><hr />
+ * Global update argument values.
  *
  * @example <caption>Accessing TAGS</caption>
  *
@@ -46,5 +55,6 @@ var TAGS = {};
 ////////////////////////////////////////////////////////////////////////////////
 (function initializer() {
     var args = JSON.parse(ArgumentsImpl());
-    TAGS = Immutable.Map(args.tags || {});
+    ARGUMENTS = Immutable.Map(args.arguments || {});
+    // TODO - TAGS and PARAMS will delay assignment until we know the Stack Name
 })();

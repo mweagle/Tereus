@@ -1,4 +1,4 @@
-/* global logger,AWSInfoImpl,UserInfoImpl,FileUtilsImpl,Immutable,_ */
+/* global CONSTANTS,logger,AWSInfoImpl,UserInfoImpl,Embed,FileUtilsImpl,LambdaUtilsImpl,Immutable,_ */
 
 // Copyright (c) 2015 Matt Weagle (mweagle@gmail.com)
 
@@ -120,9 +120,9 @@ var load = function(pathArg)
       var resourcePath = candidates[i];
       try
       {
-        logger.info('Attempting path: ' + resourcePath);
+        logger.debug('Attempting path: ' + resourcePath);
         tappedLoad(resourcePath);
-        logger.info('Loaded resolved path: ' + resourcePath);
+        logger.debug('Loaded resolved path: ' + resourcePath);
         loaded = true;
       }
       catch (e)
@@ -140,4 +140,149 @@ var load = function(pathArg)
       exception = exception || ('Unknown error for source: ' + pathArg);
       throw exception;
     }
+};
+
+// and change the Patch code to evaluate the template and
+// check for resource changes...
+var annotateTemplate = function(template, parameters, tags)
+{
+  parameters = parameters || {};
+  tags = tags || {};
+
+  // Ensure the template version
+  template.AWSTemplateFormatVersion = CONSTANTS.CLOUD_FORMATION.TEMPLATE_VERSION;
+
+  var tagResource = function (resourceDefinition) {
+        var taggable = ['AWS::AutoScaling::AutoScalingGroup',
+                        'AWS::EC2::CustomerGateway',
+                        'AWS::EC2::Instance',
+                        'AWS::EC2::InternetGateway',
+                        'AWS::EC2::NetworkAcl',
+                        'AWS::EC2::NetworkInterface',
+                        'AWS::EC2::RouteTable',
+                        'AWS::EC2::SecurityGroup',
+                        'AWS::EC2::Subnet',
+                        'AWS::EC2::Volume',
+                        'AWS::EC2::VPC',
+                        'AWS::EC2::VPCPeeringConnection',
+                        'AWS::EC2::VPNConnection',
+                        'AWS::EC2::VPNGateway',
+                        'AWS::ElasticLoadBalancing::LoadBalancer',
+                        'AWS::RDS::DBInstance',
+                        'AWS::RDS::DBParameterGroup',
+                        'AWS::RDS::DBSubnetGroup',
+                        'AWS::RDS::DBSecurityGroup',
+                        'AWS::S3::Bucket'];
+
+        var resTags = null;
+        if (!_.isEmpty(tags))
+        {
+          if (_.contains(taggable, resourceDefinition.Type)) {
+              var extraTags = {};
+              if ('AWS::AutoScaling::AutoScalingGroup' === resourceDefinition.Type) {
+                  extraTags = {
+                      'PropagateAtLaunch': true
+                  };
+              }
+
+              resTags = _.map(tags,
+                  function (eachTagValue, eachTagName) {
+                      return _.extend({},
+                          extraTags, {
+                              'Key': eachTagName,
+                              'Value': eachTagValue
+                          });
+                  });
+          }
+          if (resTags) {
+              resourceDefinition.Properties.Tags = _.extend(resTags,
+                  resourceDefinition.Properties.Tags || {});
+          }
+        }
+    };
+
+    var lambdaFunction = function(resourceDefinition, logicalResourceName)
+    {
+        var lambdaTarget = ['AWS::Lambda::Function'];
+        if (_.contains(lambdaTarget, resourceDefinition.Type) &&
+            resourceDefinition.Properties)
+        {
+            var source = resourceDefinition.Properties.Code;
+            logger.debug('Handling lambda: ' + logicalResourceName + ', source: ' + JSON.stringify(source, null, ' '));
+
+            if (_.isString(source))
+            {
+                logger.debug('Creating Lambda function: ' + logicalResourceName);
+                var bucket = parameters[CONSTANTS.PARAMETERS.KEYNAMES.BUCKET_NAME];
+                var s3URL = JSON.parse(LambdaUtilsImpl.createFunction(logicalResourceName, source, bucket, resourceDefinition.Properties.S3Key || ''));
+                resourceDefinition.Properties.Code = s3URL;
+                // Make sure there's no S3Key at the root...
+                if (resourceDefinition.Properties.S3Key)
+                {
+                    delete resourceDefinition.Properties.S3Key;
+                }
+            }
+        }
+        else
+        {
+          logger.debug('Lambda annotate doesn\'t apply to: ' + logicalResourceName);
+        }
+    };
+
+    var CfnInitUserData = function (logicalResourceName) {
+        var initializationLine = [];
+        initializationLine.push('/opt/aws/bin/cfn-init -v');
+        initializationLine.push('--stack {{ \"Ref\" : \"AWS::StackName\" }}');
+        initializationLine.push('--resource <%= logicalResourceName %>');
+        initializationLine.push('--configsets <%= configsetName %>');
+        initializationLine.push('--region {{ \"Ref\" : \"AWS::Region\" }}');
+
+        var data = ['#!/bin/bash -xe',
+            'yum update -y aws-cfn-bootstrap',
+            initializationLine.join(' ')
+        ].join('\n');
+        data = _.template(data)({
+            logicalResourceName: logicalResourceName,
+            configsetName: CONSTANTS.CLOUDINIT.DEFAULT_CONFIGSET_KEYNAME
+        });
+        return Embed.Literal(data);
+    };
+
+    var cloudInitInstances = function (resourceDefinition, logicalResourceName) {
+
+        var cloudInitTarget = ['AWS::AutoScaling::AutoScalingGroup',
+            'AWS::EC2::Instance'
+        ];
+        if (_.contains(cloudInitTarget, resourceDefinition.Type)) {
+            var metadata = resourceDefinition.Metadata || {};
+            var init = metadata['AWS::CloudFormation::Init'] || null;
+            if (init) {
+                // Ensure that the Userdata Cfn-init action is hooked up...
+                var properties = resourceDefinition.Properties || {};
+                if (_.isEmpty(properties.UserData)) {
+                    properties.UserData = CfnInitUserData(logicalResourceName);
+                }
+                resourceDefinition.Properties = properties;
+            }
+        }
+    };
+
+    ////////////////////////////////////////////////////////////////////////
+    // BEGIN annotators
+    logger.info('Annotating template');
+    var annotators = [tagResource,
+                      cloudInitInstances,
+                      lambdaFunction];
+
+
+    // Apply the annotator to each resource
+    _.each(template.Resources || {},
+           function (resourceDefinition, logicalName)
+           {
+            _.each(annotators, function (eachAnnotator)
+            {
+              eachAnnotator(resourceDefinition, logicalName);
+            });
+          });
+  return template;
 };
