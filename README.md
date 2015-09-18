@@ -99,10 +99,6 @@ OPTIONS
         -r <region>, --region <region>
             AWS Region (default=us-east-1)
 
-        -s <stackName>, --stack <stackName>
-            Optional Stack Name to use. If empty,
-            {basename+SHA256(templateData)} will be provided
-
         -t <stackTemplatePath>, --template <stackTemplatePath>
             Path to CloudFormation definition [REQUIRED]
 
