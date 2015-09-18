@@ -33,25 +33,22 @@ var TereusActions = {
    * Evaluate a template definition
    * @param  {String} templatePath  Path to JS template definition
    * @param  {String} region        AWS region for stack
-   * @param  {String} stackName     Optional stack name
    * @param  {Object} paramsAndTags Parameters and Tags object
    * @return {undefined}            Undefined
    */
-  create: function(templatePath, region, stackName, paramsAndTags) {
+  create: function(templatePath, region, paramsAndTags) {
     AppDispatcher.dispatch({
       api: TereusConstants.TEREUS_CREATE,
       path: templatePath,
-      stackName: stackName,
       region: region,
       paramsAndTags: paramsAndTags
     });
   },
-  update: function(patchPath, region, stackName, updateArgs)
+  update: function(patchPath, region, updateArgs)
   {
     AppDispatcher.dispatch({
       api: TereusConstants.TEREUS_UPDATE,
       path: patchPath,
-      stackName: stackName,
       region: region,
       arguments: updateArgs
     });

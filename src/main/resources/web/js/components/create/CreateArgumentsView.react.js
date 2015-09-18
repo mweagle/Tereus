@@ -49,7 +49,7 @@ var ArgumentsView = React.createClass({
     return initialAPIState;
   },
   onEvaluate: function(event) {
-    TereusActions.create(this.state.path, this.state.region, this.state.stackName, this.state.paramsAndTags);
+    TereusActions.create(this.state.path, this.state.region, this.state.paramsAndTags);
   },
   onStateChange: function(stateKeyname) {
     var self = this;
@@ -108,10 +108,6 @@ var ArgumentsView = React.createClass({
             <div className="row">
               <div className="col-md-6">
                   <AWSRegionSelector defaultRegion={this.state.region} onChange={this.onStateChange('region')} />
-                  <div className="form-group">
-                    <label for="inputName">Stack Name (optional)</label>
-                    <input type="string" className="form-control input-sm" id="inputName" placeholder="Name" defaultValue={this.state.stackName} onChange={this.onStateChange('stackName')}></input>
-                  </div>
               </div>
               <div className="col-md-6">
                 <div className={paramsAndTagsClasses} ref="paramsAndTags">

@@ -39,13 +39,12 @@ var ArgumentsView = React.createClass({
     initialAPIState = initialAPIState.inputs || {};
     initialAPIState.region = initialAPIState.region || 'us-east-1';
     initialAPIState.arguments = initialAPIState.arguments ||
-                                            {
-                                            };
+                                            {};
     initialAPIState.isArgumentsValid = true;
     return initialAPIState;
   },
   onEvaluate: function(event) {
-    TereusActions.update(this.state.path, this.state.region, this.state.stackName, this.state.arguments);
+    TereusActions.update(this.state.path, this.state.region, this.state.arguments);
   },
   onStateChange: function(stateKeyname) {
     var self = this;
@@ -101,15 +100,9 @@ var ArgumentsView = React.createClass({
             </div>
             <div className="row">
               <div className="col-md-6">
-                <div className="form-group">
-                  <label for="inputStackName">Target Stack Name/ID</label>
-                  <input type="string" className="form-control input-sm" id="inputStackName" placeholder="Name" defaultValue={this.state.stackName} onChange={this.onStateChange('stackName')}></input>
-                </div>
-              </div>
-              <div className="col-md-2">
                   <AWSRegionSelector defaultRegion={this.state.region} onChange={this.onStateChange('region')} />
               </div>
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <div className={argumentClasses} ref="arguments">
                   <label for="jsonData">Arguments (JSON key-value pairs)</label>
                   <textarea id="jsonData" ref="jsonData" className="form-control"
