@@ -35,10 +35,10 @@ import io.airlift.airline.Help;;
 
 public class Tereus {
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {   
-    	
-		CliBuilder<Runnable> builder = Cli.<Runnable>builder("Tereus")
+
+        CliBuilder<Runnable> builder = Cli.<Runnable>builder("Tereus")
                 .withDescription("Executable CloudFormation definitions")
                 .withDefaultCommand(Help.class)
                 .withCommands(Help.class, CreateCommand.class, UpdateCommand.class, DeleteCommand.class);
@@ -49,9 +49,9 @@ public class Tereus {
                 .withCommands(CreateCommand.class, UpdateCommand.class, DeleteCommand.class);
 
         builder.withGroup("gui")
-		        .withDescription("Localhost GUI mode")
-		        .withDefaultCommand(GuiCommand.class)
-		        .withCommands(GuiCommand.class);
+                .withDescription("Localhost GUI mode")
+                .withDefaultCommand(GuiCommand.class)
+                .withCommands(GuiCommand.class);
         
         Cli<Runnable> tereusParser = builder.build();
 
