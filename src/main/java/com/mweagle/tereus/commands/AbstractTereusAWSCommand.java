@@ -29,10 +29,10 @@ import io.airlift.airline.OptionType;
 
 public abstract class AbstractTereusAWSCommand extends AbstractTereusCommand
 {
-	@Option(type = OptionType.COMMAND, name = { "-r", "--region" }, description = "AWS Region (default=us-east-1)")
-	public String region = "us-east-1";
-	
-	@Option(type = OptionType.COMMAND, name = { "-d", "--dry-run" }, description = "Dry run - stack operation will NOT be applied (default=false)")
-	public boolean dryRun = false;
-	
+    @Option(type = OptionType.COMMAND, name = { "-r", "--region" }, description = "AWS Region (default=us-east-1)")
+    public String region = "us-east-1";
+
+    @Option(type = OptionType.COMMAND, name = { "-d", "--dry-run" }, description = "Dry run - stack operation will NOT be applied (default=false)")
+    public boolean dryRun = false;
+
 }
