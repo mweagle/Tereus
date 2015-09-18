@@ -1,5 +1,5 @@
 /* global CloudFormationTemplate,AWS */
-CloudFormationTemplate("LambdaInstall")({
+CloudFormationTemplate("LambdaNPMInstall")({
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Validate the Lambda function",
   "Resources" :
