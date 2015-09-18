@@ -2,13 +2,14 @@
 
 # TL;DR
 
-Use JS functions to define & compose CloudFormation Templates.
+Use JS functions to define and compose CloudFormation Templates.
 
 Extras:
 
   - External scripts can be automatically scanned & transformed into `Fn::Join` representations (via `Embed.File("init.sh")`).  For example, see this [definition](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/embedding/definition/inlineAWS.js#L4).
   - Focus on [CloudFormation::Init](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html) JSON [externalized](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/cfn-init/definition/default.js#L8) with automatic [plumbing](https://github.com/mweagle/Tereus/blob/master/src/test/java/tereus/create/cfn-init/expected/default.json#L45) included.
   - DRY [enumeration](https://github.com/mweagle/Tereus/blob/master/src/main/resources/bindings/create/CONSTANTS.js#L178) of latest Amazon Linux AMIs (optional).
+  - Special affordances for [AWS Lambda](https://aws.amazon.com/lambda/) based services.  See the [Lambda example](https://github.com/mweagle/Tereus/tree/master/examples/lambda) for an example.
 
 # Overview
 
