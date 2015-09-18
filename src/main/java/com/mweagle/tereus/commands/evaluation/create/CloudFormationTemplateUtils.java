@@ -31,6 +31,7 @@ import java.util.Map;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonParser;
 import com.mweagle.tereus.INashornEvaluationAccumulator;
+import com.mweagle.tereus.INashornEvaluatorContext;
 
 /**
  * Created by mweagle on 4/26/15.
@@ -42,7 +43,8 @@ public class CloudFormationTemplateUtils implements INashornEvaluationAccumulato
     public String parameterizedTemplate = "";
 
     @Override
-    public String getAccumulatorName() {
+    public String bind(INashornEvaluatorContext context)
+    {
         return "__templateTunnel";
     }
 

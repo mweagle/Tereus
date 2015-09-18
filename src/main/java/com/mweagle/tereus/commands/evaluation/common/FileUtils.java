@@ -38,19 +38,21 @@ import com.mweagle.tereus.INashornEvaluatorContext;
  */
 public class FileUtils implements INashornEvaluationAccumulator {
 
-    private final Path templateRoot;
+    private Path templateRoot;
 
-    public FileUtils(INashornEvaluatorContext context)
+    public FileUtils()
     {
+
+    }
+    @Override
+    public String bind(INashornEvaluatorContext context)
+    {
+        // Evaluation source must be absolute path...
         this.templateRoot = context.getEvaluationSource().getParent();
         if (null != context.getLogger())
         {
             context.getLogger().debug("Resource root directory: {}", this.templateRoot.toAbsolutePath());
         }
-    }
-
-    @Override
-    public String getAccumulatorName() {
         return "FileUtilsImpl";
     }
 
