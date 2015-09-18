@@ -39,45 +39,45 @@ import io.airlift.airline.Option;
 @Command(name = "delete", description = "Delete a CloudFormation stack by Name or Id")
 public class DeleteCommand extends AbstractTereusAWSCommand
 {
-	@Option(name = { "-s",
-	"--stack" }, description = "StackName or StackId to delete")
-	public String stackName;
-	
+    @Option(name = { "-s",
+    "--stack" }, description = "StackName or StackId to delete")
+    public String stackName;
+
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({
         "DM_EXIT", 
         "OBL_UNSATISFIED_OBLIGATION"})
-	@Override
-	public void run()
-	{
-		// Get the stack, delete the stack...
-		int exitCode = 0;
-		final Logger logger = LogManager.getLogger();
+    @Override
+    public void run()
+    {
+        // Get the stack, delete the stack...
+        int exitCode = 0;
+        final Logger logger = LogManager.getLogger();
 
-		try
-		{
-			final AmazonCloudFormationClient awsClient = new AmazonCloudFormationClient();
-			awsClient.setRegion(RegionUtils.getRegion(this.region));
-			final DescribeStacksRequest describeRequest = new DescribeStacksRequest().withStackName(this.stackName);
-			final DescribeStacksResult describeResult = awsClient.describeStacks(describeRequest);
-			logger.info(describeResult);
-			logger.info("Deleting stack: {}", this.stackName);
-			
-			if (this.dryRun)
-			{
-				logger.info("Dry run requested (-n/--noop). Stack deletion bypassed.");
-			}
-			else
-			{
-				final DeleteStackRequest deleteRequest = new DeleteStackRequest().withStackName(this.stackName);
-				awsClient.deleteStack(deleteRequest);
-			}
-		}
-		catch (Exception ex)
-		{
-			logger.error(ex.getMessage());
-			exitCode = 1;
-		}
-		System.exit(exitCode);
-	}
+        try
+        {
+            final AmazonCloudFormationClient awsClient = new AmazonCloudFormationClient();
+            awsClient.setRegion(RegionUtils.getRegion(this.region));
+            final DescribeStacksRequest describeRequest = new DescribeStacksRequest().withStackName(this.stackName);
+            final DescribeStacksResult describeResult = awsClient.describeStacks(describeRequest);
+            logger.info(describeResult);
+            logger.info("Deleting stack: {}", this.stackName);
+
+            if (this.dryRun)
+            {
+                logger.info("Dry run requested (-n/--noop). Stack deletion bypassed.");
+            }
+            else
+            {
+                final DeleteStackRequest deleteRequest = new DeleteStackRequest().withStackName(this.stackName);
+                awsClient.deleteStack(deleteRequest);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.error(ex.getMessage());
+            exitCode = 1;
+        }
+        System.exit(exitCode);
+    }
 
 }

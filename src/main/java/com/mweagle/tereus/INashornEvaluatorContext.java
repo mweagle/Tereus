@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 public interface INashornEvaluatorContext
 {
-	public Path getEvaluationSource();
-	public boolean isDryRun();
-	public Logger getLogger();
+    public Path getEvaluationSource();
+    public boolean isDryRun();
+    public Logger getLogger();
 }

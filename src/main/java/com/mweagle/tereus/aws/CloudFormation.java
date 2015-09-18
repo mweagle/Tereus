@@ -41,17 +41,17 @@ import java.util.function.Predicate;
  * Created by mweagle on 5/8/15.
  */
 public class CloudFormation {
-		
-	protected final static Set<String> TERMINAL_EVENTS  = Collections.unmodifiableSet(Sets.newHashSet("CREATE_FAILED", 
-																								"CREATE_COMPLETE", 
-																								"DELETE_FAILED",
-																								"DELETE_COMPLETE",
-																								"UPDATE_FAILED",
-																								"UPDATE_COMPLETE",
-																								"ROLLBACK_COMPLETE",
-																								"ROLLBACK_FAILED"));
-	
-	
+
+    protected final static Set<String> TERMINAL_EVENTS  = Collections.unmodifiableSet(Sets.newHashSet("CREATE_FAILED",
+                                                                                                "CREATE_COMPLETE",
+                                                                                                "DELETE_FAILED",
+                                                                                                "DELETE_COMPLETE",
+                                                                                                "UPDATE_FAILED",
+                                                                                                "UPDATE_COMPLETE",
+                                                                                                "ROLLBACK_COMPLETE",
+                                                                                                "ROLLBACK_FAILED"));
+
+
     public Optional<DescribeStacksResult> createStack(final CreateStackRequest request, final Region awsRegion, Logger logger)
     {
         DefaultAWSCredentialsProviderChain credentialProviderChain = new DefaultAWSCredentialsProviderChain();
@@ -62,7 +62,7 @@ public class CloudFormation {
 
         try
         {
-        	// There are no prior events for a creation request
+            // There are no prior events for a creation request
             Future<CreateStackResult> createStackRequest = awsClient.createStackAsync(request);
             final CreateStackResult stackResult = createStackRequest.get();
             logger.info("Stack ({}) creation in progress.", stackResult.getStackId());
@@ -132,7 +132,7 @@ public class CloudFormation {
         Map<String, StackEvent> eventHistory = new HashMap<>();
         for (StackEvent eachEvent: priorEvents)
         {
-        	eventHistory.put(eachEvent.getEventId(), eachEvent);
+            eventHistory.put(eachEvent.getEventId(), eachEvent);
         }
         Optional<StackEvent> terminationEvent = Optional.empty();
 
@@ -167,7 +167,7 @@ public class CloudFormation {
         // Don't ever delete anything, unless the initial event set length was empty, implying
         // a creation event
         if (priorEvents.size() <= 0 && 
-        	terminationEvent.get().getResourceStatus().contains("_FAILED"))
+            terminationEvent.get().getResourceStatus().contains("_FAILED"))
         {
             logger.warn("Stack creation . Deleting stack.");
             final DeleteStackRequest deleteStackRequest = new DeleteStackRequest();

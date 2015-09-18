@@ -41,53 +41,53 @@ import com.mweagle.tereus.NashornEvaluator;
 
 public abstract class AWSEvaluationPipeline extends NashornEvaluator
 {
-	private final AWSCredentials awsCredentials;
-	private final Region region;
-	private final Logger logger;
-	
-	protected AWSEvaluationPipeline(final AWSCredentials awsCredentials, final Region awsRegion, final Logger logger)
-	{
-		this.awsCredentials = awsCredentials;
-		this.region = awsRegion;
-		this.logger = logger;
-	}
-	
-	protected void publishGlobals(ScriptEngine engine)
-	{		
-		// Stuff the arguments in there...
-		Supplier<String> fnAWSInfo = () -> {
-			final Map<String, String> creds = new HashMap<>();
-			creds.put("accessKeyId", this.getAwsCredentials().getAWSAccessKeyId());
-			creds.put("secretAccessKey", this.getAwsCredentials().getAWSSecretKey());
-			
-			final Map<String, Object> awsInfo = new HashMap<>();
-			awsInfo.put("credentials", creds);
-			awsInfo.put("region", this.getRegion().toString());
+    private final AWSCredentials awsCredentials;
+    private final Region region;
+    private final Logger logger;
+
+    protected AWSEvaluationPipeline(final AWSCredentials awsCredentials, final Region awsRegion, final Logger logger)
+    {
+        this.awsCredentials = awsCredentials;
+        this.region = awsRegion;
+        this.logger = logger;
+    }
+
+    protected void publishGlobals(ScriptEngine engine)
+    {
+        // Stuff the arguments in there...
+        Supplier<String> fnAWSInfo = () -> {
+            final Map<String, String> creds = new HashMap<>();
+            creds.put("accessKeyId", this.getAwsCredentials().getAWSAccessKeyId());
+            creds.put("secretAccessKey", this.getAwsCredentials().getAWSSecretKey());
+
+            final Map<String, Object> awsInfo = new HashMap<>();
+            awsInfo.put("credentials", creds);
+            awsInfo.put("region", this.getRegion().toString());
             Gson gson = new Gson();
             return gson.toJson(awsInfo);
         };
         engine.put("AWSInfoImpl", fnAWSInfo);
-		
+
         // User information
-		final AmazonIdentityManagementClient client = new AmazonIdentityManagementClient();	
-		final GetUserResult result = client.getUser();
-		engine.put("UserInfoImpl", result);
-		
+        final AmazonIdentityManagementClient client = new AmazonIdentityManagementClient();
+        final GetUserResult result = client.getUser();
+        engine.put("UserInfoImpl", result);
+
         // And the logger
         engine.put("logger", this.logger);	
-	}
+    }
 
-	protected AWSCredentials getAwsCredentials()
-	{
-		return awsCredentials;
-	}
+    protected AWSCredentials getAwsCredentials()
+    {
+        return awsCredentials;
+    }
 
-	protected Region getRegion()
-	{
-		return region;
-	}
-	public Logger getLogger()
-	{
-		return logger;
-	}
+    protected Region getRegion()
+    {
+        return region;
+    }
+    public Logger getLogger()
+    {
+        return logger;
+    }
 }
