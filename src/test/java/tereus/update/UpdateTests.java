@@ -57,7 +57,7 @@ public class UpdateTests extends tereus.EvaluationTest {
         Map<String, Object> arguments = new HashMap<>();
         arguments.put("UnitTestArgument", 42);
 
-    	final UpdateInput input = new UpdateInput(evaluationInput.toString(), arguments, "", null, true);
+    	final UpdateInput input = new UpdateInput(evaluationInput.toString(), arguments, null, true);
         new UpdateCommand().update(input, evaluationResults);
     }
 }

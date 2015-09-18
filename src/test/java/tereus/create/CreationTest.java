@@ -70,7 +70,7 @@ public class CreationTest  {
             Map<String, Object> params = new HashMap<>();
             params.put(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, "weagle");
 
-            final TereusInput input = new TereusInput(null, CreationTest.lambdaDefinitionPath().toString(), "us-west-2", params, new HashMap<String, Object>(), false);
+            final TereusInput input = new TereusInput(CreationTest.lambdaDefinitionPath().toString(), "us-west-2", params, new HashMap<String, Object>(), false);
 
             Optional<ByteArrayOutputStream> os = Optional.of(new ByteArrayOutputStream());
             CreateCommand tereus = new CreateCommand();
@@ -85,3 +85,5 @@ public class CreationTest  {
     	}
     }
 }
+
+

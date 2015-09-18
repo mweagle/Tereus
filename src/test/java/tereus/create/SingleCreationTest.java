@@ -53,7 +53,7 @@ import tereus.TestUtils;
 @RunWith(Parameterized.class)
 public class SingleCreationTest extends EvaluationTest {
 	final public static String TEST_TYPE = "aws_samples";
-	final public static String TEST_NAME = "EC2Builder";
+	final public static String TEST_NAME = "LambdaNPMInstall";
 	final public static String TEST_CATEGORY = "create";
 
 	private static Path testFilePath(String subfolder, String extension) 
@@ -80,7 +80,7 @@ public class SingleCreationTest extends EvaluationTest {
         Map<String, Object> params = new HashMap<>();
         params.put(CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME, "testBucket");
 
-        final TereusInput input = new TereusInput(null, evaluationFilepath.toString(), null, params, new HashMap<String, Object>(), true);
+        final TereusInput input = new TereusInput(evaluationFilepath.toString(), null, params, new HashMap<String, Object>(), true);
         new CreateCommand().create(input, evaluationResults);
     }
 }
