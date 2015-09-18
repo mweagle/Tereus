@@ -56,7 +56,7 @@ public class TereusAWSInput
     protected boolean isValidPathArgument(String argument)
     {
         return (null != argument &&
-        		!argument.isEmpty() &&
+                !argument.isEmpty() &&
                 Files.exists(Paths.get(argument)) &&
                 !Files.isDirectory(Paths.get(argument)));
     }
@@ -64,6 +64,6 @@ public class TereusAWSInput
     protected boolean isNonEmptyString(String argument)
     {
         return (null != argument &&
-        		!argument.trim().isEmpty());
+                !argument.trim().isEmpty());
     }
 }
