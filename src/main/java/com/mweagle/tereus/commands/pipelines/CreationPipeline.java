@@ -35,23 +35,23 @@ import java.util.stream.Stream;
 import javax.script.ScriptEngine;
 
 import com.google.gson.Gson;
+import com.mweagle.tereus.INashornEvaluationAccumulator;
+import com.mweagle.tereus.commands.evaluation.common.FileUtils;
+import com.mweagle.tereus.commands.evaluation.common.LambdaUtils;
+import com.mweagle.tereus.commands.evaluation.create.CloudFormationTemplateUtils;
 import com.mweagle.tereus.input.TereusInput;
 
 public class CreationPipeline extends AWSEvaluationPipeline
 {
     private static final String BINDING_PACKAGE = "com.mweagle.tereus.commands.evaluation";
-    private static final String[] BINDING_CLASSES = {"common.FileUtils",
-    												"create.CloudFormationTemplateUtils",
-                                                    "create.LambdaUtils"};  
-
     private static final String BINDING_RESOURCE_ROOT = "bindings";
     private static final String[] JS_FILES = {
-    		"node_modules/underscore/underscore-min.js",
+            "node_modules/underscore/underscore-min.js",
             "node_modules/immutable/dist/immutable.min.js",
-    		"common/init.js",
-    		"create/index.js",
+            "common/CONSTANTS.js",
+            "common/init.js",
             "create/CONSTANTS.js",
-            "create/CloudFormationTemplate.js",
+            "create/index.js",
             /** AWS Helpers **/
             "create/aws/index.js",
             "create/aws/lambda.js",
@@ -61,18 +61,18 @@ public class CreationPipeline extends AWSEvaluationPipeline
     
     private final TereusInput cfInput; 
  
-	public CreationPipeline(final TereusInput input)
+    public CreationPipeline(final TereusInput input)
     {
-		super(input.awsCredentials, input.awsRegion, input.logger);
+        super(input.awsCredentials, input.awsRegion, input.logger);
 
-    	this.cfInput = input;
+        this.cfInput = input;
     }
  
-	protected void publishGlobals(ScriptEngine engine)
-	{
-		super.publishGlobals(engine);
-		
-		Supplier<String> fnArgs = () -> {
+    protected void publishGlobals(ScriptEngine engine)
+    {
+        super.publishGlobals(engine);
+
+        Supplier<String> fnArgs = () -> {
             HashMap<String, Map<String, Object>> args = new HashMap<>();
             args.put("params", this.cfInput.params);
             args.put("tags", this.cfInput.tags);
@@ -80,27 +80,33 @@ public class CreationPipeline extends AWSEvaluationPipeline
             return gson.toJson(args);
         };
         engine.put("ArgumentsImpl", fnArgs);
-	}
-	
-	protected Stream<String>  javaClassnames()
-	{
-		return Arrays.stream(BINDING_CLASSES).map(name -> String.join(".", CreationPipeline.BINDING_PACKAGE, name));
-	}
-	
-	protected Stream<String> javascriptResources()
-	{
-		return Arrays.stream(JS_FILES).map(name -> String.join(File.separator, CreationPipeline.BINDING_RESOURCE_ROOT, name));
-	}
+    }
 
-	@Override
-	public Path getEvaluationSource()
-	{
-		return this.cfInput.stackDefinitionPath;
-	}
+    @Override
+    protected Stream<INashornEvaluationAccumulator> evaluationAccumulators()
+    {
+        INashornEvaluationAccumulator[] accumulators = new INashornEvaluationAccumulator[]{
+                new FileUtils(),
+                new LambdaUtils(),
+                new CloudFormationTemplateUtils()
+        };
+        return Arrays.stream(accumulators);
+    }
 
-	@Override
-	public boolean isDryRun()
-	{
-		return this.cfInput.dryRun;
-	}
+    protected Stream<String> javascriptResources()
+    {
+        return Arrays.stream(JS_FILES).map(name -> String.join(File.separator, CreationPipeline.BINDING_RESOURCE_ROOT, name));
+    }
+
+    @Override
+    public Path getEvaluationSource()
+    {
+        return this.cfInput.stackDefinitionPath;
+    }
+
+    @Override
+    public boolean isDryRun()
+    {
+        return this.cfInput.dryRun;
+    }
 }
