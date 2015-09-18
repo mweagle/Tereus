@@ -30,8 +30,7 @@ import java.util.Map;
  * Created by mweagle on 4/26/15.
  */
 public interface INashornEvaluationAccumulator {
-    public String getAccumulatorName();
-
+    public String bind(INashornEvaluatorContext context);
     default public Map<String, Object> getAccumulationResult() {
         return null;
     }
