@@ -28,35 +28,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import com.amazonaws.services.cloudformation.AmazonCloudFormationAsyncClient;
-import com.amazonaws.services.cloudformation.model.GetTemplateRequest;
-import com.amazonaws.services.cloudformation.model.GetTemplateResult;
 import com.google.common.base.Preconditions;
 
 public class UpdateInput extends TereusAWSInput
 {
-	final public Path patchPath;
-	final public Map<String, Object> arguments;
-	final public String stackName;
-	final public GetTemplateResult stackTemplateResult;
-	
-	public UpdateInput(final String patchPath, Map<String, Object> arguments, final String stackName, String awsRegion, boolean dryRun) {
-		super(awsRegion, dryRun, UpdateInput.class.getName());
+    final public Path patchPath;
+    final public Map<String, Object> arguments;
+
+    public UpdateInput(final String patchPath, Map<String, Object> arguments, String awsRegion, boolean dryRun) {
+        super(awsRegion, dryRun, UpdateInput.class.getName());
         Preconditions.checkArgument(isValidPathArgument(patchPath), "Please provide a patch definition path");
-		this.patchPath = Paths.get(patchPath);
-		this.arguments = arguments;
-		this.stackName = stackName;
-		
-		if (null != stackName && !stackName.isEmpty())
-		{
-			final GetTemplateRequest templateRequest = new GetTemplateRequest().withStackName(stackName);
-	        final AmazonCloudFormationAsyncClient awsClient = new AmazonCloudFormationAsyncClient(super.awsCredentials);
-	        awsClient.setRegion(super.awsRegion);
-	        this.stackTemplateResult = awsClient.getTemplate(templateRequest);
-		}
-		else
-		{
-			this.stackTemplateResult = null;
-		}
-	}
+        this.patchPath = Paths.get(patchPath);
+        this.arguments = arguments;
+    }
 }

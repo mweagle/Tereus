@@ -39,13 +39,11 @@ import com.mweagle.tereus.CONSTANTS;
  * Created by mweagle on 5/8/15.
  */
 public class TereusInput extends TereusAWSInput{
-    public final String stackName;
     public final Path stackDefinitionPath;
     public final Map<String, Object> params;
     public final Map<String, Object> tags;
 
-    public TereusInput(String stackName,
-                       String stackDefinitionPath,
+    public TereusInput(String stackDefinitionPath,
                        final String awsRegion,
                        final Map<String, Object> cliParams,
                        final Map<String, Object> cliTags,
@@ -62,8 +60,7 @@ public class TereusInput extends TereusAWSInput{
                 CONSTANTS.ARGUMENT_JSON_KEYNAMES.PARAMETERS,
                 CONSTANTS.PARAMETER_NAMES.S3_BUCKET_NAME);
 
-        this.stackName = stackName;
-        this.stackDefinitionPath = Paths.get(stackDefinitionPath);
+        this.stackDefinitionPath = Paths.get(stackDefinitionPath).toAbsolutePath();
         this.params = cliParams;//Collections.unmodifiableMap(listToMap(cliParams));
         this.tags = cliTags;//Collections.unmodifiableMap(listToMap(cliTags));
 
@@ -74,7 +71,6 @@ public class TereusInput extends TereusAWSInput{
     protected void logInput()
     {
         this.logger.info("Tereus Inputs:");
-        this.logger.info("\tStack Name: {}", this.stackName);
         this.logger.info("\tStack Definition: {}", this.stackDefinitionPath);
         this.logger.info("\tAWS Region: {}", this.awsRegion);
         this.logger.info("\tTemplate Parameters: {}", this.params);
